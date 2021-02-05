@@ -4,6 +4,7 @@
 ##########################################################################
 # updated Dec 27, 2019
 #updated May 11, 2020 to include Simpsons div models 
+#cleaned up to focus on main results for Figures 2 & 3 on Feb 5 2021 
 
 #notes on using lfe versus previous implementation of models:
 #it does, especially if you're in a "FE nested within clusters" setting
@@ -15,18 +16,16 @@
 #plotting coefficient estimates from felm objects:
 # https://raw.githack.com/uo-ec607/lectures/master/08-regression/08-regression.html#high_dimensional_fes_and_(multiway)_clustering
 
-#this did not work:
-# install.packages("coefplot2", repos="http://www.math.mcmaster.ca/bolker/R", type="source")
-# library(coefplot2)
+#plotting resurces: http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
+# theme(legend.position="top") 
+#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
+
 
 #Close graphics and clear local memory
 #graphics.off()
 rm(list=ls())
 
 #load libraries
-# library(ggstatsplot) #not available for R 3.3.3.... 
-#this looks like a promising way to plot though for felm:
-#     https://indrajeetpatil.github.io/ggstatsplot/articles/web_only/ggcoefstats.html
 require(ggplot2)
 library(plyr)
 library(data.table)
@@ -51,31 +50,12 @@ ihs = function(x) {
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'
 setwd("~/Dropbox/IV in ecology/NutNet")
-# source("clustering_BIC.R")
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
 
 length(comb$live_mass) #74 NAs for live mass
 summary(comb$live_mass)
 length(comb$rich)
 summary(comb$rich) # 2 NAs for richness
-
-# to see colors for color blind friendly palette:
-# https://www.datanovia.com/en/blog/the-a-z-of-rcolorbrewer-palette/
-   # display.brewer.all(colorblindFriendly = TRUE)
-# View a single RColorBrewer palette by specifying its name
-   # display.brewer.pal(n = 8, name = 'Dark2')
-# Hexadecimal color specification 
- # brewer.pal(n = 8, name = "Dark2")
-
-
-# The palette with black:
- #  cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-# To use for fills, add
-# scale_fill_manual(values=cbPalette)
-## To use for line and point colors, add
-# scale_colour_manual(values=cbPalette)
-
-
 
 #################################################################
 ### Process data to prep to use it in the models ###############
@@ -149,7 +129,6 @@ write.csv(comb.descript.v1, "DatasetDescript-ControlPlots-July2020.csv")
 #####################################################################################################
 ### Create SR change variable, +, - or no change ###################################################################
 #######################################################################################################
-
 comb[, rich_increase := changerich>0]
 comb[, rich_decrease := changerich<0]
 comb[, rich_nochange := changerich == 0]  
@@ -165,7 +144,7 @@ comb[, changerich_cat := ifelse(changerich<0,"rich_dec", ifelse(changerich>0, "r
  # barplot(prop.table(table(comb$rich_nochange)), main = "No species richness change")
 
 #### SI Data Plots #####
- # hist(comb$changeSimpson, xlab = "Change in Simpson's Diversity", main = "")
+  # hist(comb$changeSimpson, xlab = "Change in Simpson's Diversity", main = "")
   # hist(comb$changeEvenness, xlab = "Change in Species Evenness", main = "")
   # hist(comb$changelive_mass, xlab = "Change in Live Biomass", main = "")
 
@@ -176,66 +155,6 @@ comb[, even_decrease := changeEvenness < 0]
 barplot(prop.table(table(comb$even_nochange)), main = "No species Evenness change")
 barplot(prop.table(table(comb$even_decrease)), main = "Species Evenness decrease")
 barplot(prop.table(table(comb$even_increase)), main = "Species Evenness increase")
-
-
-# Do Jim's analysis on different years
-
-#(-0.708*Sand -1.116*Silt)
-# (-0.708*Sand -1.116*Silt)
-# PlotProd ~  SiteProd +PlotRich
-
-# (-0.708*Sand -1.116*Silt)
- # PlotProd ~  SiteProd +PlotRich
-# PlotRich ~ SiteRich +PlotShade +PlotSoilSuit
-# PlotRich ~ SiteRich +PlotShade +PlotSoilSuit
-
-# total mass 
-grace_year1 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand) , data = comb[year == 2007 & 2008])
-summary(grace_year1)
-grace_year1 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand) , data = comb[year == 2007 & 2008])
-summary(grace_year1)
-
-grace_year2 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2008])
-summary(grace_year2)
-grace_year2 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2008])
-summary(grace_year2)
-
-grace_year3 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2009])
-summary(grace_year3)
-grace_year3 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2009])
-summary(grace_year3)
-
-grace_year4 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2010])
-summary(grace_year4)
-grace_year4 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2010])
-summary(grace_year4)
-
-grace_year5 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2011])
-summary(grace_year5)
-grace_year5 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2011])
-summary(grace_year5)
-
-grace_year6 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2012])
-summary(grace_year6)
-grace_year6 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2012])
-summary(grace_year6)
-
-grace_year7 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2013])
-summary(grace_year7)
-grace_year7 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2013])
-summary(grace_year7)
-
-grace_year8 <- lm(log(live_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2014])
-summary(grace_year8)
-grace_year8 <- lm(log(total_mass) ~ log(rich) + site_live_mass.yr + I(-1.116*PercentSilt) + I(-0.708*PercentSand), data = comb[year == 2014])
-summary(grace_year8)
-
-#print results
-screenreg(list(grace_year1, grace_year2, grace_year3, grace_year4, grace_year5, grace_year6, grace_year7, grace_year8),     # object with results 
-          custom.model.names= c("2007" , "2008", "2009", "2010", "2011", "2012", "2013", "2014"))
-
-
-
 
 ############################################################################################################################
 #### Panel FE Plus: Plot-FE and site*year effects  ###########################################################################
@@ -270,9 +189,6 @@ summary(ModPFE.3 , robust = TRUE, cluster = TRUE)
 ModPFE.4 <- felm(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.4 , robust = TRUE, cluster = TRUE)
 
-#***with tot cover (need to merge with the cover dataset to do this:
-#ModPFE.3 <- felm(log(live_mass) ~ log(rich) + log(laggedrich)  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-# summary(ModPFE.3 , robust = TRUE, cluster = TRUE)
 
 #print log-log results
 #print results
@@ -281,7 +197,6 @@ screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results
       
 
 #print log-log results with clustered robust SEs and corresponding p-values 
-
 screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results 
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"),
           override.se=list(summary(ModPFE,)$coef[,2],
@@ -294,11 +209,6 @@ screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results
                                  summary(ModPFE.4,)$coef[,4]), 
           )
 
-### Plot Results
-#plotting coefficient estimates from felm objects:
-# https://raw.githack.com/uo-ec607/lectures/master/08-regression/08-regression.html#high_dimensional_fes_and_(multiway)_clustering
-
-#plotting: http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
 ## The palette with grey:
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
@@ -365,7 +275,6 @@ panelFE.main.2 + labs(
   title = "Effect size of Log Species Richness on Log Productivitiy",
   caption = "", x = "Variable", y = "Coefficient Estimate")
  # labs(fill = "reg")
-
 
 ############################################################################################
 # Simpson's Diversity Models - Panel FE #######################################################
@@ -638,9 +547,6 @@ panelFE.main.2 + labs(
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
 #panelFE.main.2  + scale_color_manual(values=cbPalette[c(7,3,4,8)])   +  theme(legend.title=element_text(size=14), legend.text=element_text(size=12)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
 
-# theme(legend.position="top") 
-#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
-
 p <- panelFE.main.2 + theme(legend.position = c(0.6, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
   title = "Effect size of Log Species Richness on Log Productivity",
   caption = "", x = "Variable", y = "Estimate for log(species richness) effect size") + 
@@ -688,7 +594,7 @@ coefs.ferraro = tibble(term="log(rich)",
                        conf.low=0.0049797,
                        conf.high=0.7535313)
 
-## UPDATE to include other STATA output:
+##  Include other STATA output:
 # Is the first estimate here for Simpson's the one from xtreg (the one to report,I gather, based on your comment on the evenness estimate?
 # coef estimate; std error ; t val ; p- val, 95% conf interval [low, high]:
 #           l_simpson |   .0744933   .0891051     0.84   0.403    -.1001496    .2491361
@@ -747,9 +653,6 @@ Fig.2B + labs(
 Fig.2B
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1", "red")
-
-# theme(legend.position="top") 
-#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
 Fig.2B <- Fig.2B + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(8, 3, 10)])   +  labs(
   title = "Traditional Ecological Design",
@@ -961,7 +864,7 @@ screenreg(list( ModModCover2,  ModModCover1 ),   # object with results
 ###############################################################################################
 #### Print Info for Oster analysis ###########################################################
 ################################################################################################
-# what is Rsquared of richness equation?
+# what is R^2 of richness equation?
 #Log-log and fixed effects/dummies only - for Oster analysis.
 #Richness Selection Model
 richFE.forOster = lm(log(rich) ~ newplotid + site_code:year, data = comb) 
@@ -1133,19 +1036,6 @@ summary(modiv2, cluster = TRUE, robust = TRUE)
 # check weak instrument test
 summary(modiv2$stage1, cluster = TRUE, robust = TRUE)
 
-
-#Model IV3 -- THIS DOESNT MAKE SENSE
-## IV 2 - in a SITE, an average neighbor's treated richness IV 
-# modiv3 <- felm(log(live_mass) ~ 0 | newplotid + site.by.yeardummy |
-#                  (log(rich) ~  log(avg.trt.neigh.rich.within.site)) | newplotid , # | newplotid + site.by.yeardummy), # first stage   Note the surrounding parentheses
-#                data = comb)
-# summary(modiv3, cluster = TRUE, robust = TRUE)
-# # check weak instrument test
-# summary(modiv3$stage1, cluster = TRUE, robust = TRUE)
-
-
-# check weak instrument test
-summary(modiv3$stage1, cluster = TRUE, robust = TRUE)
 
 #level for IV
 # modiv2 <- felm(log(live_mass) ~ 0 | newplotid + site.by.yeardummy |
