@@ -1596,52 +1596,7 @@ all.results = rbind(all.results, list("Model"=3, "Est"=coef.info["Estimate"], "S
 ## to plot the plot without the data
 # ggplot(data=df, aes(x=a, y=b)) + theme_classic() + geom_hline(yintercept = 0)
 
-## plain graphic with no data
-plain <- ggplot(all.results, aes(x = Model, y = Est, fill = Model)) +
-  geom_bar(stat = "identity", color= "black", 
-           #         position=position_dodge()) +
-           ylim(-0.5, 0.3) +
-             geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.5) +
-             geom_errorbar(aes(ymin= Est- (SE*1.96), ymax=Est + (SE*1.96)), width=.2,
-             #            position=position_dodge(.9)) +  
-             theme_bw() +
-             theme(axis.text.y = element_text(size = 30, face = "bold")) + 
-             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-             theme(axis.text.x = element_text(size=30, face = "italic")) + 
-             labs(x = "Model", y = "Estimate for log(richness) effect size") +
-             theme(axis.title.y= element_text(size=30)) + theme(axis.title.x= element_text(size=30)) +
-             labs(title = "Log-Log Model Results") + theme(plot.title = element_text(hjust = 0.5)) + 
-             theme(plot.title = element_text(face="bold", size = 18))
-           
-           plain + scale_fill_brewer(palette="Greys")
-           
-           ## graphic with data for job talk
-           all.results$Model <- as.factor(all.results$Model)
-           
-           p_res <- ggplot(all.results, aes(x = Model, y = Est, fill = Model)) +
-             geom_bar(stat = "identity", color= "black", 
-                      position=position_dodge()) +
-             ylim(-0.5, 0.3) +
-             geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.5) +
-             geom_errorbar(aes(ymin= Est- (SE*1.96), ymax=Est + (SE*1.96)), width=.2,
-                           position=position_dodge(.9)) +  
-             theme_bw() +
-             theme(axis.text.y = element_text(size = 30, face = "bold")) + 
-             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-             theme(axis.text.x = element_text(size=30, face = "italic")) + 
-             labs(x = "Model", y = "Estimate for log(richness) effect size") +
-             theme(axis.title.y= element_text(size=30)) + theme(axis.title.x= element_text(size=30)) +
-             labs(title = "Log-Log Model Results") + theme(plot.title = element_text(hjust = 0.5)) + 
-             theme(plot.title = element_text(face="bold", size = 18))
-           
-           # p_res + scale_fill_brewer(palette="Greys")
-           cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-           
-           #model.1 <- "#D55E00"
-           #p_res +  scale_colour_manual(values = model.1)
-           
-           p_res + scale_fill_manual(values=cbPalette[c(7,6,1,2)]) +  theme(legend.title=element_text(size=30), legend.text=element_text(size=30))
-           
+
            
 ########################################################################################################
 ### Robustness Checks ###########################################################################
