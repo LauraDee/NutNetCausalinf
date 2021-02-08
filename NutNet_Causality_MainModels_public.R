@@ -178,7 +178,7 @@ cof <- tidy(ModPFE, robust = T)
 cof
 
 #with evenness:
-ModPFE.2 <- felm(log(live_mass) ~ log(rich) + ihs(even)  | newplotid + site.by.yeardummy  0 | newplotid, data = comb, exactDOF='rM')
+ModPFE.2 <- felm(log(live_mass) ~ log(rich) + ihs(even)  | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModPFE.2 , robust = TRUE, cluster = TRUE)
 
 #with lagged richness:
