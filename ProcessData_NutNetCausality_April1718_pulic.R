@@ -375,12 +375,11 @@ comb[,.N, by=c("site_code", "plot", "year_trt")][N>1,]
 #Empty data.table (0 rows and 4 cols): site_code,plot,year_trt,N
 
 
-# compare to Pauls
+# compare to Paul's STATA file to make sure duplicates are gone
 
 #pf.comb2 = fread("~/Dropbox/Nutnet causality paper draft/Ferraro/NutNetControlPlotDataToUseApril2018.csv")
 # pf.comb2[,.N, by=c("site_code", "plot", "year_trt")][N>1,]
 # Empty data.table (0 rows and 4 cols): site_code,plot,year_trt,N
-
 
 ######################################################################
 ## Write Out files as .csv and .dta for STATA and R #################
@@ -388,49 +387,9 @@ comb[,.N, by=c("site_code", "plot", "year_trt")][N>1,]
 
 ## see which sites and years & write out the site and year list as a table: 
 tab =  table(comb$site_name, comb$year)
-# write.csv(tab, "DatasetDescript-ControlPlotsSiteYearList.csv")
-
-
-## write oute data as a STATA file using the foreign library:
-# Save the data to a Stata file for comparison, e.g., write.dta(dataframe=comb, file="nutnetcontrolplots.dta")
-# write.dta(dataframe=comb, file="nutnet_neighborsrich.dta")
-  
-#### CONTROL PLOT DATA WITH AT LEAST 5 YEARS OF DATA ####
-# write the data to a Stata file
-write.dta(comb, file="nutnetcontrolplotsApril2018Data.dta")
+write.csv(tab, "DatasetDescript-ControlPlotsSiteYearList.csv")
 
 # write as csv datafile to use for R
 write.csv(comb, "NutNetControlPlotDataToUseApril2018.csv")
-
-######################################################################################################################
-##### FILTER AND WRITE OUT FULL DATASET ###############################################################################
-### i.e., FULL DATASET (N-ADDITION TREATMENTS TOO) WITH AT LEAST 5 YEARS OF DATA #######################################
-#####################################################################################################################
-## filter to  plots with 5 years of data
-full = full[has.5.yrs.data==T,]
-
-##filter to only sites with a pretreatment year, i.e. sites with min.trt.year = 0###
-# table(full$min.trt.yr)
-full = full[min.trt.yr == 0]
-
-## the filter missed two sites that only have 4 years of data - but over the span of 5 years 
-# Azi is missing live_mass data in 2012. Barta.us is missing data for all variables 2010, so only has 4 years of data.
-# remove these 2 sites from the data with the filter that AT LEAST 5 years of data is needed for the site to be included:
-full = full[site_code != "azi.cn",]
-full = full[site_code != "barta.us",]
-
-# remove mistake/duplicate records from comp.pt as above 
-#****** & likely need to check for others since there could be more in the full dataset!!!!
-full = full[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
-
-
-
-# write as csv datafile to use for R
-write.csv(full, "NutNetFullDatasetSept2020.csv")
-
-# for a SI Table: 
-#print which sites and years are in this filtered version of the full dataset.
-fulltab =  table(full$site_name, full$year)
-write.csv(fulltab, "DatasetDescript-Full_SiteYearList.csv")
 
 
