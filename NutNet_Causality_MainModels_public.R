@@ -126,36 +126,6 @@ comb.descript.v1 =  table(comb$site_name, comb$year)
 write.csv(comb.descript.v1, "DatasetDescript-ControlPlots-July2020.csv")
 # length(unique(comb$site_code))
 
-#####################################################################################################
-### Create SR change variable, +, - or no change ###################################################################
-#######################################################################################################
-comb[, rich_increase := changerich>0]
-comb[, rich_decrease := changerich<0]
-comb[, rich_nochange := changerich == 0]  
-
-#create a factor: is the change in richness a decrease, increase or no change
-comb[, changerich_cat := ifelse(changerich<0,"rich_dec", ifelse(changerich>0, "rich_inc", "rich_nochg"))]
-# plot 
- # barplot(prop.table(table(comb$changerich_cat)), main = "Species richness change per year by plot")
-
-##### Whether richness change is an increase or decrease #######
- # barplot(prop.table(table(comb$rich_decrease)), main = "Species richness decrease")
- # barplot(prop.table(table(comb$rich_increase)), main = "Species richness increase")
- # barplot(prop.table(table(comb$rich_nochange)), main = "No species richness change")
-
-#### SI Data Plots #####
-  # hist(comb$changeSimpson, xlab = "Change in Simpson's Diversity", main = "")
-  # hist(comb$changeEvenness, xlab = "Change in Species Evenness", main = "")
-  # hist(comb$changelive_mass, xlab = "Change in Live Biomass", main = "")
-
-##### Count for when evenness change is a 0 to show lack of variation in evenness #######
-comb[, even_nochange := changeEvenness == 0]  
-comb[, even_increase := changeEvenness > 0] 
-comb[, even_decrease := changeEvenness < 0] 
-barplot(prop.table(table(comb$even_nochange)), main = "No species Evenness change")
-barplot(prop.table(table(comb$even_decrease)), main = "Species Evenness decrease")
-barplot(prop.table(table(comb$even_increase)), main = "Species Evenness increase")
-
 ############################################################################################################################
 #### Panel FE Plus: Plot-FE and site*year effects  ###########################################################################
 ##### # RUN AND PLOT:  ## Preferred Models - Main Text ###########################################################################
