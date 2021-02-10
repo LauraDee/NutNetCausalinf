@@ -20,7 +20,6 @@
 # theme(legend.position="top") 
 #http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
-
 #Close graphics and clear local memory
 #graphics.off()
 rm(list=ls())
@@ -138,10 +137,10 @@ write.csv(comb.descript.v1, "DatasetDescript-ControlPlots-July2020.csv")
 ##### Models with productivity as the Y variable as log live mass ##########
 #A.  Log-log and fixed effects/dummies only.
 ModPFE <- felm(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy | 0 | newplotid, data = comb)
-summary(ModPFE, robust = TRUE, cluster = TRUE) #cluster is not in the summary - need to make sure this is doing clustering
 summary(ModPFE, robust = TRUE)
 
-cof <- tidy(ModPFE, robust = TRUE, cluster = TRUE, conf.int = T)
+## TESTS OF THE TIDY FUNCTON HERE****
+cof <- tidy(ModPFE, robust = TRUE,  conf.int = T)
 cof
 # coefs.test <-tidy(ModPFE, cluster = T, robust = T)
 cof <- tidy(ModPFE, robust = T)
@@ -159,9 +158,7 @@ summary(ModPFE.3 , robust = TRUE, cluster = TRUE)
 ModPFE.4 <- felm(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.4 , robust = TRUE, cluster = TRUE)
 
-
 #print log-log results
-#print results
 screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results 
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"))
       
@@ -249,7 +246,6 @@ panelFE.main.2 + labs(
 ############################################################################################
 # Simpson's Diversity Models - Panel FE #######################################################
 ##########################################################################################
-
 ##### Models with productivity as the Y variable as log live mass ##########
 #D.  Log-log and fixed effects/dummies only.
 ModPFEsimpsonD <- felm(log(live_mass) ~ log(simpson)  | newplotid + site.by.yeardummy |0 | newplotid, data = comb, exactDOF='rM')
@@ -269,7 +265,6 @@ screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4, ModPFEsimpsonD),     # obje
 #######################################################################################################################################
 ### Make Figure 2 for Main text  #################################################################################################################
 #######################################################################################################################################
-
 coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
 coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T,  robust = T)
 coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T,  robust = T)
@@ -320,7 +315,6 @@ panelFE.main + labs(
 ##############################################################################
 ### Figure 2 - Main Text #########################################################
 #################################################################################
-
 coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
 coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
 coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T, robust = T)
@@ -458,8 +452,6 @@ ppp + scale_x_discrete(labels = c('log(Species Richness)','log(Simpsons Diversit
    axis.text.x = element_text(size = 16),
   axis.text.y = element_text(size = 16),
   axis.title.y = element_text(size = 16))
-  
-
 
 ###### End ######################
 
@@ -645,7 +637,6 @@ Fig.2B <- Fig.2B + theme(axis.text=element_text(size=22),
   theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
 Fig.2B
 
-
 # print final figure:
 # Fig.2B <- ppp + scale_x_discrete(labels = c('log(Species Richness)')) + theme(
 #   axis.title.x = element_text(size = 20),
@@ -670,7 +661,6 @@ plot_grid(Fig2A , Fig.2B )
 common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity from a 1% Change in Diversity
 plot_grid(Fig2A  + common.ylab,
           Fig.2B + common.ylab)
-
 
 
 ################################################ ################################################### ########################
@@ -733,23 +723,20 @@ table(log(comb$rich)>0.8076074/(2*0.1469532))
 # 
 # FALSE  TRUE 
 # 1029   235 
+
 PFE.Log.richSQ.2  = felm(log(live_mass) ~ rich + I((rich)^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(PFE.Log.richSQ.2, robust = TRUE)
-
-PFE.Log.richSQ  = felm(log(live_mass) ~ log(rich)^2 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
 
 PFE.Log.richSQ  = felm(log(live_mass) ~ I(rich)^2 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
 
-
-#Cubic Richness
-PFE.Log.richCube  = felm(log(live_mass) ~ log(rich) + I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richCube, robust = TRUE, cluster = TRUE)
-
 #Cubic Richness
 PFE.Log.richCube2  = felm(log(live_mass) ~ I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(PFE.Log.richCube2, robust = TRUE, cluster = TRUE)
+
+PFE.Log.richCube2  = felm(log(live_mass) ~  I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
+summary(PFE.Log.richCube2, robust = TRUE, cluster = TRUE)
+
 
 #######################################################################################################################################
 ### SI Analyses: Test robustness to moderators ################################################################################################
@@ -797,23 +784,9 @@ summary(ModMod_increase, robust = TRUE, cluster = TRUE)
 screenreg(list(ModMod_decrease, ModMod_increase),     # object with results 
           custom.model.names= c("Richness Decrease", "Richness Increase" ))
 
-
-## Decompose rich change into increrase or decrea
-Modod.decrease <- felm(log(live_mass) ~ rich_increase + rich_decrease   | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(Modod.decrease, robust = TRUE, cluster = TRUE)
-
-screenreg(list(Modod.decrease), 
-          custom.model.names=c("Type of Richness change"))
-
-
-
 # with initial site richness
 # ModModsiteinit <- felm(log(live_mass) ~ log(rich) + log(rich):initial_site_rich | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 # summary(ModModsiteinit, robust = TRUE, cluster = TRUE)
-
-# do a trend in site richness through time and interact with richness in the plot
-site_rich_trend <- lm(site_year_rich ~ year_trt:site_code, data = comb)
-summary(site_rich_trend)
 
 ###########################################################################
 #With total cover: ########################################################
