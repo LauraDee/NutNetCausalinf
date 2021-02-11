@@ -300,12 +300,6 @@ summary(Mod.R3, robust = TRUE, cluster = TRUE)
 Mod.R3b <- felm(log(live_mass) ~ log(rich) + cover_nat_dom + cover_nat_sub + lagged_N_fixer_cover.yr + LegumePercentcover.yr + WoodyPercentcover.yr | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
 summary(Mod.R3b, robust = TRUE, cluster = TRUE)
 
-#this one didn't work??
-Mod.R4 <- felm(log(live_mass) ~ log(rich) +  WoodyPercentcover.yr + GrassPercentcover.yr + ForbPercentcover.yr | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
-summary(Mod.R4, robust = TRUE, cluster = TRUE)
-
-#other cover vars: # WoodyPercentcover.yr # ForbPercentcover.yr # GrassPercentcover.yr # N_fixer_cover.yr # lagged_N_fixer_cover.yr
-
 #prep results to plot 
 coefs_Mod.R1 <- tidy(Mod.R1, conf.int = T, robust = T) 
 coefs_Mod.R1b <- tidy(Mod.R1b, conf.int = T, robust = T) 
@@ -342,15 +336,6 @@ panelFE.SI3 + labs(
   title = "Effect size of Log Species Richness on Log Productivitiy",
   caption = "", x = "Variable", y = "Coefficient Estimate")
 
-#***Dom_cover.yr didn't work as a calculated variable, need to look into this
-
-
-# control for dom species cover
-Mod.R1 <- felm(log(live_mass) ~ log(rich) + cover_nat_dom | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
- summary(Mod.R1, robust = TRUE, cluster = TRUE) 
-
- Mod.R1 <- felm(log(rich) ~ cover_nat_dom | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
- summary(Mod.R1, robust = TRUE, cluster = TRUE) 
 
 ####################################################################################################################################
 #### Models for the role of rare and non-native species  ##########################################################################################################
@@ -399,7 +384,6 @@ linearHypothesis(Mod1A.2, hypothesis.matrix = "ihs(sr_INT) = ihs(sr_nat_dom)",
 #rich as outcome var
 ModRich.1A <- felm(log(rich) ~ ihs(sr_INT) + ihs(sr_NAT)  | newplotid + site.by.yeardummy | 0 | newplotid, data = mech.data) 
 summary(ModRich.1A, robust = TRUE)
-
 
 screenreg(list(ModRich.1A),     # object with results 
           custom.model.names= "Native and Non-Native species effects on Richness",
@@ -468,11 +452,7 @@ Fig4A
 #     colour ="black"))
 # inv
 
-# theme(legend.position="top") 
-#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
-
-
-###################################################################################
+##################################################################################
 ## Model 1 Robustness Analyses for SI #############################################
 ###################################################################################
 
@@ -614,9 +594,6 @@ Fig4B < + labs(
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
 #panelFE.main.2  + scale_color_manual(values=cbPalette[c(7,3,4,8)])   +  theme(legend.title=element_text(size=14), legend.text=element_text(size=12)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-
-# theme(legend.position="top") 
-#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
 p <- Fig4B  + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
  # title = "Effect size of Log Species Richness on Log Productivity",
@@ -1197,7 +1174,6 @@ RichMod4A.1 <- felm(log(rich) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat) 
                     +  ihs(sr_nat_rare) | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
 summary(RichMod4A.1, robust = TRUE, cluster = TRUE)
 
-
 ########## breakng non-rare native into SR of native dom and native subordinate spp.
 Mod4A.2 <- felm(log(live_mass) ~ ihs(sr_nat_dom) + ihs(sr_nat_sub) +  ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) 
                 +  ihs(sr_nat_rare) | newplotid + site.by.yeardummy  | 0 | newplotid, data = mech.data, exactDOF='rM')
@@ -1318,7 +1294,6 @@ linearHypothesis(Mod5A.1, hypothesis.matrix = "ihs(sr_non.nat_rare2) = ihs(sr_no
 #rare native vs rare non native
 linearHypothesis(Mod5A.1, hypothesis.matrix = "ihs(sr_non.nat_rare2) = ihs(sr_nat_rare2)", 
                  test = "F", vcov = Mod5A.1$fevcov,  singular.ok = T)
-
 
 ###########
 ### B. Grouped based on Relative Abundance in year 0 and cutoffs of:  breaks=c(0.0,0.4,0.8,1.0),

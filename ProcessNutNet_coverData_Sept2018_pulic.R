@@ -16,7 +16,6 @@
 # Dominant        Rare Subordinate 
 # 432        4521       16993 
 
-
 #Close graphics and clear local memory
 graphics.off()
 rm(list=ls())
@@ -123,7 +122,6 @@ head(cover)
 
 ## Compute Native species cover 
 cover[, Native_cover.yr := sum(relative_sp_cover.yr[local_provenance=="NAT"]), by = .(plot, site_code, year)]
-
 
 #############################################################################################
 ### Compute site-level richness variables  ###################################################
