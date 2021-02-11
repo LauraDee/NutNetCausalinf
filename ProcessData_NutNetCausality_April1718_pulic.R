@@ -2,10 +2,8 @@
 # Process NutNet Data for biodiversity-productivity analyses on control plots #
 # LDee April 27 2018 , May 11 2020 ############################################################
 #############################################################################
-# updated May 11 2020 to add:
-     #an IV of average neighbor TREATED richness at the site
+# updated May 11 2020 to add:  #an IV of average neighbor TREATED richness at the site
      #variables identifying if richness change is  positive, negative, or no change
-
 
 # Meta-data files are attached, but here are some key variables used:
       # Field	column type	description
@@ -53,74 +51,6 @@ comb <- fread('comb-by-plot-clim-soil-diversity-09-Apr-2018.csv',na.strings= 'NA
 comb$site <- comb$site_code
 comb$plot <- as.factor(comb$plot)
 
-## load soil data
-soilts <- fread('pre-and-post-soil-nutrients-6-April-2018.csv', na.strings= 'NA')
-soilts$block <- as.factor(soilts$block)
-soilts$plot <- as.factor(soilts$plot)
-soilts$after_n_treatment_yrs <- as.factor(soilts$after_n_treatment_yrs)
-
-#this shows how many sites have multiple years of soil data at the plot scale; **should do for control plots only**
-soilmeasurements <- table(soilts$after_n_treatment_yrs, soilts$site_code)
-# write.csv(soilmeasurements, "TableOfSitesWithSoilMeasurementsThroughTime.csv")
-
-#### Compare soil data in comb versus the soilts data file "'pre-and-post-soil-nutrients-6-April-2018.csv'". 
-# Commented out on April 27, 2018 bc not needed for the data processing. 
-# Which sites in comb are also in soilts?
-  #  comb_site_codes = unique(comb$site_code) 
-  #  cbind(comb_site_codes, comb_site_codes %in% unique(soilts$site_code))
-
-# Which sites in comb have multiple years of soil data?
-        # comb[,.(n_unique_ppm_P=length(unique(ppm_P)),
-        #         n_unique_ppm_K=length(unique(ppm_K)),
-        #         n_unique_ppm_Ca=length(unique(ppm_Ca)),
-        #         n_unique_ppm_Mg=length(unique(ppm_Mg))
-        #         ), by=site_code]
-
-# Which site x plot in comb have multiple years of soil data?
-# none except for three sites -- are these three sites a data processing error? "kidman.au","summ.za","gilb.za"
-#       comb[,.(n_unique_ppm_P=length(unique(ppm_P)),
-#               n_unique_ppm_K=length(unique(ppm_K)),
-#               n_unique_ppm_Ca=length(unique(ppm_Ca)),
-#               n_unique_ppm_Mg=length(unique(ppm_Mg))
-#       ), by=.(site_code, plot)][n_unique_ppm_P>1 | n_unique_ppm_K>1 | n_unique_ppm_Ca>1 | n_unique_ppm_Mg>1,]
-
-# comb[site_code=="kidman.au" & plot==1,.(year,ppm_P,ppm_K,ppm_Ca,ppm_Mg)]
-
-## how many years do these sites have? If <5 years, it is not a problem for us that they have multiple rows per plot per year replicated.
-# comb[site_code %in% c("kidman.au","summ.za","gilb.za"),length(unique(year)),by=.(site_code,plot)]
-
-# #ok, need to 
-# 1. filter the soil data to the columns you want
-# 2. get the column names for the columns you want
-# (to rename)
-# 3. use paste to generate new names with the prefix prepended to existing names
-# 4. assign those new names to your filtered data
-# 5. merge the two datasets
-# 6. If you want, apply some logic to create a new column, e.g. use the soil info from the merged data if it exists, and if it doesn't, fall back on the main nutnet data
-
-# filter to columnsin the soil datafile - drop ones I don't want by setting to NULL
-soilts[,c("block", "Treatment"):=NULL]
-
-#get the column names for the columns I want
-cols.to.prefix = names(soilts)[4:ncol(soilts)]
-
-# 3. use paste to generate new names with the prefix prepended to existing names
-# 4. assign those new names to your filtered data
-setnames(soilts, old=cols.to.prefix, new=paste("soilts_", cols.to.prefix, sep=""))  # a short-cut to do the same thing: paste0("soilts_", cols.to.prefix)
-
-# Merge the soil data with the comb data.
-comb = merge(comb, soilts, by=c("site_code","plot","year"), all.x=T)
-
-# Add a column indicating if site x plot in comb have multiple years of soil data. 
-# now we have a column "multiple_soildata_years" if we want to filter the dataset to just these plots and sites for the Oster robustness analysis.
-# note error for three sites -- are these three sites a data processing error? "kidman.au","summ.za","gilb.za"
-comb[,multiple_soildata_years:={n_unique_ppm_P=length(unique(soilts_ppm_P));
-                                n_unique_ppm_K=length(unique(soilts_ppm_K));
-                                n_unique_ppm_Ca=length(unique(soilts_ppm_Ca));
-                                n_unique_ppm_Mg=length(unique(soilts_ppm_Mg));
-                                (n_unique_ppm_P>1 | n_unique_ppm_K>1 | n_unique_ppm_Ca>1 | n_unique_ppm_Mg>1)}
-                          , by=.(site_code, plot)]
-
 ##############################################################################################
 ### Process Data To be Used for Analyses #####################################################
 ###############################################################################################
@@ -131,6 +61,7 @@ comb[,min.trt.yr:=min(year_trt), by=.(site)]
 
 ## Make columns that flag different observations (# of years, etc) to filter to run models on different data subsets
 ## has AT LEAST 5 years of data (including pre-treatment year = 0)
+# another way to do this:
 #kMinNumYears = 5
 #comb <- comb[comb$min.trt.yr == 0 & comb$max.trt.yr > kMinNumYears-1,]
 
@@ -140,10 +71,6 @@ comb[, has.5.yrs.data:=(min.trt.yr == 0 & max.trt.yr >= 4)|(min.trt.yr==1 & max.
 comb[, has.4.yrs.data:=(min.trt.yr == 0 & max.trt.yr >= 3)|(min.trt.yr==1 & max.trt.yr>=4)] #this keeps control plots without a pre-treatment survey]
 comb[, has.3.yrs.data:=(min.trt.yr == 0 & max.trt.yr >= 2)|(min.trt.yr==1 & max.trt.yr>=3)]
 comb[, has.6.yrs.data:=(min.trt.yr == 0 & max.trt.yr >= 5)|(min.trt.yr==1 & max.trt.yr>=6)]
-
-# **CUT: Drop 2017 since data is incomplete - LD checked with Ashley Asmus on this on Feb 20, 2018
-# commented out on April 2018 bc more data for 2017 was added (now 48 obs vs only 9 obs in Dec 2017 data)
-   # comb <- comb[year < 2017,]
 
 ##############################################################################################################################
 ### Filter to sites with at least 5 years of data ############################################################################
@@ -181,9 +108,6 @@ comb[,is.Fenced := Exclose != 0, ]
 #in general: my.dt[,newplotid:=as.factor(paste(site.id.col, plot.id.col, sep="_"))]
 comb[,newplotid:=as.factor(paste(site_code, plot, sep="_"))]
 
-# CUT? # make year as a factor  -- needed for to run the models but not here yet.
- # comb$year = as.factor(comb$year)
-
 #################################################################################################
 ### Making the block id as factor & with a unique id #############################################
 ##################################################################################################
@@ -213,7 +137,7 @@ comb[order(year), lagged_avg_neighbor_rich := shift(avg_neighbor_rich), by =.(pl
 #####################################################################################################################
 ### Create average neighbor TREATED richness within the block IV #########################################################
 ######################################################################################################################
-# do some blocks have multiple control plots? yes...
+# do some blocks have multiple control plots? yes:
 # whats max number of controls per block x year
 max(comb[,sum(trt=="Control"), by=.(newblockid, year)][,3, with=F])
 #gives counts of controls per block x year for those with multiple controls per block x year
@@ -287,14 +211,13 @@ comb[order(year), changeAmbient_PAR := Ambient_PAR-shift(Ambient_PAR), by =.(plo
 # shift(x, n=1L, fill=NA, type=c("lag", "lead"), give.names=FALSE)
 # be sure to be sure to sort by year before doing shift with "setorder" fct
 #sytax:DT[order(year), (cols) := shift(.SD, 1, type="lag"), .SDcols=cols]
+
 # do for evenness
 comb[order(year), laggedeven := shift(even), by =.(plot, site_code)]
 # do for shannon's
 comb[order(year), laggedshan := shift(shan), by =.(plot, site_code)]
 #do for simpson's
 comb[order(year), laggedsimpson := shift(simpson), by =.(plot, site_code)]
-# do for plot beta
-comb[order(year), laggedplot_beta := shift(plot_beta), by =.(plot, site_code)]
 
 #####################################################################################################################
 ## also create a differenced variable for evenness & other BD variables in comb version april 2018 ###############################################
@@ -304,16 +227,12 @@ comb[order(year), changeEvenness := even-shift(even), by =.(plot, site_code)]
 comb[order(year), changeShan := shan-shift(shan), by =.(plot, site_code)]
 #do for simpson's
 comb[order(year), changeSimpson := simpson-shift(simpson), by =.(plot, site_code)]
-# do for plot eveta
-comb[order(year), changePlot_beta := plot_beta-shift(plot_beta), by =.(plot, site_code)]
 
 ############################################################################################################
 ## Compute site-level productivity per yr and average (added June 29, 2018) ###############################
 ##########################################################################################################
-# did Grace et al do the average plot-level productivity at the site level
-# or the sum of plot-level prod for site prod? I am assuming the latter.
 
-# :=(sum(rich, na.rm=T) - rich)/(.N-1) , by=.(site_code, year)]
+# sum of live mass per year, summed over plots by year
 comb[ ,site_live_mass.yr:= sum(live_mass, na.rm=T), by=.(site_code, year)]
 
 #average site-level productivity, averaged across all years
@@ -323,16 +242,11 @@ comb[, ave_site_live_mass := mean(site_live_mass.yr), by = site_code]
 ## Compute site-level richness variables  (added May 11 2020 ) ###############################
 ##########################################################################################################
 
-#alt way to do it:  
- # comb[ , initial_site_rich := site_year_rich[is.PretreatmentYr == TRUE], by=.(site_code)]
+#alt way to do it:  comb[ , initial_site_rich := site_year_rich[is.PretreatmentYr == TRUE], by=.(site_code)]
 comb[ , initial_site_rich := site_year_rich[year_trt == 0], by=.(site_code)]
 
 site_rich_trend <- lm(site_year_rich ~ year_trt:site_code, data = comb)
 summary(site_rich_trend)
-#####################################################################################################
-#### Copy the dataset so we can also keep a full version with the n-addition expt plots #############
-######################################################################################################
-full = comb 
 
 #######################################################################################################
 #### Filter Data by years and control or not  ########################################################
@@ -373,7 +287,6 @@ comb[,.N, by=c("site_code", "newplotid", "year_trt")][N>1,]
 
 comb[,.N, by=c("site_code", "plot", "year_trt")][N>1,]
 #Empty data.table (0 rows and 4 cols): site_code,plot,year_trt,N
-
 
 # compare to Paul's STATA file to make sure duplicates are gone
 
