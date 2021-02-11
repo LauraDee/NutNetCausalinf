@@ -46,7 +46,6 @@ ihs = function(x) {
 }
 # v.s. log(x+1) <- is defined for a negative x. 
 
-
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'
 setwd("~/Dropbox/IV in ecology/NutNet")
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
@@ -183,14 +182,12 @@ coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
 coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
 coefs_ModPFE.3 <- tidy(ModPFE.3, conf.int = T,  robust = T)
 coefs_ModPFE.4 <- tidy(ModPFE.4, conf.int = T,  robust = T)
-# coefs_Mod.R1 <- tidy(Mod.R1, conf.int = T,  robust = T) # from the other file.. 
 
 panelFE.main <-  bind_rows(
   coefs_ModPFE %>% mutate(reg = "Model 1"),
   coefs_ModPFE.2  %>% mutate(reg = "Model 1 with evenness"),
   coefs_ModPFE.3  %>% mutate(reg = "Model 1 with lagged richness"),
   coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-  # coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover") # from other file... 
 ) %>%
   ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
   geom_pointrange() + theme_classic() +
@@ -255,12 +252,10 @@ summary(ModPFEsimpsonD, robust = TRUE, cluster = TRUE)
 #print results
 screenreg(list(ModPFE, ModPFE.2, ModPFEsimpsonD),     # object with results 
           custom.model.names= c("Main Model with Richness" , "Main Model with Richness and Evenness", "Model with Simpson's D"))
-# omit.coef=c("(site_code)|(newplotid)")) 
 
 #print results - simple table for main results 
 screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4, ModPFEsimpsonD),     # object with results 
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both", "Simpson's D"))
-# omit.coef=c("(site_code)|(newplotid)")) 
 
 #######################################################################################################################################
 ### Make Figure 2 for Main text  #################################################################################################################
@@ -284,7 +279,6 @@ plot.data.main <-  bind_rows(
   coefs_ModPFEsimpsonD  %>% mutate(reg = "Model with Simpson's Diversity"),
   coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
  # coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-#  coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover") # from other file... 
 ) 
 
 panelFE.main <-
@@ -362,7 +356,7 @@ panelFE.main.2 + labs(
 
 
 ################################################################################################################################
-###**** Final Figure****  Figure 2 - Main Text -without plotting evenness estimate #########################################################
+###**** Final Figure****  Figure 2 - Main Text - without plotting evenness estimate #########################################################
 ############################################################################################################################################
 
 #* to do: change the order of the models:
@@ -422,10 +416,6 @@ panelFE.main.2 + labs(
 #panelFE.main.2 +  theme(legend.title=element_text(size=14), legend.text=element_text(size=14)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
-#panelFE.main.2  + scale_color_manual(values=cbPalette[c(7,3,4,8)])   +  theme(legend.title=element_text(size=14), legend.text=element_text(size=12)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-
-# theme(legend.position="top") 
-#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
 p <- panelFE.main.2 + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
   title = "Effect size of Log Species Richness on Log Productivity",
@@ -637,15 +627,7 @@ Fig.2B <- Fig.2B + theme(axis.text=element_text(size=22),
   theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
 Fig.2B
 
-# print final figure:
-# Fig.2B <- ppp + scale_x_discrete(labels = c('log(Species Richness)')) + theme(
-#   axis.title.x = element_text(size = 20),
-#   axis.text.x = element_text(size = 16),
-#   axis.text.y = element_text(size = 16),
-#   axis.title.y = element_text(size = 16)) + theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-# Fig.2B
-
-# simplified variable name
+# simplified variable names
 Fig.2B <- Fig.2B + scale_x_discrete(labels = c('Species Richness', "Simpson's Diversity")) + theme(
   axis.title.x = element_text(size = 20),
   axis.text.x = element_text(size = 16),
@@ -664,18 +646,18 @@ plot_grid(Fig2A  + common.ylab,
 
 
 ################################################ ################################################### ########################
-###### FUNCTIONAL FORM ASSUMPTION CHECK ################################################### #######################################
+###### SM FUNCTIONAL FORM ASSUMPTION CHECK ################################################### #######################################
 ### Check Different Functional form assumptions, though the log-log is supported by theory and past work.  ######################
 #  SI Table Results 1  ########################################################################################################
 ################################################### ################################################### ########################
 
 #B. Log-Level
 ModPFE.loglevel <- felm(log(live_mass) ~ rich | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.loglevel , robust = TRUE, cluster = TRUE)
+summary(ModPFE.loglevel , robust = TRUE)
 
 #C. Levels #B. Levels
 ModPFE.levels <- felm(live_mass ~ rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.levels, robust = TRUE, cluster = TRUE)
+summary(ModPFE.levels, robust = TRUE)
 
 #print results
 #output models into a single table
@@ -684,32 +666,19 @@ screenreg(list(ModPFE, ModPFE.levels , ModPFE.loglevel),
 
 #D - Quadratic form 
 ModPFE.quad <- felm(live_mass ~ rich + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.quad, robust = TRUE, cluster = TRUE)
+summary(ModPFE.quad, robust = TRUE)
 
-#D - Quadratic form 
-ModPFE.logquad <- felm(live_mass ~ log(rich) + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.logquad, robust = TRUE, cluster = TRUE)
+#E. Cubic 
+ModPFE.cubic <- felm(live_mass ~ rich + I(rich^2) +I(rich^3)   | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
+summary(ModPFE.cubic, robust = TRUE)
 
-# Quad forms log livemass 
-ModPFE.quad2 <- felm(log(live_mass) ~ rich + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.quad2, robust = TRUE)
+#print all functional form results into a single table
+screenreg(list(ModPFE, ModPFE.levels, ModPFE.loglevel, ModPFE.quad, ModPFE.cubic), 
+          custom.model.names=c("Log-Log (Main)", "Levels", "Log-Level", "Quadratic", "Cubic"))
 
-#D - Quadratic form 
-ModPFE.logquad2 <- felm(log(live_mass) ~ log(rich) + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.logquad2 robust = TRUE)
-
-#print results
-#output models into a single table
-screenreg(list(ModPFE, ModPFE.quad , ModPFE.logquad), 
-          custom.model.names=c("Main Log-Log", "Quadratic Levels", "Quadratic Log" ))
-
-#print all functional form results into one
-#output models into a single table
-screenreg(list(ModPFE, ModPFE.levels, ModPFE.loglevel, ModPFE.quad), 
-          custom.model.names=c("Log-Log", "Levels", "Log-Level", "Quadratic"))
-
+#****CHRIS THIS SHOULD BE CUT RIGHT? Its wrng I think bc doesnt make sense to take the log
 ###########################################################
-##  Log-log  w squared richness term #####################
+##  Log-log  w squared richness term #####################  
 ###########################################################          
 
 PFE.Log.richSQ  = felm(log(live_mass) ~ log(rich) + I(log(rich)^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
@@ -739,54 +708,31 @@ summary(PFE.Log.richCube2, robust = TRUE, cluster = TRUE)
 
 
 #######################################################################################################################################
-### SI Analyses: Test robustness to moderators ################################################################################################
+### SI Analyses: Test robustness to moderators SM sections S5c and S5d ################################################################################################
 #######################################################################################################################################
 
-#With Duration: 
-ModMod1 <- felm(log(live_mass) ~ log(rich) + log(rich):year_trt | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModMod1 , robust = TRUE)
+##### Analyses for Section S5c: Moderating Effect of site-level species richness ####
+## See Table S6 
 
-screenreg(list(ModMod1), 
-          custom.model.names=c("Model with Duration"))
-
-#How does the effect depend on the LEVELS of richness at the site level? 
-#in comb -- with site-level richness:   site_richness, site_year_rich , site_native_richness , site_introduced_richness
-
-#ave site richness
+#average site richness as moderator
 ModModSite1 <- felm(log(live_mass) ~ log(rich) + log(rich):site_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModModSite1 , robust = TRUE)
 
-#ave site INT rich
+#ave site INT (introduced) richness  as moderator 
 ModModSite2 <- felm(log(live_mass) ~ log(rich) + log(rich):site_introduced_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModModSite2 , robust = TRUE)
 
-#yearly site rich
+#yearly site  richness as moderator
 ModModSite3 <- felm(log(live_mass) ~ log(rich) + log(rich):site_year_rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModModSite3 , robust = TRUE)
 
-#ave site NATIVE richness
+#ave site NATIVE richness  as moderator
 ModModSite4 <- felm(log(live_mass) ~ log(rich) + log(rich):site_native_richness | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModModSite4, robust = TRUE, cluster = TRUE)
-
-# ModMod2 <- felm(log(live_mass) ~ log(rich) + log(rich):site_native_richness + log(rich):site_introduced_richness | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-# summary(ModMod2 , robust = TRUE, cluster = TRUE)
 
 #print results - simple table for main results 
 screenreg(list(ModModSite1, ModModSite2, ModModSite3, ModModSite4),     # object with results 
           custom.model.names= c("Mean Site SR" , "Site Introduced SR", "Site Yearly SR", "Site Native SR"))
-
-ModMod_decrease <- felm(log(live_mass) ~ log(rich) + log(rich):rich_decrease | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModMod_decrease, robust = TRUE, cluster = TRUE)
-
-ModMod_increase <- felm(log(live_mass) ~ log(rich) + log(rich):rich_increase | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModMod_increase, robust = TRUE, cluster = TRUE)
-
-screenreg(list(ModMod_decrease, ModMod_increase),     # object with results 
-          custom.model.names= c("Richness Decrease", "Richness Increase" ))
-
-# with initial site richness
-# ModModsiteinit <- felm(log(live_mass) ~ log(rich) + log(rich):initial_site_rich | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-# summary(ModModsiteinit, robust = TRUE, cluster = TRUE)
 
 ###########################################################################
 #With total cover: ########################################################
@@ -1039,12 +985,6 @@ summary(modivTlev, diagnostics=T)  # to see relevance tests
 screenreg(list(clus.res.modiv1lev$cl.res, clus.res.modivTreatedlev$cl.res, clus.res.modiv1lev.groundpar$cl.res, clus.res.modivTlev.groundpar$cl.res),       # object with results from clx
           custom.model.names=c("IV 1 Levels", "IV 2 Levels", "IV 1 Levels'","IV 2 Levels'"),
           omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-# IV 1 w/ ground par is weakly sig
-# IV here is average neighbor richness of the site (for each control plot and year)
-# weakly signigicant: p = 0.1000198 
-
-# did the same for level-log models; similar results with only IV1 with ground PAR as weakly sig
-
 
 ###########################################################################################################
 #### Plotting main results for SR all on one plot  ###########################################################
