@@ -70,7 +70,7 @@ head(a)
 # make a total cover in a plot, site, year
 cover[,totplotcover.yr := sum(max_cover, na.rm=T), by=.(plot, site_code, year)]
 
-# same for live species only
+# same for live species only, which is what we end up using to compute the other variables
 cover[,totplotcover.yr.live := sum(max_cover[live=="1"], na.rm=T), by=.(plot, site_code, year)]
 
 #Make a relative cover for each species in each plot, site, year
@@ -80,8 +80,6 @@ cover[,relative_sp_cover.yr := max_cover/totplotcover.yr]
 cover[,relative_sp_cover.yr.live := (max_cover*(live=="1"))/totplotcover.yr.live]
 # in some cases, no live species in plot and year, so getting NA since totplotcover.yr.live is zero. Set these to zero.
 cover[is.na(relative_sp_cover.yr.live),relative_sp_cover.yr.live:=0]
-
-## FILTER TO LIVE TO COMPUTE SR MEASURES???? ********
 
 ######################################################################################################
 ### Native vs Non-Native Variables ###################################################################
@@ -126,136 +124,6 @@ head(cover)
 ## Compute Native species cover 
 cover[, Native_cover.yr := sum(relative_sp_cover.yr[local_provenance=="NAT"]), by = .(plot, site_code, year)]
 
-##########################################################################################################
-### Annual vs Perennial Variables ########################################################################
-###########################################################################################################
-
-### Now do for an annual and perennial cover
-# Compute richness in annuals and perennials
-cover[, sr_annual := length(unique(Taxon[local_lifespan=="ANNUAL"])), by = .(plot, site_code, year)]
-cover[, sr_peren := length(unique(Taxon[local_lifespan=="PERENNIAL"])), by = .(plot, site_code, year)]
-cover[, sr_null.lspan := length(unique(Taxon[local_lifespan=="NULL"])), by = .(plot, site_code, year)]  # this includes a lot non-live. 
-cover[, sr_biennial := length(unique(Taxon[local_lifespan=="BIENNIAL"])), by = .(plot, site_code, year)]
-cover[, sr_indeter := length(unique(Taxon[local_lifespan=="INDETERMINATE"])), by = .(plot, site_code, year)]
-
-# plot 
-hist(cover$sr_annual)
-summary(cover$sr_annual)
-summary(cover$sr_annual)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 0.00    0.00    1.00    3.13    4.00   23.00 
-hist(cover$sr_peren)
-summary(cover$sr_peren)
-#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#0.00    4.00    8.00   10.21   14.00   41.00 
-
-# Compute first differences 
-cover[order(year), change_sr_annual := sr_annual-shift(sr_annual), by =.(plot, site_code)]
-cover[order(year), change_sr_peren := sr_peren-shift(sr_peren), by =.(plot, site_code)]
-
-# Plot first differences
-hist(cover$change_sr_annual)
-summary(cover$change_sr_annual)
-hist(cover$change_sr_peren)
-summary(cover$change_sr_peren)
-
-# compute cover by annuals per plot and year
-cover[, AnnualPercentcover.yr := sum(relative_sp_cover.yr[local_lifespan=="ANNUAL"]), by = .(plot, site_code, year)]
-# compute cover by perennial per plot and year
-cover[, PerenPercentcover.yr := sum(relative_sp_cover.yr[local_lifespan=="PERENNIAL"]), by = .(plot, site_code, year)]
-
-hist(cover$PerenPercentcover.yr)
-hist(cover$AnnualPercentcover.yr)
-#######################################################################################################
-### Functional Group variables (e.g., Grass vs Forbs) ####################################################
-#######################################################################################################
-## Combine Graminoid and Grass into a single category 
-# Graminoid + Grass = Graminoids
-cover[functional_group == "GRASS" , functional_group:= "GRAMINOID"]
-
-### Richness of grasses, woody, forbs  from the "functional_group" column
-# Grasses & Graminoids
-cover[, sr_graminoid := length(unique(Taxon[functional_group=="GRAMINOID"])), by = .(plot, site_code, year)]
-# forbs
-cover[, sr_forbs := length(unique(Taxon[functional_group=="FORB"])), by = .(plot, site_code, year)]
-# woody
-cover[, sr_woody := length(unique(Taxon[functional_group=="WOODY"])), by = .(plot, site_code, year)]
-# legumes
-cover[, sr_legume := length(unique(Taxon[functional_group=="LEGUME"])), by = .(plot, site_code, year)]
-# Bryophyte
-cover[, sr_bryophyte := length(unique(Taxon[functional_group=="BRYOPHYTE"])), by = .(plot, site_code, year)]
-# Cactus
-cover[, sr_cactus := length(unique(Taxon[functional_group=="CACTUS"])), by = .(plot, site_code, year)]
-# Null
-cover[, sr_null.fctgroup := length(unique(Taxon[functional_group=="NULL"])), by = .(plot, site_code, year)]
-# Non-live
-cover[, sr_non.live := length(unique(Taxon[functional_group=="NON-LIVE"])), by = .(plot, site_code, year)]
-
-## Compute first differences ###
-cover[order(year), change_sr_graminoid := sr_graminoid - shift(sr_graminoid), by =.(plot, site_code)]
-cover[order(year), change_sr_woody := sr_woody - shift(sr_woody), by =.(plot, site_code)]
-#summary(cover$change_sr_woody)
-cover[order(year), change_sr_forbs := sr_forbs -shift(sr_forbs), by =.(plot, site_code)]
-#summary(cover$change_sr_forbs)
-cover[order(year), change_sr_legume := sr_legume -shift(sr_legume), by =.(plot, site_code)]
-cover[order(year), change_sr_bryophyte := sr_bryophyte -shift(sr_bryophyte), by =.(plot, site_code)]
-cover[order(year), change_sr_cactus := sr_cactus  -shift(sr_cactus), by =.(plot, site_code)]
-cover[order(year), change_sr_null.fctgroup := sr_null.fctgroup - shift(sr_null.fctgroup), by =.(plot, site_code)]
-cover[order(year), change_sr_non.live := sr_non.live - shift(sr_non.live), by =.(plot, site_code)]
-
-### Compute cover by Functional groups - grasses, woody, forbs, legumes, etc -- per plot and year
-cover[, GrassPercentcover.yr := sum(relative_sp_cover.yr[functional_group=="GRASS"]), by = .(plot, site_code, year)]
-cover[, ForbPercentcover.yr := sum(relative_sp_cover.yr[functional_group=="FORB"]), by = .(plot, site_code, year)]
-cover[, WoodyPercentcover.yr := sum(relative_sp_cover.yr[functional_group=="WOODY"]), by = .(plot, site_code, year)]
-cover[, LegumePercentcover.yr := sum(relative_sp_cover.yr[functional_group=="LEGUME"]), by = .(plot, site_code, year)]
-
-hist(cover$LegumePercentcover.yr)
-plot(cover$LegumePercentcover.yr ~ cover$year)
-lm(cover$LegumePercentcover.yr ~ as.numeric(cover$year))
-# Coefficients:
-#   (Intercept)  as.numeric(cover$year)  
-# 2.107210               -0.001027 
-abline(lm(cover$LegumePercentcover.yr ~ as.numeric(cover$year)))
-
-# Lagged Legume cover per year
-cover[order(year), lagged_LegumePercentCover.yr := shift(LegumePercentcover.yr), by =.(plot, site_code)]
-
-##############################################################################################################################
-### N-Fixing Species Variables ##############################################################################################
-##############################################################################################################################
-### Number of N-fixer in a plot over time
-cover[, sr_Nfixer := length(unique(Taxon[N_fixer==1])), by = .(plot, site_code, year)]
-cover[, sr_non.Nfixer := length(unique(Taxon[N_fixer==0])), by = .(plot, site_code, year)]
-# what are the plots where there are 0 species that are NOT n-fixers?
-  hist(cover$sr_non.Nfixer)
-  table(cover$sr_non.Nfixer)
-  
-# change in N-fixers in a plot
-cover[order(year), change_sr_Nfixer := sr_Nfixer-shift(sr_Nfixer), by =.(plot, site_code)]
-hist(cover$change_sr_Nfixer)
-summary(cover$change_sr_Nfixer)
-
-# lagged N-fixer richness
-cover[order(year), lagged_sr_Nfixer := shift(sr_Nfixer), by =.(plot, site_code)]
-
-### Percent cover of N-fixers ###
-cover[, N_fixer_cover.yr := sum(relative_sp_cover.yr[N_fixer==1]), by = .(plot, site_code, year)]
-# change in N-fixer cover
-cover[order(year), change_N_fixer_cover := N_fixer_cover.yr - shift(N_fixer_cover.yr), by = .(plot, site_code, year)]
-
-# Lagged N_fixer cover
-cover[order(year), lagged_N_fixer_cover.yr := shift(N_fixer_cover.yr), by =.(plot, site_code)]
-
-plot(cover$lagged_N_fixer_cover.yr ~ cover$year)
-abline(lm(cover$lagged_N_fixer_cover.yr ~ as.numeric(cover$year)))
-lm(cover$lagged_N_fixer_cover.yr ~ as.numeric(cover$year))
-#   Coefficients:
-#     (Intercept)  as.numeric(cover$year)  
-#   2.612394               -0.001279
-
-summary(cover$change_N_fixer_cover)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-# 0       0       0       0       0       0   14822 
 
 #############################################################################################
 ### Compute site-level richness variables  ###################################################
@@ -273,9 +141,7 @@ summary(cover$change_N_fixer_cover)
 ####################################################################################################################
 # Dominance Indicator (DI) from Avolio, M.L., et al. (2019). Demystifying dominant species. New Phytol., 223, 1106–1126.
 
-### Do relative abundance of live cover only. 
-# Do SR of live only, throughout?
-### do this for live cover only (discussed w Kim in June)
+### Do relative abundance of live cover only. (discussed w Kim Komatsu in June 2019)
 
 ### Dominance indicator calculation ###
 # Use the dominance indicator metric from Avoilio et al (seperates dominance indication from impact)
@@ -449,7 +315,6 @@ cover[, cover_tot_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate"]
 cover[, cover_tot_NAT := sum(relative_sp_cover.yr.live[local_provenance == "NAT"]), by = .(plot, site_code, year)]
 cover[, cover_tot_INT := sum(relative_sp_cover.yr.live[local_provenance == "INT"]), by = .(plot, site_code, year)]
 
-
 #for NON rare (grouping dominant and subordinate)
 cover[, cover_non.nat_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" & local_provenance == "INT"]), by = .(plot, site_code, year)]
 cover[, cover_nat_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
@@ -462,45 +327,11 @@ cover[, cover_non.nat_rare := sum(relative_sp_cover.yr.live[non_rare_spp == "FAL
 cover[, cover_non.nat_dom := sum(relative_sp_cover.yr.live[DIgroup == "Dominant" & local_provenance == "INT"]), by = .(plot, site_code, year)]
 cover[, cover_nat_dom := sum(relative_sp_cover.yr.live[DIgroup == "Dominant" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
 
-#native dominant cover is declining through time on average
-trend1 <- lm(cover_nat_dom  ~ site_code + as.numeric(year_trt) , data = cover)
-summary(trend1)
-
 # for subordinate
 cover[, cover_non.nat_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate" & local_provenance == "INT"]), by = .(plot, site_code, year)]
 cover[, cover_nat_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate"& local_provenance == "NAT"]), by = .(plot, site_code, year)]
 
 #cover[, cover_nat_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
-
-# plot cover
-par(mfrow = c(2,2), pty = "s")
-hist(cover$cover_non.nat_non.rare, main = "cover non-native non-rare", xlab = "cover non-native non-rare")
-hist(cover$cover_nat_non.rare, main = "cover native non-rare", xlab = "cover native non-rare")
-hist(cover$cover_nat_rare, main = "cover native rare")
-hist(cover$cover_non.nat_rare, main = "cover non-native rare")
-
-#plot changes 
-plot(cover$cover_non.nat_non.rare ~ cover$year)
-abline(lm(cover$cover_non.nat_non.rare ~ length(unique(cover$year))), col = "red")
-
-trend1 <- lm(cover_nat_dom  ~ site_code +  as.numeric(year_trt), data = cover)
-summary(trend1)
-trend2 <- lm(cover_nat_dom  ~ site_code:as.numeric(year_trt) + as.numeric(year_trt) , data = cover)
-summary(trend2)
-
-# non-native rare trends - increasing
-trend1 <- lm(cover_non.nat_dom  ~ site_code +  as.numeric(year_trt), data = cover)
-
-#non native dom cover also decreasing
-trend1 <- lm(cover_non.nat_dom  ~ site_code +  as.numeric(year_trt), data = cover)
-
-#EXAMPLE: explo[, pos_dev_thresh := dev_from_thresh[dev_from_thresh>1], by = .(site, year)]
-#cover[, Fenced := trt[trt == "Fenced"], by = .(plot, site_code, year)]
-
-#non native dom cover also decreasing
-trend1 <- lm(cover_non.nat_rare  ~ site_code +  as.numeric(year_trt), data = cover)
-summary(trend1)
-
 
 ############################################################################################################## #############
 ######################################################################################################### #############
@@ -621,12 +452,10 @@ cover[, sr_non.nat_dom2 := length(unique(Taxon[DIgroup2 == "Dominant" & local_pr
 cover[, sr_nat_sub2 := length(unique(Taxon[DIgroup2 == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub2 := length(unique(Taxon[DIgroup2 == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-
 # # compute change in richness in each group for this diff cutoff (though only the dominance one should change)
 # cover[order(year), change_sr_domspp2 := sr_domspp2 -shift(sr_domspp2), by =.(plot, site_code)]
 # cover[order(year), change_sr_rarespp2 := sr_rarespp2 -shift(sr_rarespp2), by =.(plot, site_code)]
 # cover[order(year), change_sr_subordspp2 := sr_subordspp2 -shift(sr_subordspp2), by =.(plot, site_code)]
-
 
 ######################################################################################################################
 ## Compute for Frequency: sub-ordinate and rare - Cut Off 2 based on breaks=c(0.0,0.4,0.8,1.0).
@@ -662,7 +491,6 @@ cover[, sr_non.nat_dom.Freq2 := length(unique(Taxon[Freq_group2 == "Dominant" & 
 #do SR for native and non-native for subordinate
 cover[, sr_nat_sub.Freq2 := length(unique(Taxon[Freq_group2 == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.Freq2 := length(unique(Taxon[Freq_group2 == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
-
 
 ######################################################################################################### #############
 ## Compute for Average Relative Abundance: sub-ordinate and rare -- CUT OFF 2: breaks=c(0.0,0.4,0.8,1.0)
@@ -703,7 +531,6 @@ cover[, sr_non.nat_dom.RelA2 := length(unique(Taxon[RelAbund_group2 == "Dominant
 cover[, sr_nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-
 ###########################################################################################################################
 #### Compute variables for site-level richness to assess: ########################################################
 # How do results depend on average site-level rich (averaged over time for the site)? #################################################################################################
@@ -741,42 +568,4 @@ cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013
 
 # write as csv datafile to use for R
 write.csv(cover, "NutNetCoverData_ProcessedAug2019.csv")
-
-
-### CUT BELOW HERE????? ### 
-
-### Figures 
-#plot this change_rel_abundance_time.live by each DI grouping category
-# need to label each spp as rare, dominate or subordinate to do this, and then put in facet r
-
-#maybe should do this as average change per spp?
-ggplot(data = cover, aes(x = change_rel_abundance_time.live)) + geom_histogram()+ facet_wrap(~DIgroup) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-ggplot(data = cover, aes(y = relative_sp_cover.yr.live, x = year)) + geom_point() + facet_wrap(~DIgroup) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-trends_by_group <- ggplot(data = cover, aes(y = change_rel_abundance_time.live[na.omit= TRUE], x = year)) + geom_point() + facet_wrap(~DIgroup) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-trends_by_group + geom_smooth(method = "glm", 
-                              formula = change_rel_abundance_time.live[na.omit = TRUE] ~ year,
-                              family = gaussian(link = 'log'))
-
-
 
