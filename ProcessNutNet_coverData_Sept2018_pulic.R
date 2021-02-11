@@ -25,8 +25,6 @@ rm(list=ls())
 require(ggplot2)
 library(plyr)
 library(data.table)
-library(AER)
-library(sandwich)
 library(foreign)
 library(rmarkdown)
 
@@ -35,18 +33,6 @@ cover <- fread('full-cover-09-April-2018.csv',na.strings= 'NA')
 
 ## need to make max_cover NOT a character
 cover$max_cover <- as.numeric(cover$max_cover)
-
-#** CUT ***
-# data.table cheat sheets
-# cover[, N_fixer_cover.yr := sum(relative_sp_cover.yr, by )]
-# comb[,sum(trt=="Control"), by=.(newblockid, year)][V1>1,]
-
-#*** dont filter to live cover only bc we need to know absolute .... or filter to live only????
-##*** CUT ****
-
-###### If want to filter cover dataset to only the live cover ################# 
-# cover <- cover[live == 1,]
-# table(cover$live)
 
 #########################################################################################
 ## Compare Taxon in Live (live==1) or non-live (live == 0) ################################
@@ -78,11 +64,12 @@ head(a)
         #       GROUND                                      	0	   1039
         #       OTHER WOODY OVERSTORY                       	0	    4
         
-
-##### TOTAL & TOTAL LIVE COVER MEASURES ########################################
-
+###################################################################################
+#####Compute TOTAL & TOTAL LIVE COVER MEASURES ########################################
+###################################################################################
 # make a total cover in a plot, site, year
 cover[,totplotcover.yr := sum(max_cover, na.rm=T), by=.(plot, site_code, year)]
+
 # same for live species only
 cover[,totplotcover.yr.live := sum(max_cover[live=="1"], na.rm=T), by=.(plot, site_code, year)]
 
@@ -182,7 +169,6 @@ hist(cover$AnnualPercentcover.yr)
 #######################################################################################################
 ### Functional Group variables (e.g., Grass vs Forbs) ####################################################
 #######################################################################################################
-
 ## Combine Graminoid and Grass into a single category 
 # Graminoid + Grass = Graminoids
 cover[functional_group == "GRASS" , functional_group:= "GRAMINOID"]
@@ -237,7 +223,6 @@ cover[order(year), lagged_LegumePercentCover.yr := shift(LegumePercentcover.yr),
 ##############################################################################################################################
 ### N-Fixing Species Variables ##############################################################################################
 ##############################################################################################################################
-
 ### Number of N-fixer in a plot over time
 cover[, sr_Nfixer := length(unique(Taxon[N_fixer==1])), by = .(plot, site_code, year)]
 cover[, sr_non.Nfixer := length(unique(Taxon[N_fixer==0])), by = .(plot, site_code, year)]
@@ -284,8 +269,9 @@ summary(cover$change_N_fixer_cover)
 # cover[, init_siterich := site_richness[year_trt == 0] ,  by = site_code]
 
 ####################################################################################################################
-### Dominance Variables using DI ############################################################################################
+### Dominance Variables using Dominance Indicator (DI) ############################################################################################
 ####################################################################################################################
+# Dominance Indicator (DI) from Avolio, M.L., et al. (2019). Demystifying dominant species. New Phytol., 223, 1106–1126.
 
 ### Do relative abundance of live cover only. 
 # Do SR of live only, throughout?
@@ -314,8 +300,7 @@ summary(cover$rel_abundance_year0)
 # "Relative frequency = number of sampling units a species occurred / total number of sampling units" 
 # this should be # of plots within a site that the species occured in / total # of plots within a site, for pre-treatment year 
 
-#total # of plots within a site, for pre-treatment year 
-# & to filter to do just on the live species:
+#total # of plots within a site, for pre-treatment year  & to filter to do just on the live species:
 cover[, tot.num.plots := length(unique(plot[year_trt == 0])), by =.(site_code)]
 
 #number of plots within a site, in the pre-treatment year, a species occurred in:
@@ -342,9 +327,9 @@ cover[, DI := (rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, plot, site
 hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance indicator metric")
 # summary(cover[live == 1,DI])
 
-####### ####### ####### ####### ####### ####### ####### ####### 
-####### Make Categorical Variables of Dominance too ########
-####### ####### ####### ####### ####### ####### ####### ####### 
+###################################################################################
+####### Make Categorical Variables of Dominance too  - based on the DI metric ########
+#########################################################################################
 
 # then given them a ranking into different categories? 
 # to look at changes in those types of species and the impact on productivity?
@@ -361,7 +346,6 @@ cover[, sr_subordspp := length(unique(Taxon[DIgroup == "Subordinate"])), by = .(
 cover[, sr_non_rare_spp := length(unique(Taxon[DIgroup %in% c("Subordinate", "Dominant")])), by = .(plot, site_code, year)]
 #create a rare grouping (including native and invasive)
 cover[, rareSR_spp.DI1 := length(unique(Taxon[DIgroup %in% c("Rare")])), by = .(plot, site_code, year)]
-
 
 summary(cover$sr_domspp) # max is 2 species that are dominant 
 summary(cover$sr_subordspp) 
@@ -412,57 +396,6 @@ cover[order(year), change_rel_abundance_time.live := relative_sp_cover.yr.live -
 
 hist(cover$change_rel_abundance_time.live, na.omit = TRUE)
 plot(change_rel_abundance_time.live ~ DI, na.omit = TRUE, data= cover)
-
-#plot this change_rel_abundance_time.live by each DI grouping category
-# need to label each spp as rare, dominate or subordinate to do this, and then put in facet r
-
-#maybe should do this as average change per spp?
-ggplot(data = cover, aes(x = change_rel_abundance_time.live)) + geom_histogram()+ facet_wrap(~DIgroup) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-ggplot(data = cover, aes(y = relative_sp_cover.yr.live, x = year)) + geom_point() + facet_wrap(~DIgroup) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-trends_by_group <- ggplot(data = cover, aes(y = change_rel_abundance_time.live[na.omit= TRUE], x = year)) + geom_point() + facet_wrap(~DIgroup) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-trends_by_group + geom_smooth(method = "glm", 
-              formula = change_rel_abundance_time.live[na.omit = TRUE] ~ year,
-              family = gaussian(link = 'log'))
-
-# look at N-fixer cover over time
-# change_N_fixer_cover -- not much at all.
-
-# ggplot(data = cover, aes(x = change_N_fixer_cover)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-#   geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-#   labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-#   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-#   theme(axis.text.y = element_text(size = 14)) + 
-#   #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-#   theme(axis.text.x = element_text(size=14)) 
-# 
-# ggplot(data = cover, aes(x = N_fixer_cover.yr)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-#   +   geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-#   +   labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
-#   +   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-#   +   theme(axis.text.y = element_text(size = 14)) + 
-#   +   #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-#   +   theme(axis.text.x = element_text(size=14))
 
 #########################################################################################################################
 ### Create variables that are combined groups of: #######################################################################
@@ -555,7 +488,7 @@ summary(trend1)
 trend2 <- lm(cover_nat_dom  ~ site_code:as.numeric(year_trt) + as.numeric(year_trt) , data = cover)
 summary(trend2)
 
-# non-native rare trends - increaisng
+# non-native rare trends - increasing
 trend1 <- lm(cover_non.nat_dom  ~ site_code +  as.numeric(year_trt), data = cover)
 
 #non native dom cover also decreasing
@@ -609,7 +542,6 @@ cover[, sr_non.nat_dom.Freq := length(unique(Taxon[Freq_group == "Dominant" & lo
 #do SR for native and non-native for subordinate
 cover[, sr_nat_sub.Freq := length(unique(Taxon[Freq_group == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.Freq := length(unique(Taxon[Freq_group == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
-
 
 ######################################################################################################### #############
 ## Compute for Average Relative Abundance: sub-ordinate and rare - Cut off 1
@@ -799,152 +731,52 @@ cover[site_code=='bldr.us', .(mean(new_siterich), mean(lag_new_siterich)), by=ye
 cover[, change_siterich := new_siterich - lag_new_siterich, by=year ]
 hist(cover$change_siterich)
 
-
-
-
 ########################################################################################################
 ### Check for duplicates and write out file #############################################################
 ##########################################################################################################
 # remove mistake/duplicate records from comp.pt as above 
-#****** & likely need to check for others since there could be more in the full dataset!!!!
+#****** & likely need to check for others since there could be more in the full dataset!!!! 
+#*## but is likely OK because this will be merge with the comb data that has been fixed 
 cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
-
-
 
 # write as csv datafile to use for R
 write.csv(cover, "NutNetCoverData_ProcessedAug2019.csv")
 
 
+### CUT BELOW HERE????? ### 
 
+### Figures 
+#plot this change_rel_abundance_time.live by each DI grouping category
+# need to label each spp as rare, dominate or subordinate to do this, and then put in facet r
 
+#maybe should do this as average change per spp?
+ggplot(data = cover, aes(x = change_rel_abundance_time.live)) + geom_histogram()+ facet_wrap(~DIgroup) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
 
-#####################################################################################################################
-### Create Variable to determine, year-to-year, if species are gained or lost or zero change, and if so who. 
-# instead do this in the comb file? ##################
-#####################################################################################################################
+ggplot(data = cover, aes(y = relative_sp_cover.yr.live, x = year)) + geom_point() + facet_wrap(~DIgroup) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
 
-# df1[, z := y > 0]
-# or DT[, flag := 6500<=to & 6500>=from]
-# table(DT$flag)
-# FALSE  TRUE 
-# 5567  4433 
+trends_by_group <- ggplot(data = cover, aes(y = change_rel_abundance_time.live[na.omit= TRUE], x = year)) + geom_point() + facet_wrap(~DIgroup) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in relative abundance yr-to-yr") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
 
-comb[, rich_increase := changerich>0]
-comb[, rich_decrease := changerich<0]
-
-barplot(prop.table(table(comb$rich_decrease)), main = "richness decrease")
-barplot(prop.table(table(comb$rich_increase)), main = "richness increase")
-
-### DO FOR RARE SPECIES and NON-NATIVEs!!!!!
-
-
-
-
-##### This computes dominance over time, which is not what we want: 
-
-## compute average relative abundance (averaged across years.)
-# Relative abundance = abundance of a species in a sampling unit / total abundance of all species in a sampling unit
-# here we need to average across the years.
-
-#I did the following based on plot-years as sampling unit, but we decided it should be defined spatially.
-
-# for TOTAL cover
-# cover[, ave_rel_abundance_over_time := ave(relative_sp_cover.yr), by = .(Taxon, plot, site_code)]
-# hist(cover$ave_rel_abundance_over_time)
-# summary(cover$ave_rel_abundance_over_time) 
-
-#for LIVE cover
-cover[, ave_rel_abundance_over_time.live := ave(relative_sp_cover.yr.live), by = .(Taxon, plot, site_code)]
-hist(cover$ave_rel_abundance_over_time.live)
-summary(cover$ave_rel_abundance_over_time.live) 
-
-## Compute Relative Frequency per spp per plot.
-# "Relative frequency = number of sampling units a species occurred / total number of sampling units" 
-# first calculate the total number of years for a given plot in a site "total # of sampling units"
-cover[, tot.yr := length(unique(year)), by =.(plot, site_code)]
-# to determine which is the most recent year: 
-  # cover[, max.yr := max(year), by =.(plot, site_code)]
-
-# spot check
-cover[site_code == "abisko.se", .(year, plot, tot.yr),]
-cover[site_code == "barta.us", .(year, plot, tot.yr),]
-cover[site_code == "smith.us", .(year, plot, tot.yr),]
-
-#then calculate number of sampling units (years) a species occurred
-# with a list of taxa per plot and year, count the number of records per (species, plot) pair. 
-# so for ex., if the datatable is called dt  
-# dt[,.N, by=.(plot, species)] 
-#will count the records per plot x species and if they only record a species in a plot and year if it's there
-# cover[, .N , by =.(plot, site_code, Taxon)]
-
-# to store this count as part of the cover datatable:
-cover[, Num_year_spp_occur := length(unique(year)), by = .(plot, site_code, Taxon)]
-cover[, Num_recs_spp_plot_site := .N, by = .(plot, site_code, Taxon)]
-#***send this to Ashley to find duplicates
-  # cover[Num_year_spp_occur!=Num_recs_spp_plot_site, ] #812 records with duplicates? 
-   #585 from site_name=="Antisana" & year==2013:
-      # cover[Num_year_spp_occur!=Num_recs_spp_plot_site & site_name=="Antisana" & year==2013,]
-# table(cover[Num_year_spp_occur!=Num_recs_spp_plot_site & site_name=="Antisana" & year==2013, .(site_code, plot, Taxon)])
-# cover[Num_year_spp_occur!=Num_recs_spp_plot_site & site_name=="Antisana" & year==2013 & Taxon=="WERNERIA PUMILA", ]
-# looks like this is repeated bc multiple subplots
-#how many sites have multiple subplots and taxa recorded by it???? anything that would be recorded at the subplot level?
-# the max cover for cover[Num_year_spp_occur!=Num_recs_spp_plot_site & site_name=="Antisana" & year==2013 & Taxon=="WERNERIA PUMILA", ] 
-# is the same
-cover[,Num_subplots:=length(unique(subplot)),.(site_code,plot, Taxon)]
-cover[Num_subplots>1,length(unique(site_code))]
-unique(cover[Num_subplots>1,.(site_code, year)])
-#  site_code year
-#    anti.ec 2013
-#    elkh.us 2007
-#    sgs.us  2007
-#    ucsc.us 2007
-
-#compute relative frequency
-# " Relative frequency = number of sampling units a species occurred / total number of sampling units" 
-cover[, rel_freq.time :=  Num_year_spp_occur/tot.yr, by = .(plot, site_code)]
-#check to make sure we took out duplicates, max should be 1
-hist(cover$rel_freq)
-summary(cover$rel_freq)
-
-## Compute the DI per species <-- at what scale does this apply? the plot over all years? 
-# DI = (average relative abundance + relative frequency)/2
-#FOR LIVE COVER
-cover[, DI.time := (ave_rel_abundance_over_time.live + rel_freq)/2 , by =.(Taxon, plot, site_code)]
-hist(cover$DI.time)
-summary(cover$DI.time)
-
-# # then given them a ranking into different categories? 
-# # to look at changes in those types of species and the impact on productivity?
-# ## sub-ordinate and rare -- how can I compute this? ###########
-# cover[, DIgroup:=cut(DI, breaks=c(0.0,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
-# 
-# #richness in each group
-# cover[, sr_domspp := length(unique(Taxon[DIgroup == "Dominant"])), by = .(plot, site_code, year)]
-# cover[, sr_rarespp := length(unique(Taxon[DIgroup == "Rare"])), by = .(plot, site_code, year)]
-# cover[, sr_subordspp := length(unique(Taxon[DIgroup == "Subordinate"])), by = .(plot, site_code, year)]
-# 
-# summary(cover$sr_domspp)
-# summary(cover$sr_subordspp)
-# summary(cover$sr_rarespp)
-
-# compute change in richness in each group 
-cover[order(year), change_sr_domspp := sr_domspp -shift(sr_domspp), by =.(plot, site_code)]
-cover[order(year), change_sr_rarespp := sr_rarespp -shift(sr_rarespp), by =.(plot, site_code)]
-cover[order(year), change_sr_subordspp := sr_subordspp -shift(sr_subordspp), by =.(plot, site_code)]
-
-#?? compute cover in each group, or is that circular???? compute *CHANGE* in cover from year-to-year 
-
-
-
-## [ Do this for Tim too, plot by treatment and site over time? ###
-# see how -- for rare species -- if their DI score is more driven by the relative abundance or the low frequency #
-# those might be different types of rare spp so it seems like we should not obscure them into one ## ] 
-
-
-
-#**** NEED SOMETHING TO DO WITH THE CHANGES FROM YEAR TO YEAR AND HOW TO CHARACTERIZE THEM BY % of DIFFERENT GROUPS?**** 
-# WHATS A 1% richness change and how does that map onto the proportion of spp in these different categories? esp bc 
-# the mechanisms are not mutually exclusive.
+trends_by_group + geom_smooth(method = "glm", 
+                              formula = change_rel_abundance_time.live[na.omit = TRUE] ~ year,
+                              family = gaussian(link = 'log'))
 
 
 
