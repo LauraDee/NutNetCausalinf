@@ -123,17 +123,6 @@ head(cover)
 ## Compute Native species cover 
 cover[, Native_cover.yr := sum(relative_sp_cover.yr[local_provenance=="NAT"]), by = .(plot, site_code, year)]
 
-#############################################################################################
-### Compute site-level richness variables  ###################################################
-#################################################################################################
-
-# # average site richness over time
-# cover[, ave_siterich := mean(site_richness, na.rm = TRUE), by = site_code]
-# # average for the change year to year
-# cover[, ave_siterich_change := mean(changerich, na.rm = TRUE), by = site_code]
-# # initial site richness
-# cover[, init_siterich := site_richness[year_trt == 0] ,  by = site_code]
-
 ####################################################################################################################
 ### Dominance Variables using Dominance Indicator (DI) ############################################################################################
 ####################################################################################################################
