@@ -2,8 +2,10 @@
 ## NutNet Supplemental Abalayses - SM Section 5 - Laura Dee   ###########################################
 ########################################################################################################
 
-## Code for analyses presented in the Supplemental Meterials for 
-
+## Code for analyses presented in the Supplemental Meterials for Section 5:
+# 5b: Checking assumptions about functional forms for the effect of biodiversity on productivity
+# 5c:
+# 5d: 
 
 #Close graphics and clear local memory
 #graphics.off()
@@ -113,13 +115,15 @@ summary(ModPFE, robust = TRUE)
 ####################################################################################################
 ### Check Different Functional form assumptions, though the log-log for the effect of richness on productivity 
 # is supported by theory and past work. e.g., reviewed in Cardinale, B.J., et al. (2011). The functional role of producer diversity in ecosystems. Am. J. Bot., 98, 572–592.
+#  Levels means untransformmed variables.
 
-## Run these for results in SM Table S3:
+## Run these models for results in SM Table S3.
+
 #B. Log-Level
 ModPFE.loglevel <- felm(log(live_mass) ~ rich | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModPFE.loglevel , robust = TRUE)
 
-#C. Levels #B. Levels
+#C. Levels #B.
 ModPFE.levels <- felm(live_mass ~ rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModPFE.levels, robust = TRUE)
 
@@ -131,10 +135,16 @@ screenreg(list(ModPFE, ModPFE.levels , ModPFE.loglevel),
 #D - Quadratic form 
 ModPFE.quad <- felm(live_mass ~ rich + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModPFE.quad, robust = TRUE)
+# With the quadratic specification, we find that the estimated effect or richness on productivity 
+# only turns positive in plots over 31 species, which represents only 14 observations and 1.14% of the data 
 
 #E. Cubic 
 ModPFE.cubic <- felm(live_mass ~ rich + I(rich^2) +I(rich^3)   | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
 summary(ModPFE.cubic, robust = TRUE)
+# The results imply that the cubic specification does not fit well (and thus arent reported in Table S3)
+# Coefficients for level and squared richness are nearly identical to values in quadratic specification (ModPFE.quad)
+# but very imprecisely estimated (p>0.4 for the squared term)
+# and cubic coefficient is nearly zero (.001078, p=0.94).
 
 #print all functional form results into a single table
 screenreg(list(ModPFE, ModPFE.levels, ModPFE.loglevel, ModPFE.quad, ModPFE.cubic), 
@@ -146,7 +156,7 @@ screenreg(list(ModPFE, ModPFE.levels, ModPFE.loglevel, ModPFE.quad, ModPFE.cubic
 #######################################################################################################################################
 
 ##### Analyses for Section S5c: Moderating Effect of site-level species richness ####
-## See Table S6 
+## See Table S6: code to reproduce Table S6 is below.
 
 #average site richness as moderator
 ModModSite1 <- felm(log(live_mass) ~ log(rich) + log(rich):site_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
@@ -182,7 +192,7 @@ summary(ModModCover2, robust = TRUE, cluster = TRUE)
 screenreg(list( ModModCover2,  ModModCover1 ),   # object with results 
           custom.model.names= c("Total Cover", "Cover interacted with Richness " ))
 
-
+# **** CUT in between????? *******
 
 
 ###########################################################
@@ -197,7 +207,6 @@ hist(comb$ave_site_livemass)
 comb[, ave_site_livemass.peryr := ave(live_mass, na.rm = T), by = .(site_code, year)]
 hist(comb$ave_site_livemass.peryr)
 
-
 ##Test for heterogeniety
 #A.  Log-log and fixed effects/dummies only.
 ModPFE.prod <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
@@ -206,7 +215,6 @@ summary(ModPFE.prod, robust = TRUE, cluster = TRUE)
 #with the average site-level live mass per year (likely the one we want!)
 ModPFE.prod2 <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass.peryr  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.prod2, robust = TRUE, cluster = TRUE)
-
 
 #output productivity moderator results into a single table
 screenreg(list(ModPFE.prod2, ModPFE.prod ),       # object with results from clx
