@@ -194,20 +194,22 @@ screenreg(list( ModModCover2,  ModModCover1 ),   # object with results
 
 # **** CUT in between????? *******
 
+#######################################################################################################################################
+### Supplemental Analyses:  S5d Moderating Effect of site-level productivity  ################################################################################################
+#######################################################################################################################################
+
+## See Table S5 & 6: code to reproduce results
 
 ###########################################################
 ### Compute average site-level productivity (live mass) ###
 ###########################################################
-
-# cover[,totplotcover.yr := sum(max_cover, na.rm=T), by=.(plot, site_code, year)]
-
 comb[, ave_site_livemass := ave(live_mass, na.rm = T), by = .(site_code)]
 hist(comb$ave_site_livemass)
 
 comb[, ave_site_livemass.peryr := ave(live_mass, na.rm = T), by = .(site_code, year)]
 hist(comb$ave_site_livemass.peryr)
 
-##Test for heterogeniety
+##Test for heterogeneous treatment effects moderated by site-level productivity levels - analyses for Table S5
 #A.  Log-log and fixed effects/dummies only.
 ModPFE.prod <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.prod, robust = TRUE, cluster = TRUE)
@@ -216,9 +218,13 @@ summary(ModPFE.prod, robust = TRUE, cluster = TRUE)
 ModPFE.prod2 <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass.peryr  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.prod2, robust = TRUE, cluster = TRUE)
 
-#output productivity moderator results into a single table
+#output productivity moderator results into a single table - Table S5
 screenreg(list(ModPFE.prod2, ModPFE.prod ),       # object with results from clx
           custom.model.names=c("Average Prod per site &  year", "Average Prod per site"))
+
+
+
+#### Analyses for Table S6 using cut-offs akin to Wang et al. 2019 Nature Communications
 
 ## Using the productivity groups from Wang et al 2019 Nature Communications
 # Hi Laura,
@@ -239,57 +245,28 @@ summary(comb$ave_site_livemass.peryr)
 summary(comb$ave_site_livemass)
 #check that it worked length(unique(comb$ave_site_livemass))  == 43 
 
-## Do a different cut off Low, Medium, High, based on Wang et al 
-# *check if live mass is in g/m^2 in NutNet
-
-# the results totally change depending on the cut-offs here if its based on live_mass vs ave_site_livemass
+## Do a different cut off Low, Medium, High groups of site livemass, based on Wang et al cut-offs
 comb[, ProdGroup_WangCutoffs:=cut(ave_site_livemass, breaks=c(30.18,239.67,414.20,1609), labels=c("Low","Medium","High")), by = .(site_code) ]
 head(comb)
 table(comb$ProdGroup_WangCutoffs)
 summary(comb$ProdGroup_WangCutoffs)
 plot(comb$ProdGroup_WangCutoffs, main = "Productivity Groups (Average Across Years)")
 
+## the Wang et al. paper uses a single year of data. Thus, we also need to create these cut-offs for each site and year in our data:
 comb[, ProdGroup := cut(ave_site_livemass.peryr, breaks=c(30.18,239.67,414.20,1609), labels=c("Low","Medium","High"))]
 head(comb)
 table(comb$ProdGroup)
 plot(comb$ProdGroup, main = "Productivity Groups Per Year")
 
-
-ModPFE.prodgroup.wang <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup_WangCutoffs  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prodgroup.wang , robust = TRUE, cluster = TRUE)
-
-
+## For results in Table S6 -- column 1. 
 ModPFE.prodgroup.peryr <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.prodgroup.peryr , robust = TRUE, cluster = TRUE)
 
-#output productivity moderator results into a single table
+## For results in Table S6 -- column 2. 
+ModPFE.prodgroup.wang <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup_WangCutoffs  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
+summary(ModPFE.prodgroup.wang , robust = TRUE, cluster = TRUE)
+
+#output productivity moderator results into a single table: Table S6
 screenreg(list(ModPFE.prodgroup.peryr , ModPFE.prodgroup.wang ),       # object with results from clx
           custom.model.names=c("Average Prod per site &  year", "Average Prod per site"))
-
-# then do it based on equal thirds
-#create variables for each cut-off
-# low - bottom 1/3rd
-# summary(comb$ave_site_livemass) ; mean = 326.8
-comb$lowprod <- 326.8*(1/3)   # = 108.9333
-#medium
-326.8*(2/3)
-#high
-
-# # summary(comb$live_mass)
-# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-# 0.0105  138.6000  250.7000  326.8000  447.6000 2171.0000
-
-# 
-# summary(comb$ave_site_livemass)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 62.48  175.90  269.50  326.80  474.40 1124.00
-# 
-
-# summary(comb$ave_site_livemass.peryr)
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-# 5.372  154.700  267.800  326.800  435.200 1609.000 
-
-
-comb[, ProdGroup_equal:=cut(live_mass, breaks=c(0,33.333,live_mass*66.666,live_mass*99.999), labels=c("Low","Medium","High"))]
-head(comb)
 
