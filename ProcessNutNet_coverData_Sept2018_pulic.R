@@ -518,33 +518,6 @@ cover[, sr_non.nat_dom.RelA2 := length(unique(Taxon[RelAbund_group2 == "Dominant
 cover[, sr_nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-###########################################################################################################################
-#### Compute variables for site-level richness to assess: ########################################################
-# How do results depend on average site-level rich (averaged over time for the site)? #################################################################################################
-############################################################################################################################
-# April 24, 2019 - moved over from mechanisms analysis Aug 29 2019.
-
-#compute the site richness from the cover data
-cover[, new_siterich := uniqueN(Taxon), by = .(site_code, year)]
-cover[, new_initsiterich := new_siterich[year_trt == 0][1], by = .(site_code)]
-plot(new_siterich ~ new_initsiterich, data = cover)
-
-cover[, avesiterich  := mean(new_siterich, na.rm = TRUE), by = site_code]
-plot(avesiterich ~ new_initsiterich, data = cover)
-cor(cover$avesiterich, cover$new_initsiterich, use='complete.obs')
-# 0.9470813
-
-#compute site level change 
-# *to do* mech.data[, ave_siterich_change := mean(changerich, na.rm = TRUE), by = site_code]
-lag.data=cover[,.(new_siterich=new_siterich[1]),by=.(site_code, year)][,lag_new_siterich:=shift(new_siterich, n=1, type=), by=site_code]
-cover = merge(cover, lag.data[,.(site_code,year,lag_new_siterich)], by=c("site_code","year"), all.x=T)
-
-#check to make sure this worked
-cover[site_code=='bldr.us', .(mean(new_siterich), mean(lag_new_siterich)), by=year ]
-
-cover[, change_siterich := new_siterich - lag_new_siterich, by=year ]
-hist(cover$change_siterich)
-
 ########################################################################################################
 ### Check for duplicates and write out file #############################################################
 ##########################################################################################################
