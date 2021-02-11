@@ -354,7 +354,6 @@ panelFE.main.2 + labs(
   caption = "", x = "Variable", y = "Coefficient Estimate")
 # labs(fill = "reg")
 
-
 ################################################################################################################################
 ###**** Final Figure****  Figure 2 - Main Text - without plotting evenness estimate #########################################################
 ############################################################################################################################################
@@ -644,107 +643,16 @@ common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity
 plot_grid(Fig2A  + common.ylab,
           Fig.2B + common.ylab)
 
+###################################################################################################
+###### For information on the following, see the file NutNutAnalyses_SMSection5.R              ####
+###### SM section S5b: FUNCTIONAL FORM ASSUMPTION CHECK Table S3                                ####
+###### SM section 5c Analyses for Table S4: Moderating Effect of site-level species richness    ####
+###### SM  SM section 5d Analyses for Table S5 &v S6: Moderating Effect of site-level productivity #
+####################################################################################################
 
-################################################ ################################################### ########################
-###### SM FUNCTIONAL FORM ASSUMPTION CHECK ################################################### #######################################
-### Check Different Functional form assumptions, though the log-log is supported by theory and past work.  ######################
-#  SI Table Results 1  ########################################################################################################
-################################################### ################################################### ########################
-
-#B. Log-Level
-ModPFE.loglevel <- felm(log(live_mass) ~ rich | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.loglevel , robust = TRUE)
-
-#C. Levels #B. Levels
-ModPFE.levels <- felm(live_mass ~ rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.levels, robust = TRUE)
-
-#print results
-#output models into a single table
-screenreg(list(ModPFE, ModPFE.levels , ModPFE.loglevel), 
-          custom.model.names=c("Log-Log", "Levels", "Log-Level" ))
-
-#D - Quadratic form 
-ModPFE.quad <- felm(live_mass ~ rich + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.quad, robust = TRUE)
-
-#E. Cubic 
-ModPFE.cubic <- felm(live_mass ~ rich + I(rich^2) +I(rich^3)   | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.cubic, robust = TRUE)
-
-#print all functional form results into a single table
-screenreg(list(ModPFE, ModPFE.levels, ModPFE.loglevel, ModPFE.quad, ModPFE.cubic), 
-          custom.model.names=c("Log-Log (Main)", "Levels", "Log-Level", "Quadratic", "Cubic"))
-
-#****CHRIS THIS SHOULD BE CUT RIGHT? Its wrng I think bc doesnt make sense to take the log
-###########################################################
-##  Log-log  w squared richness term #####################  
-###########################################################          
-
-PFE.Log.richSQ  = felm(log(live_mass) ~ log(rich) + I(log(rich)^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
-
-table(log(comb$rich)>0.8076074/(2*0.1469532))
-
-# there is a positive effect on the squared term and a negative on the non - so this determines over which range of the data its a positive or 
-# negative effect bc the log(rich) ranges from 0 to 3.61
-# table(log(comb$rich)>0.8076074/(2*0.1469532))
-# 
-# FALSE  TRUE 
-# 1029   235 
-
-PFE.Log.richSQ.2  = felm(log(live_mass) ~ rich + I((rich)^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ.2, robust = TRUE)
-
-PFE.Log.richSQ  = felm(log(live_mass) ~ I(rich)^2 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
-
-#Cubic Richness
-PFE.Log.richCube2  = felm(log(live_mass) ~ I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richCube2, robust = TRUE, cluster = TRUE)
-
-PFE.Log.richCube2  = felm(log(live_mass) ~  I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richCube2, robust = TRUE, cluster = TRUE)
-
-
-#######################################################################################################################################
-### SI Analyses: Test robustness to moderators SM sections S5c and S5d ################################################################################################
-#######################################################################################################################################
-
-##### Analyses for Section S5c: Moderating Effect of site-level species richness ####
-## See Table S6 
-
-#average site richness as moderator
-ModModSite1 <- felm(log(live_mass) ~ log(rich) + log(rich):site_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite1 , robust = TRUE)
-
-#ave site INT (introduced) richness  as moderator 
-ModModSite2 <- felm(log(live_mass) ~ log(rich) + log(rich):site_introduced_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite2 , robust = TRUE)
-
-#yearly site  richness as moderator
-ModModSite3 <- felm(log(live_mass) ~ log(rich) + log(rich):site_year_rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite3 , robust = TRUE)
-
-#ave site NATIVE richness  as moderator
-ModModSite4 <- felm(log(live_mass) ~ log(rich) + log(rich):site_native_richness | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite4, robust = TRUE, cluster = TRUE)
-
-#print results - simple table for main results 
-screenreg(list(ModModSite1, ModModSite2, ModModSite3, ModModSite4),     # object with results 
-          custom.model.names= c("Mean Site SR" , "Site Introduced SR", "Site Yearly SR", "Site Native SR"))
-
-###########################################################################
-#With total cover: ########################################################
-###########################################################################
-ModModCover1 <- felm(log(live_mass) ~ log(rich) + log(rich):total_cover | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModCover1, robust = TRUE, cluster = TRUE)
-
-ModModCover2 <- felm(log(live_mass) ~ log(rich) + total_cover | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModModCover2, robust = TRUE, cluster = TRUE)
-
-screenreg(list( ModModCover2,  ModModCover1 ),   # object with results 
-          custom.model.names= c("Total Cover", "Cover interacted with Richness " ))
+####################################################################################
+##** Models for Figure 3 in the Main Text ##########################################
+####################################################################################
 
 #############################################################################################################################################
 ## Robustness Models: LDV models and IV models, R2 for Oster Test #####################################################################################
@@ -773,8 +681,6 @@ comb.lagged.descript =  table(comb.laggedmod.dat$site_name, comb.laggedmod.dat$y
 #write.csv(comb.descript.v1, "DatasetDescript-ControlPlots_laggedanal.csv") 
 # Determine the number of Obs.
 nrow(comb.laggedmod.dat) #confirm it's 1075 observations  # ??? now says 1075? 
-
-### Run model without Ground_PAR #########
 
 #A.  Log-log and fixed effects/dummies only.
 ModLD <- felm(log(live_mass) ~ log(rich)  + log(laggedlive_mass) | site.by.yeardummy | 0 | newplotid, data = comb.laggedmod.dat, exactDOF='rM')
@@ -867,26 +773,6 @@ bind_rows(
  # labs(title = "Log-Log Model Results") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.title = element_text(face="bold", size = 14))
-
-#https://grantmcdermott.com/2019/12/16/interaction-effects/
-
-# tidy(ModLD, conf.int = T) %>%
-#   filter(grepl("log(rich)", term)) %>%
-#   ## Optional regexp work to make plot look nicier  
-#   mutate(
-#     am = ifelse(grepl("am1", term), "Automatic", "Manual"),
-#     vs = ifelse(grepl("vs1", term), "V-shaped", "Straight"),
-#     x_lab = paste(am, vs, sep="\n")
-#   ) %>%
-#   ggplot(aes(x=x_lab, y=estimate, ymin=conf.low, ymax=conf.high)) +
-#   geom_pointrange() +
-#   geom_hline(yintercept = 0, col = "orange") +
-#   labs(
-#     x = NULL, y = "Marginal effect (Δ in MPG : Δ in '000 lbs)",
-#     title = " Marginal effect of vehicle weight on MPG", 
-#     subtitle = "Conditional on transmission type and engine shape"
-#   ) +
-#   theme_ipsum() 
 
 #######################################################################################################################################
 ### IV models ############################################################################################################
@@ -1071,7 +957,6 @@ Figure3 <- ## Just the models with richness in it:
   theme(plot.title = element_text(face="bold", size = 18))
 
 # Estimated % Change in Productivity from a 1% Change in Diversity
-
 Figure3
 
 # Figure3 + scale_fill_brewer(palette="Greys")
@@ -1100,114 +985,3 @@ Fig3 <- Figure3 + theme(axis.text.x = element_blank()) + theme(legend.title = el
 
 # print final figure:
 Fig3
-
-# to have the text on the x axis vertical:
-# Figure3 + theme(axis.text.x = element_text(angle = 90))
-
-#to add the name to the model type
-#Fig3 <- Figure3 + scale_color_discrete(name='Model')
-
-
-###########################################################
-### Compute average site-level productivity (live mass) ###
-###########################################################
-
-# cover[,totplotcover.yr := sum(max_cover, na.rm=T), by=.(plot, site_code, year)]
-
-comb[, ave_site_livemass := ave(live_mass, na.rm = T), by = .(site_code)]
-hist(comb$ave_site_livemass)
-
-comb[, ave_site_livemass.peryr := ave(live_mass, na.rm = T), by = .(site_code, year)]
-hist(comb$ave_site_livemass.peryr)
-
-
-##Test for heterogeniety
-#A.  Log-log and fixed effects/dummies only.
-ModPFE.prod <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prod, robust = TRUE, cluster = TRUE)
-
-#with the average site-level live mass per year (likely the one we want!)
-ModPFE.prod2 <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass.peryr  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prod2, robust = TRUE, cluster = TRUE)
-
-
-#output productivity moderator results into a single table
-screenreg(list(ModPFE.prod2, ModPFE.prod ),       # object with results from clx
-          custom.model.names=c("Average Prod per site &  year", "Average Prod per site"))
-          
-## Using the productivity groups from Wang et al 2019 Nature Communications
-# Hi Laura,
-# Here is Yongfan’s response:
-# The 151 grids in HerbDivNet data were divided into three equal groups,
-# depending on their mean productivity: low, medium, and high productivity (with 50 to 51 grids each).
-# The cutoff values of primary productivity of each group:
-#   
-# Low (51 grids): 30.18-238.73 (g/m^2)
-# Medium (50 grids): 239.67-409.69 (g/m^2)
-# High (50 grids): 414.29-1382.42 (g/m^2)
-# 
-# Best,
-# Michel
-
-# do the groups based on the overall average since Wang et al was a cross-section so that is more comparable
-summary(comb$ave_site_livemass.peryr)
-summary(comb$ave_site_livemass)
-#check that it worked length(unique(comb$ave_site_livemass))  == 43 
-
-## Do a different cut off Low, Medium, High, based on Wang et al 
-# *check if live mass is in g/m^2 in NutNet
-
-# the results totally change depending on the cut-offs here if its based on live_mass vs ave_site_livemass
-comb[, ProdGroup_WangCutoffs:=cut(ave_site_livemass, breaks=c(30.18,239.67,414.20,1609), labels=c("Low","Medium","High")), by = .(site_code) ]
-head(comb)
-table(comb$ProdGroup_WangCutoffs)
-summary(comb$ProdGroup_WangCutoffs)
- plot(comb$ProdGroup_WangCutoffs, main = "Productivity Groups (Average Across Years)")
-
-comb[, ProdGroup := cut(ave_site_livemass.peryr, breaks=c(30.18,239.67,414.20,1609), labels=c("Low","Medium","High"))]
-head(comb)
-table(comb$ProdGroup)
-plot(comb$ProdGroup, main = "Productivity Groups Per Year")
-
-
-ModPFE.prodgroup.wang <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup_WangCutoffs  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prodgroup.wang , robust = TRUE, cluster = TRUE)
-
-
-ModPFE.prodgroup.peryr <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prodgroup.peryr , robust = TRUE, cluster = TRUE)
-
-#output productivity moderator results into a single table
-screenreg(list(ModPFE.prodgroup.peryr , ModPFE.prodgroup.wang ),       # object with results from clx
-          custom.model.names=c("Average Prod per site &  year", "Average Prod per site"))
-
-# then do it based on equal thirds
-#create variables for each cut-off
-# low - bottom 1/3rd
-# summary(comb$ave_site_livemass) ; mean = 326.8
-comb$lowprod <- 326.8*(1/3)   # = 108.9333
-#medium
-326.8*(2/3)
-#high
-
-# # summary(comb$live_mass)
-# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-# 0.0105  138.6000  250.7000  326.8000  447.6000 2171.0000
-
-# 
-# summary(comb$ave_site_livemass)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 62.48  175.90  269.50  326.80  474.40 1124.00
-# 
-
-# summary(comb$ave_site_livemass.peryr)
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-# 5.372  154.700  267.800  326.800  435.200 1609.000 
-
-
-comb[, ProdGroup_equal:=cut(live_mass, breaks=c(0,33.333,live_mass*66.666,live_mass*99.999), labels=c("Low","Medium","High"))]
-head(comb)
-
-
-
-
