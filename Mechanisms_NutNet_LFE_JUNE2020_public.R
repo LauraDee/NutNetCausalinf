@@ -1390,9 +1390,6 @@ screenreg(list(Mod4B.1, Mod5B.1),     # object with results
 screenreg(list(Mod4C.1, Mod5C.1),     # object with results 
           custom.model.names= c("Cut-Off 1", "Cut-Off 2"))
 
-#make histograms of the different measures and then show visually where the different cut-offs are.
-
-
 ############################################################################################################################
 #### Plot Correlations between all of the SR groupings ###################################################################
 #############################################################################################################################
@@ -1409,6 +1406,3 @@ sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, non_rare_spp,
                      sr_non.nat_dom, sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare )]
  cor(sr.metrics)
 corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
-
-
-
