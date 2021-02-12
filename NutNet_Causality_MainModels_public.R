@@ -46,6 +46,16 @@ ihs = function(x) {
 }
 # v.s. log(x+1) <- is defined for a negative x. 
 
+# run this function - critical for workflow for plotting results:
+tidy = function(model, ...) {
+  data = cbind.data.frame(term = names(coef(model)),
+                          coef(summary(model, robust= T)),
+                          confint(model))
+  names(data) = c("term","estimate","std.error", "statistic","p.value","conf.low","conf.high")
+  return(data)
+ }
+
+
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'
 setwd("~/Dropbox/IV in ecology/NutNet")
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
@@ -142,7 +152,7 @@ summary(ModPFE, robust = TRUE)
 cof <- tidy(ModPFE, robust = TRUE,  conf.int = T)
 cof
 # coefs.test <-tidy(ModPFE, cluster = T, robust = T)
-cof <- tidy(ModPFE, robust = T)
+cof <- tidy(ModPFE, robust = F)
 cof
 
 #with evenness:
