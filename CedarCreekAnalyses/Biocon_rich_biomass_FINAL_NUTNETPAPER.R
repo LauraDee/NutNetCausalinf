@@ -87,39 +87,8 @@ realrichovertime.T
 mod1 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat)
 summary(mod1)
 
+# Print the supplemental Table SX:
 screenreg(mod1,     # object with results 
           custom.model.names= "Main Model for BioCon: Effect on Planted Biomass" ,
           override.se=summary(mod1)$coef[,2],
           override.pval=summary(mod1)$coef[,4])
-
-#******************************
-##***** cut all of this below for the paper ? ****
-##*
-###########################################################################################################################
-### Create copies of the data tables and subset to particular planted diversity levels ###################################
-###########################################################################################################################
-findat9 = findat[TreatmentSR == "9",]
-findat4 = findat[TreatmentSR == "4",]
-findat1 = findat[TreatmentSR == "1",]
-table(findat9$Year) 
-
-## Forest Isbell recommended  to run the analyses on only the 16 species plot since they are more representative, 
-# but the sample size is insufficient. Insufficient power for precise estimate
-findat16 = findat[TreatmentSR == "16",]
-table(findat16$Year)
-summary(findat16$ObservedSR)
-
-#### Run models on subset of the treatment levels: starting with the most diverse plots
-mod.16 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat16)
-summary(mod.16)
-
-mod.1 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat1)
-summary(mod.1)
-
-mod.4 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat4)
-summary(mod.4)
-
-mod.9 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat9)
-summary(mod.9)
-
-
