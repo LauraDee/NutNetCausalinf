@@ -60,15 +60,19 @@ plot(d$numsp, d$rich, xlab = "planted species", ylab = "realized richness", main
 #####################################################################################################################
 mod_main <- felm(ihs(mass.live ) ~ ihs(rich) | year + plot | 0 | plot, data =d)
 summary(mod_main, robust = T)
+
+#print results for SM Table, as in SM Section S8.
 screenreg(mod_main,     # object with results 
           custom.model.names= "Main Model for BigBio: Effect on Planted Biomass" ,
           override.se=summary(mod_main,)$coef[,2],
           override.pval=summary(mod_main)$coef[,4])
 
-### implement on just plots with 16 species planted 
+### Implement on just plots with 16 species planted, because these plots are 
+# found to be more representative of nautral communities in some aspects 
+   # (e.g., see Jochum, M., et al. (2020). The results of biodiversity–ecosystem functioning experiments are realistic. Nat. Ecol. Evol., 4, 1485–1494.)
 d16 = d[Treat.numsp == "16",]
 mod16 <- felm(ihs(mass.live) ~ ihs(rich) | year + plot | 0 | plot, data = d16) 
-summary(mod16, robust = T)
+summary(mod16, robust = T)  # we find the results are still consistent with our conjecture.
 
 screenreg(mod16,  # object with results 
           custom.model.names= " 16 species only plots",
