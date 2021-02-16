@@ -20,7 +20,6 @@
 # theme(legend.position="top") 
 #http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
-
 #Close graphics and clear local memory
 #graphics.off()
 rm(list=ls())
@@ -46,6 +45,15 @@ ihs = function(x) {
   return(log(x + sqrt(x^2+1)))
 }
 # v.s. log(x+1) <- is defined for a negative x. 
+
+# run this function - critical for workflow for plotting results:
+tidy = function(model, ...) {
+  data = cbind.data.frame(term = names(coef(model)),
+                          coef(summary(model, robust= T)),
+                          confint(model))
+  names(data) = c("term","estimate","std.error", "statistic","p.value","conf.low","conf.high")
+  return(data)
+ }
 
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'
@@ -126,36 +134,6 @@ comb.descript.v1 =  table(comb$site_name, comb$year)
 write.csv(comb.descript.v1, "DatasetDescript-ControlPlots-July2020.csv")
 # length(unique(comb$site_code))
 
-#####################################################################################################
-### Create SR change variable, +, - or no change ###################################################################
-#######################################################################################################
-comb[, rich_increase := changerich>0]
-comb[, rich_decrease := changerich<0]
-comb[, rich_nochange := changerich == 0]  
-
-#create a factor: is the change in richness a decrease, increase or no change
-comb[, changerich_cat := ifelse(changerich<0,"rich_dec", ifelse(changerich>0, "rich_inc", "rich_nochg"))]
-# plot 
- # barplot(prop.table(table(comb$changerich_cat)), main = "Species richness change per year by plot")
-
-##### Whether richness change is an increase or decrease #######
- # barplot(prop.table(table(comb$rich_decrease)), main = "Species richness decrease")
- # barplot(prop.table(table(comb$rich_increase)), main = "Species richness increase")
- # barplot(prop.table(table(comb$rich_nochange)), main = "No species richness change")
-
-#### SI Data Plots #####
-  # hist(comb$changeSimpson, xlab = "Change in Simpson's Diversity", main = "")
-  # hist(comb$changeEvenness, xlab = "Change in Species Evenness", main = "")
-  # hist(comb$changelive_mass, xlab = "Change in Live Biomass", main = "")
-
-##### Count for when evenness change is a 0 to show lack of variation in evenness #######
-comb[, even_nochange := changeEvenness == 0]  
-comb[, even_increase := changeEvenness > 0] 
-comb[, even_decrease := changeEvenness < 0] 
-barplot(prop.table(table(comb$even_nochange)), main = "No species Evenness change")
-barplot(prop.table(table(comb$even_decrease)), main = "Species Evenness decrease")
-barplot(prop.table(table(comb$even_increase)), main = "Species Evenness increase")
-
 ############################################################################################################################
 #### Panel FE Plus: Plot-FE and site*year effects  ###########################################################################
 ##### # RUN AND PLOT:  ## Preferred Models - Main Text ###########################################################################
@@ -168,13 +146,13 @@ barplot(prop.table(table(comb$even_increase)), main = "Species Evenness increase
 ##### Models with productivity as the Y variable as log live mass ##########
 #A.  Log-log and fixed effects/dummies only.
 ModPFE <- felm(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy | 0 | newplotid, data = comb)
-summary(ModPFE, robust = TRUE, cluster = TRUE) #cluster is not in the summary - need to make sure this is doing clustering
 summary(ModPFE, robust = TRUE)
 
-cof <- tidy(ModPFE, robust = TRUE, cluster = TRUE, conf.int = T)
+## TESTS OF THE TIDY FUNCTON HERE****
+cof <- tidy(ModPFE, robust = TRUE,  conf.int = T)
 cof
 # coefs.test <-tidy(ModPFE, cluster = T, robust = T)
-cof <- tidy(ModPFE, robust = T)
+cof <- tidy(ModPFE, robust = F)
 cof
 
 #with evenness:
@@ -189,9 +167,7 @@ summary(ModPFE.3 , robust = TRUE, cluster = TRUE)
 ModPFE.4 <- felm(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
 summary(ModPFE.4 , robust = TRUE, cluster = TRUE)
 
-
 #print log-log results
-#print results
 screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results 
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"))
       
@@ -216,14 +192,12 @@ coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
 coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
 coefs_ModPFE.3 <- tidy(ModPFE.3, conf.int = T,  robust = T)
 coefs_ModPFE.4 <- tidy(ModPFE.4, conf.int = T,  robust = T)
-# coefs_Mod.R1 <- tidy(Mod.R1, conf.int = T,  robust = T) # from the other file.. 
 
 panelFE.main <-  bind_rows(
   coefs_ModPFE %>% mutate(reg = "Model 1"),
   coefs_ModPFE.2  %>% mutate(reg = "Model 1 with evenness"),
   coefs_ModPFE.3  %>% mutate(reg = "Model 1 with lagged richness"),
   coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-  # coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover") # from other file... 
 ) %>%
   ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
   geom_pointrange() + theme_classic() +
@@ -279,7 +253,6 @@ panelFE.main.2 + labs(
 ############################################################################################
 # Simpson's Diversity Models - Panel FE #######################################################
 ##########################################################################################
-
 ##### Models with productivity as the Y variable as log live mass ##########
 #D.  Log-log and fixed effects/dummies only.
 ModPFEsimpsonD <- felm(log(live_mass) ~ log(simpson)  | newplotid + site.by.yeardummy |0 | newplotid, data = comb, exactDOF='rM')
@@ -289,17 +262,14 @@ summary(ModPFEsimpsonD, robust = TRUE, cluster = TRUE)
 #print results
 screenreg(list(ModPFE, ModPFE.2, ModPFEsimpsonD),     # object with results 
           custom.model.names= c("Main Model with Richness" , "Main Model with Richness and Evenness", "Model with Simpson's D"))
-# omit.coef=c("(site_code)|(newplotid)")) 
 
 #print results - simple table for main results 
 screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4, ModPFEsimpsonD),     # object with results 
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both", "Simpson's D"))
-# omit.coef=c("(site_code)|(newplotid)")) 
 
 #######################################################################################################################################
 ### Make Figure 2 for Main text  #################################################################################################################
 #######################################################################################################################################
-
 coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
 coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T,  robust = T)
 coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T,  robust = T)
@@ -319,7 +289,6 @@ plot.data.main <-  bind_rows(
   coefs_ModPFEsimpsonD  %>% mutate(reg = "Model with Simpson's Diversity"),
   coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
  # coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-#  coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover") # from other file... 
 ) 
 
 panelFE.main <-
@@ -350,7 +319,6 @@ panelFE.main + labs(
 ##############################################################################
 ### Figure 2 - Main Text #########################################################
 #################################################################################
-
 coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
 coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
 coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T, robust = T)
@@ -396,9 +364,8 @@ panelFE.main.2 + labs(
   caption = "", x = "Variable", y = "Coefficient Estimate")
 # labs(fill = "reg")
 
-
 ################################################################################################################################
-###**** Final Figure****  Figure 2 - Main Text -without plotting evenness estimate #########################################################
+###**** Final Figure****  Figure 2 - Main Text - without plotting evenness estimate #########################################################
 ############################################################################################################################################
 
 #* to do: change the order of the models:
@@ -458,10 +425,6 @@ panelFE.main.2 + labs(
 #panelFE.main.2 +  theme(legend.title=element_text(size=14), legend.text=element_text(size=14)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
-#panelFE.main.2  + scale_color_manual(values=cbPalette[c(7,3,4,8)])   +  theme(legend.title=element_text(size=14), legend.text=element_text(size=12)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-
-# theme(legend.position="top") 
-#http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
 p <- panelFE.main.2 + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
   title = "Effect size of Log Species Richness on Log Productivity",
@@ -488,8 +451,6 @@ ppp + scale_x_discrete(labels = c('log(Species Richness)','log(Simpsons Diversit
    axis.text.x = element_text(size = 16),
   axis.text.y = element_text(size = 16),
   axis.title.y = element_text(size = 16))
-  
-
 
 ###### End ######################
 
@@ -675,16 +636,7 @@ Fig.2B <- Fig.2B + theme(axis.text=element_text(size=22),
   theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
 Fig.2B
 
-
-# print final figure:
-# Fig.2B <- ppp + scale_x_discrete(labels = c('log(Species Richness)')) + theme(
-#   axis.title.x = element_text(size = 20),
-#   axis.text.x = element_text(size = 16),
-#   axis.text.y = element_text(size = 16),
-#   axis.title.y = element_text(size = 16)) + theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-# Fig.2B
-
-# simplified variable name
+# simplified variable names
 Fig.2B <- Fig.2B + scale_x_discrete(labels = c('Species Richness', "Simpson's Diversity")) + theme(
   axis.title.x = element_text(size = 20),
   axis.text.x = element_text(size = 16),
@@ -701,161 +653,16 @@ common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity
 plot_grid(Fig2A  + common.ylab,
           Fig.2B + common.ylab)
 
+###################################################################################################
+###### For information on the following, see the file NutNutAnalyses_SMSection5.R              ####
+###### SM section S5b: FUNCTIONAL FORM ASSUMPTION CHECK Table S3                                ####
+###### SM section 5c Analyses for Table S4: Moderating Effect of site-level species richness    ####
+###### SM  SM section 5d Analyses for Table S5 &v S6: Moderating Effect of site-level productivity #
+####################################################################################################
 
-
-################################################ ################################################### ########################
-###### FUNCTIONAL FORM ASSUMPTION CHECK ################################################### #######################################
-### Check Different Functional form assumptions, though the log-log is supported by theory and past work.  ######################
-#  SI Table Results 1  ########################################################################################################
-################################################### ################################################### ########################
-
-#B. Log-Level
-ModPFE.loglevel <- felm(log(live_mass) ~ rich | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.loglevel , robust = TRUE, cluster = TRUE)
-
-#C. Levels #B. Levels
-ModPFE.levels <- felm(live_mass ~ rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.levels, robust = TRUE, cluster = TRUE)
-
-#print results
-#output models into a single table
-screenreg(list(ModPFE, ModPFE.levels , ModPFE.loglevel), 
-          custom.model.names=c("Log-Log", "Levels", "Log-Level" ))
-
-#D - Quadratic form 
-ModPFE.quad <- felm(live_mass ~ rich + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.quad, robust = TRUE, cluster = TRUE)
-
-#D - Quadratic form 
-ModPFE.logquad <- felm(live_mass ~ log(rich) + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.logquad, robust = TRUE, cluster = TRUE)
-
-# Quad forms log livemass 
-ModPFE.quad2 <- felm(log(live_mass) ~ rich + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.quad2, robust = TRUE)
-
-#D - Quadratic form 
-ModPFE.logquad2 <- felm(log(live_mass) ~ log(rich) + I(rich^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.logquad2 robust = TRUE)
-
-#print results
-#output models into a single table
-screenreg(list(ModPFE, ModPFE.quad , ModPFE.logquad), 
-          custom.model.names=c("Main Log-Log", "Quadratic Levels", "Quadratic Log" ))
-
-#print all functional form results into one
-#output models into a single table
-screenreg(list(ModPFE, ModPFE.levels, ModPFE.loglevel, ModPFE.quad), 
-          custom.model.names=c("Log-Log", "Levels", "Log-Level", "Quadratic"))
-
-###########################################################
-##  Log-log  w squared richness term #####################
-###########################################################          
-
-PFE.Log.richSQ  = felm(log(live_mass) ~ log(rich) + I(log(rich)^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
-
-table(log(comb$rich)>0.8076074/(2*0.1469532))
-
-# there is a positive effect on the squared term and a negative on the non - so this determines over which range of the data its a positive or 
-# negative effect bc the log(rich) ranges from 0 to 3.61
-# table(log(comb$rich)>0.8076074/(2*0.1469532))
-# 
-# FALSE  TRUE 
-# 1029   235 
-PFE.Log.richSQ.2  = felm(log(live_mass) ~ rich + I((rich)^2) | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ.2, robust = TRUE)
-
-PFE.Log.richSQ  = felm(log(live_mass) ~ log(rich)^2 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
-
-PFE.Log.richSQ  = felm(log(live_mass) ~ I(rich)^2 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richSQ, robust = TRUE, cluster = TRUE)
-
-
-#Cubic Richness
-PFE.Log.richCube  = felm(log(live_mass) ~ log(rich) + I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richCube, robust = TRUE, cluster = TRUE)
-
-#Cubic Richness
-PFE.Log.richCube2  = felm(log(live_mass) ~ I(rich)^3 | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(PFE.Log.richCube2, robust = TRUE, cluster = TRUE)
-
-#######################################################################################################################################
-### SI Analyses: Test robustness to moderators ################################################################################################
-#######################################################################################################################################
-
-#With Duration: 
-ModMod1 <- felm(log(live_mass) ~ log(rich) + log(rich):year_trt | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModMod1 , robust = TRUE)
-
-screenreg(list(ModMod1), 
-          custom.model.names=c("Model with Duration"))
-
-#How does the effect depend on the LEVELS of richness at the site level? 
-#in comb -- with site-level richness:   site_richness, site_year_rich , site_native_richness , site_introduced_richness
-
-#ave site richness
-ModModSite1 <- felm(log(live_mass) ~ log(rich) + log(rich):site_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite1 , robust = TRUE)
-
-#ave site INT rich
-ModModSite2 <- felm(log(live_mass) ~ log(rich) + log(rich):site_introduced_richness | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite2 , robust = TRUE)
-
-#yearly site rich
-ModModSite3 <- felm(log(live_mass) ~ log(rich) + log(rich):site_year_rich | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite3 , robust = TRUE)
-
-#ave site NATIVE richness
-ModModSite4 <- felm(log(live_mass) ~ log(rich) + log(rich):site_native_richness | newplotid + site.by.yeardummy| 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModSite4, robust = TRUE, cluster = TRUE)
-
-# ModMod2 <- felm(log(live_mass) ~ log(rich) + log(rich):site_native_richness + log(rich):site_introduced_richness | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-# summary(ModMod2 , robust = TRUE, cluster = TRUE)
-
-#print results - simple table for main results 
-screenreg(list(ModModSite1, ModModSite2, ModModSite3, ModModSite4),     # object with results 
-          custom.model.names= c("Mean Site SR" , "Site Introduced SR", "Site Yearly SR", "Site Native SR"))
-
-ModMod_decrease <- felm(log(live_mass) ~ log(rich) + log(rich):rich_decrease | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModMod_decrease, robust = TRUE, cluster = TRUE)
-
-ModMod_increase <- felm(log(live_mass) ~ log(rich) + log(rich):rich_increase | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModMod_increase, robust = TRUE, cluster = TRUE)
-
-screenreg(list(ModMod_decrease, ModMod_increase),     # object with results 
-          custom.model.names= c("Richness Decrease", "Richness Increase" ))
-
-
-## Decompose rich change into increrase or decrea
-Modod.decrease <- felm(log(live_mass) ~ rich_increase + rich_decrease   | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(Modod.decrease, robust = TRUE, cluster = TRUE)
-
-screenreg(list(Modod.decrease), 
-          custom.model.names=c("Type of Richness change"))
-
-
-
-# with initial site richness
-# ModModsiteinit <- felm(log(live_mass) ~ log(rich) + log(rich):initial_site_rich | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-# summary(ModModsiteinit, robust = TRUE, cluster = TRUE)
-
-# do a trend in site richness through time and interact with richness in the plot
-site_rich_trend <- lm(site_year_rich ~ year_trt:site_code, data = comb)
-summary(site_rich_trend)
-
-###########################################################################
-#With total cover: ########################################################
-###########################################################################
-ModModCover1 <- felm(log(live_mass) ~ log(rich) + log(rich):total_cover | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModModCover1, robust = TRUE, cluster = TRUE)
-
-ModModCover2 <- felm(log(live_mass) ~ log(rich) + total_cover | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModModCover2, robust = TRUE, cluster = TRUE)
-
-screenreg(list( ModModCover2,  ModModCover1 ),   # object with results 
-          custom.model.names= c("Total Cover", "Cover interacted with Richness " ))
+####################################################################################
+##** Models for Figure 3 in the Main Text ##########################################
+####################################################################################
 
 #############################################################################################################################################
 ## Robustness Models: LDV models and IV models, R2 for Oster Test #####################################################################################
@@ -884,8 +691,6 @@ comb.lagged.descript =  table(comb.laggedmod.dat$site_name, comb.laggedmod.dat$y
 #write.csv(comb.descript.v1, "DatasetDescript-ControlPlots_laggedanal.csv") 
 # Determine the number of Obs.
 nrow(comb.laggedmod.dat) #confirm it's 1075 observations  # ??? now says 1075? 
-
-### Run model without Ground_PAR #########
 
 #A.  Log-log and fixed effects/dummies only.
 ModLD <- felm(log(live_mass) ~ log(rich)  + log(laggedlive_mass) | site.by.yeardummy | 0 | newplotid, data = comb.laggedmod.dat, exactDOF='rM')
@@ -978,26 +783,6 @@ bind_rows(
  # labs(title = "Log-Log Model Results") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.title = element_text(face="bold", size = 14))
-
-#https://grantmcdermott.com/2019/12/16/interaction-effects/
-
-# tidy(ModLD, conf.int = T) %>%
-#   filter(grepl("log(rich)", term)) %>%
-#   ## Optional regexp work to make plot look nicier  
-#   mutate(
-#     am = ifelse(grepl("am1", term), "Automatic", "Manual"),
-#     vs = ifelse(grepl("vs1", term), "V-shaped", "Straight"),
-#     x_lab = paste(am, vs, sep="\n")
-#   ) %>%
-#   ggplot(aes(x=x_lab, y=estimate, ymin=conf.low, ymax=conf.high)) +
-#   geom_pointrange() +
-#   geom_hline(yintercept = 0, col = "orange") +
-#   labs(
-#     x = NULL, y = "Marginal effect (Δ in MPG : Δ in '000 lbs)",
-#     title = " Marginal effect of vehicle weight on MPG", 
-#     subtitle = "Conditional on transmission type and engine shape"
-#   ) +
-#   theme_ipsum() 
 
 #######################################################################################################################################
 ### IV models ############################################################################################################
@@ -1096,12 +881,6 @@ summary(modivTlev, diagnostics=T)  # to see relevance tests
 screenreg(list(clus.res.modiv1lev$cl.res, clus.res.modivTreatedlev$cl.res, clus.res.modiv1lev.groundpar$cl.res, clus.res.modivTlev.groundpar$cl.res),       # object with results from clx
           custom.model.names=c("IV 1 Levels", "IV 2 Levels", "IV 1 Levels'","IV 2 Levels'"),
           omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-# IV 1 w/ ground par is weakly sig
-# IV here is average neighbor richness of the site (for each control plot and year)
-# weakly signigicant: p = 0.1000198 
-
-# did the same for level-log models; similar results with only IV1 with ground PAR as weakly sig
-
 
 ###########################################################################################################
 #### Plotting main results for SR all on one plot  ###########################################################
@@ -1188,7 +967,6 @@ Figure3 <- ## Just the models with richness in it:
   theme(plot.title = element_text(face="bold", size = 18))
 
 # Estimated % Change in Productivity from a 1% Change in Diversity
-
 Figure3
 
 # Figure3 + scale_fill_brewer(palette="Greys")
@@ -1217,1017 +995,3 @@ Fig3 <- Figure3 + theme(axis.text.x = element_blank()) + theme(legend.title = el
 
 # print final figure:
 Fig3
-
-# to have the text on the x axis vertical:
-# Figure3 + theme(axis.text.x = element_text(angle = 90))
-
-#to add the name to the model type
-#Fig3 <- Figure3 + scale_color_discrete(name='Model')
-
-###############################################################
-### site-level heterogeniety  ############### ### 
-##############################################################
-
-# ovb_int_simple <- lm(PlotProd ~  PlotSiteCode +
-#                        PlotRich : PlotSiteCode - 1,
-#                      data = plot.sem.dat)
-# 
-# ctab <- tidy(ovb_int_simple) %>%
-#   filter(grepl("PlotRich", term)) %>%
-#   mutate(term = gsub(":PlotRich", "", term),
-#          term = gsub("PlotSiteCode", "", term),
-#          term = forcats::fct_reorder(term, estimate))
-
-#A.  Log-log and fixed effects/dummies only -- and site heterogeniety 
-ModPFE.site <- felm(log(live_mass) ~ log(rich):site_code  | newplotid + site.by.yeardummy | 0 | newplotid, data = comb)
-summary(ModPFE.site, robust = TRUE, cluster = TRUE) #cluster is not in the summary - need to make sure this is doing clustering
-
-cof <- tidy(ModPFE.site, robust = TRUE, cluster = TRUE, conf.int = T)
-
-
-ggplot(cof, aes(x = estimate, y = term,
-                xmin = estimate - 1.96*std.error,
-                xmax = estimate + 1.96*std.error)) +
-        geom_pointrange() +
-        geom_vline(xintercept = 0, color = "red", lty = 2) +
-        labs(title = "Estimated Plot Richness Effect and 95% CI")
-
-cof <- tidy(ModPFE.site, robust = TRUE, conf.int = T) %>%
- #filter(grepl("log(rich)", term)) %>%
-  mutate(term = gsub("log(rich):", "", term),
-         term = gsub("site_code", "", term),
-         term = forcats::fct_reorder(term, estimate))
-
-ggplot(cof,
-       aes(x = estimate)) +
-  geom_histogram(bins = 30)
-
-ggplot(cof,
-       aes(x = estimate, y = term,
-           xmin = estimate - 1.96*std.error,
-           xmax = estimate + 1.96*std.error)) +
-  geom_pointrange() +
-  geom_vline(xintercept = 0, color = "red", lty = 2) +
-  labs(title = "Estimated Plot Richness Effect and 95% CI")
-
-
-### do the same with evenness
-ModPFE.site.even <- felm(log(live_mass) ~ ihs(even):site_code | newplotid + site.by.yeardummy | 0 | newplotid, data = comb)
-summary(ModPFE.site.even, robust = TRUE, cluster = TRUE) #cluster is not in the summary - need to make sure this is doing clustering
-
-cof.even <- tidy(ModPFE.site.even, robust = TRUE, conf.int = T) %>%
-  #filter(grepl("log(rich)", term)) %>%
-  mutate(term = gsub("ihs(even):", "", term),
-         term = gsub("site_code", "", term),
-         term = forcats::fct_reorder(term, estimate))
-
-ggplot(cof.even,
-       aes(x = estimate, y = term,
-           xmin = estimate - 1.96*std.error,
-           xmax = estimate + 1.96*std.error)) +
-  geom_pointrange() +
-  geom_vline(xintercept = 0, color = "red", lty = 2) +
-  labs(title = "Estimated Plot Evenness Effect and 95% CI")
-
-
-### do both- the same with evenness
-ModPFE.site.even <- felm(log(live_mass) ~ log(rich):site_code + ihs(even):site_code | newplotid + site.by.yeardummy | 0 | newplotid, data = comb)
-summary(ModPFE.site.even, robust = TRUE, cluster = TRUE) #cluster is not in the summary - need to make sure this is doing clustering
-
-cof.even <- tidy(ModPFE.site.even, robust = TRUE, conf.int = T) %>%
-  #filter(grepl("log(rich)", term)) %>%
-  mutate(term = gsub("ihs(even):", "", term),
-         term = gsub("site_code", "", term),
-         term = forcats::fct_reorder(term, estimate))
-
-ggplot(cof.even,
-       aes(x = estimate, y = term,
-           xmin = estimate - 1.96*std.error,
-           xmax = estimate + 1.96*std.error)) +
-  geom_pointrange() +
-  geom_vline(xintercept = 0, color = "red", lty = 2) +
-  labs(title = "Estimated Plot Evenness Effect and 95% CI")
-
-
-
-# control for evenness 
-ModPFE.site <- felm(log(live_mass) ~ log(rich):site_code +even  | newplotid + site.by.yeardummy | 0 | newplotid, data = comb)
-summary(ModPFE.site, robust = TRUE, cluster = TRUE) #cluster is not in the summary - need to make sure this is doing clustering
-
-
-###########################################################
-### Compute average site-level productivity (live mass) ###
-###########################################################
-
-# cover[,totplotcover.yr := sum(max_cover, na.rm=T), by=.(plot, site_code, year)]
-
-comb[, ave_site_livemass := ave(live_mass, na.rm = T), by = .(site_code)]
-hist(comb$ave_site_livemass)
-
-comb[, ave_site_livemass.peryr := ave(live_mass, na.rm = T), by = .(site_code, year)]
-hist(comb$ave_site_livemass.peryr)
-
-
-##Test for heterogeniety
-#A.  Log-log and fixed effects/dummies only.
-ModPFE.prod <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prod, robust = TRUE, cluster = TRUE)
-
-#with the average site-level live mass per year (likely the one we want!)
-ModPFE.prod2 <- felm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass.peryr  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prod2, robust = TRUE, cluster = TRUE)
-
-
-#output productivity moderator results into a single table
-screenreg(list(ModPFE.prod2, ModPFE.prod ),       # object with results from clx
-          custom.model.names=c("Average Prod per site &  year", "Average Prod per site"))
-          
-## Using the productivity groups from Wang et al 2019 Nature Communications
-# Hi Laura,
-# Here is Yongfan’s response:
-# The 151 grids in HerbDivNet data were divided into three equal groups,
-# depending on their mean productivity: low, medium, and high productivity (with 50 to 51 grids each).
-# The cutoff values of primary productivity of each group:
-#   
-# Low (51 grids): 30.18-238.73 (g/m^2)
-# Medium (50 grids): 239.67-409.69 (g/m^2)
-# High (50 grids): 414.29-1382.42 (g/m^2)
-# 
-# Best,
-# Michel
-
-# do the groups based on the overall average since Wang et al was a cross-section so that is more comparable
-summary(comb$ave_site_livemass.peryr)
-summary(comb$ave_site_livemass)
-#check that it worked length(unique(comb$ave_site_livemass))  == 43 
-
-## Do a different cut off Low, Medium, High, based on Wang et al 
-# *check if live mass is in g/m^2 in NutNet
-
-# the results totally change depending on the cut-offs here if its based on live_mass vs ave_site_livemass
-comb[, ProdGroup_WangCutoffs:=cut(ave_site_livemass, breaks=c(30.18,239.67,414.20,1609), labels=c("Low","Medium","High")), by = .(site_code) ]
-head(comb)
-table(comb$ProdGroup_WangCutoffs)
-summary(comb$ProdGroup_WangCutoffs)
- plot(comb$ProdGroup_WangCutoffs, main = "Productivity Groups (Average Across Years)")
-
-comb[, ProdGroup := cut(ave_site_livemass.peryr, breaks=c(30.18,239.67,414.20,1609), labels=c("Low","Medium","High"))]
-head(comb)
-table(comb$ProdGroup)
-plot(comb$ProdGroup, main = "Productivity Groups Per Year")
-
-
-ModPFE.prodgroup.wang <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup_WangCutoffs  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prodgroup.wang , robust = TRUE, cluster = TRUE)
-
-
-ModPFE.prodgroup.peryr <- felm(log(live_mass) ~ log(rich) + log(rich):ProdGroup  | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.prodgroup.peryr , robust = TRUE, cluster = TRUE)
-
-#output productivity moderator results into a single table
-screenreg(list(ModPFE.prodgroup.peryr , ModPFE.prodgroup.wang ),       # object with results from clx
-          custom.model.names=c("Average Prod per site &  year", "Average Prod per site"))
-
-# then do it based on equal thirds
-#create variables for each cut-off
-# low - bottom 1/3rd
-# summary(comb$ave_site_livemass) ; mean = 326.8
-comb$lowprod <- 326.8*(1/3)   # = 108.9333
-#medium
-326.8*(2/3)
-#high
-
-# # summary(comb$live_mass)
-# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-# 0.0105  138.6000  250.7000  326.8000  447.6000 2171.0000
-
-# 
-# summary(comb$ave_site_livemass)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 62.48  175.90  269.50  326.80  474.40 1124.00
-# 
-
-# summary(comb$ave_site_livemass.peryr)
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-# 5.372  154.700  267.800  326.800  435.200 1609.000 
-
-
-comb[, ProdGroup_equal:=cut(live_mass, breaks=c(0,33.333,live_mass*66.666,live_mass*99.999), labels=c("Low","Medium","High"))]
-head(comb)
-
-
-
-
-##Test for heterogeniety
-#Log-log and fixed effects/dummies only.
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich)*log(ave_site_livemass) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-BIC(PlotFEs.SiteYear.Log)
-summary(PlotFEs.SiteYear.Log)
-
-#run models with evenness too
-#Log-log and fixed effects/dummies only.
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich)*ave_site_livemass + ihs(even) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-#BIC(PlotFEs.SiteYear.Log)
-#summary(PlotFEs.SiteYear.Log)
-
-#Log-log and fixed effects/dummies only LOG LIVE MASS 
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich)*log(ave_site_livemass) + ihs(even) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-#BIC(PlotFEs.SiteYear.Log)
-#summary(PlotFEs.SiteYear.Log)
-
-
-#Log-log and fixed effects/dummies only LOG LIVE MASS 
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich) + log(rich):log(ave_site_livemass) + ihs(even) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-#BIC(PlotFEs.SiteYear.Log)
-#summary(PlotFEs.SiteYear.Log)
-
-
-#run models with evenness too
-#Log-log and fixed effects/dummies only.
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass + ihs(even) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-#BIC(PlotFEs.SiteYear.Log)
-#summary(PlotFEs.SiteYear.Log)
-
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich) + log(rich):log(ave_site_livemass) + ihs(even) + newplotid + site_code:year, data = comb)
-
-## evenness only model 
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~  ihs(even) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-#BIC(PlotFEs.SiteYear.Log)
-#summary(PlotFEs.SiteYear.Log)
-
-
-
-
-## Preferred Models - Main Text ##
-##########################################################################################################
-#### Plot-FE and site*year effects #########################################################################
-##########################################################################################################
-# to specify clusters for SE: clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid)
-
-### Models without Ground_PAR as a control ######
-
-# Write out what is covered in this dataset for these models with dataset version 1:
-# for a SI Table: #print which sites and years are in this version of the filtered dataset.
-comb.descript.v1 =  table(comb$site_name, comb$year)
-# write.csv(comb.descript.v1, "DatasetDescript-ControlPlots_v1.csv")
-
-# Determine the number of Obs.
-nrow(comb) #1264 observations
-
-#Log-log and fixed effects/dummies only.
-PlotFEs.SiteYear.Log  = lm(log(live_mass) ~ log(rich) + newplotid + site_code:year, data = comb)
-clust.res.PlotFEs.SiteYear.Log = clx(PlotFEs.SiteYear.Log, cluster=comb$newplotid) #clustered SEs on plot
-clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),]
-BIC(PlotFEs.SiteYear.Log)
-summary(PlotFEs.SiteYear.Log)
-#mod1res <- tidy(clust.res.PlotFEs.SiteYear.Log$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log$cl.res)),])
-
-# # Print results, with texreg for one model (for LaTeX)
-#   texreg(clust.res.PlotFEs.SiteYear.Log,       # object with results from clx
-#        omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-
-# use screenreg for output to copy & paste into a word doc.
-screenreg(clust.res.PlotFEs.SiteYear.Log,       # object with results from clx
-          omit.coef=c("(site_code)|(newplotid)")) 
-
-### Store Results in a data frame to plot with ggplot2 ###
-# Estimate some model and call the clustered standard error function
-# Say results are in a variable called results.
-coef.info = clust.res.PlotFEs.SiteYear.Log$cl.res[rownames(clust.res.PlotFEs.SiteYear.Log$cl.res) == "log(rich)", c(1,2)]
-all.results = rbind(all.results, list("Model"=1, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-all.results.SI = rbind(all.results.SI, list("Model"=1, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-
-
-#######################################################################################################################################
-### Lagged-dependent model 1 ############################################################################################################
-#########################################################################################################################################
-
-## there are NAs for lagged live mass so we need to subset this data
-summary(comb$laggedlive_mass)
-comb.laggedmod.dat = comb[!is.na(laggedlive_mass)]
-
-# write out what this dataset includes
-comb.lagged.descript =  table(comb.laggedmod.dat$site_name, comb.laggedmod.dat$year)
-#write.csv(comb.descript.v1, "DatasetDescript-ControlPlots_laggedanal.csv") 
-
-# Determine the number of Obs.
-nrow(comb.laggedmod.dat) #confirm it's 1075 observations
-
-### Run models #########
-# Log-Log w/ site*year effect 
-lagDependentMod_siteyear.log1 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + site_code:year, data= comb.laggedmod.dat)
-clus.res.lagDependentMod_siteyear.log1 = clx(lagDependentMod_siteyear.log1, cluster = comb.laggedmod.dat$newplotid)
-clus.res.lagDependentMod_siteyear.log1$cl.res
-clus.res.lagDependentMod_siteyear.log1$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependentMod_siteyear.log1$cl.res)),]
-
-#this is not working for some reason:
-# comb.laggedmod.dat = comb[!is.na(laggedrich)]
-# lagDependentMod_siteyear.log1 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + log(laggedrich) + site_code:year, data= comb.laggedmod.dat)
-# clus.res.lagDependentMod_siteyear.log1 = clx(lagDependentMod_siteyear.log1, cluster = comb.laggedmod.dat$newplotid)
-# clus.res.lagDependentMod_siteyear.log1$cl.res
-# clus.res.lagDependentMod_siteyear.log1$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependentMod_siteyear.log1$cl.res)),]
-
-### Store Results in a data frame to plot  ###
-# Estimate some model and call the clustered standard error function
-# Say results are in a variable called results.
-coef.info = clus.res.lagDependentMod_siteyear.log1$cl.res[rownames(clus.res.lagDependentMod_siteyear.log1$cl.res) == "log(rich)", c(1,2)]
-all.results = rbind(all.results, list("Model"=2, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-#all.results.SI = rbind(all.results.SI, list("Model"=2, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-
-# to get the R-squared: 
-summary(lagDependentMod_siteyear.log1)
-
-## IV here is average neighbor richness of the site (for each control plot and year) ##
-#no NA's --> summary(comb$avg_neighbor_rich) 
-modiv1 <- ivreg(log(live_mass) ~ log(rich) + newplotid + site_code:year  
-                | avg_neighbor_rich + newplotid + site_code:year, data = comb)
-clus.res.modiv1 = clx(modiv1, cluster = comb$newplotid)
-clus.res.modiv1$cl.res
-clus.res.modiv1$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modiv1$cl.res)),]
-# to see relevance tests
-summary(modiv1, diagnostics=T)
-
-# store results
-coef.info = clus.res.modiv1$cl.res[rownames(clus.res.modiv1$cl.res) == "log(rich)", c(1,2)]
-all.results = rbind(all.results, list("Model"=3, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-#all.results.IV = rbind(all.results.IV, list("Model"=1, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-
-
-# #### IV models with Ground_PAR ################################
-# comb.groundpar = comb[!is.na(Ground_PAR),]
-# 
-# # IV here is average neighbor richness of the site (for each control plot and year)
-# modiv1.groundpar <- ivreg(log(live_mass) ~ log(rich) + newplotid + site_code:year + Ground_PAR 
-#                           | avg_neighbor_rich + newplotid + Ground_PAR + site_code:year, data = comb.groundpar)
-# #clustering won't work with missing data so need to remove it.
-# clus.res.modiv1.groundpar = clx(modiv1.groundpar, cluster = comb.groundpar$newplotid[!is.na(comb$avg_neighbor_rich) & !is.na(comb$Ground_PAR)])
-# summary(modiv1.groundpar , diagnostics=T)  # to see relevance tests
-# clus.res.modiv1.groundpar$cl.res
-# 
-# coef.info = clus.res.modiv1.groundpar$cl.res[rownames(clus.res.modiv1.groundpar$cl.res) == "log(rich)", c(1,2)]
-# all.results = rbind(all.results, list("Model"=4, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-# #all.results.IV = rbind(all.results.IV, list("Model"=1, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-
-# 
-# 
-# # LD model with evenness and Log-Log w/ site*year effect 
-# lagDependentMod_siteyear.log1.Even <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + ihs(even) + site_code:year, data= comb.laggedmod.dat)
-# clus.res.lagDependentMod_siteyear.log1.Even = clx(lagDependentMod_siteyear.log1.Even, cluster = comb.laggedmod.dat$newplotid)
-# clus.res.lagDependentMod_siteyear.log1.Even$cl.res
-# clus.res.lagDependentMod_siteyear.log1.Even$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependentMod_siteyear.log1.Even$cl.res)),]
-# 
-# coef.info = clus.res.lagDependentMod_siteyear.log1.Even$cl.res[rownames(clus.res.lagDependentMod_siteyear.log1.Even$cl.res) == "log(rich)", c(1,2)]
-# all.results = rbind(all.results, list("Model"=4, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-# all.results.SI = rbind(all.results.SI, list("Model"=4, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-# 
-
-## to plot the plot without the data
-# ggplot(data=df, aes(x=a, y=b)) + theme_classic() + geom_hline(yintercept = 0)
-
-
-           
-########################################################################################################
-### Robustness Checks ###########################################################################
-####################################################################################################
-           
-#### Add Evenness
-           
-#With Evenness Log-log and fixed effects/dummies only.
-           # PlotFEs.SiteYear.Log.Even  = lm(log(live_mass) ~ log(rich) + ihs(even) + newplotid + site_code:year, data = comb)
-           # clust.res.PlotFEs.SiteYear.Log.Even = clx(PlotFEs.SiteYear.Log.Even, cluster=comb$newplotid) #clustered SEs on plot
-           # clust.res.PlotFEs.SiteYear.Log.Even$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Log.Even$cl.res)),]
-           # 
-           # coef.info = clust.res.PlotFEs.SiteYear.Log.Even$cl.res[rownames(clust.res.PlotFEs.SiteYear.Log.Even$cl.res) == "log(rich)", c(1,2)]
-           # all.results = rbind(all.results, list("Model"=2, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           # all.results.SI = rbind(all.results.SI, list("Model"=2, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           
-           
-           ##  Log-log  w squared richness term
-           PlotFEs.SiteYear.Log.richSQ  = lm(log(live_mass) ~ log(rich) + I(log(rich)^2) + newplotid + site_code:year, data = comb)
-           clus.res.PlotFEs.SiteYear.Log.richSQ = clx(PlotFEs.SiteYear.Log.richSQ, cluster=comb$plot) #clustered SEs on plot
-           clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res
-           clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res)),]
-           # weakly significant and negative of log(rich)
-           # 
-           # coef.info = clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res[rownames(clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res) == "log(rich)", c(1,2)]
-           # all.results = rbind(all.results, list("Model"=3, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           # all.results.SI = rbind(all.results.SI, list("Model"=3, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           
-           # there is a positive effect on the squared term and a negative on the non - so this determines over which range of the data its a positive or 
-           # negative effect bc the log(rich) ranges from 0 to 3.61
-           # table(log(comb$rich)>0.8076074/(2*0.1469532))
-           # 
-           # FALSE  TRUE 
-           # 1029   235 
-           
-           
-           
-
-           
-           
-           ## Main Models With Ground PAR as a control ###
-           
-           # this means we need to exclude the dataset that does has NAs for Ground_PAR  i.e., need to subset data further ######
-           comb.groundpar = comb[!is.na(Ground_PAR),] # filter to exclude NAs for the clustering 
-           data.descript.withGroundPar <- table(comb.groundpar$site_name, comb.groundpar$year)
-           # write.csv(data.descript.withGroundPar, "DatasetDescript-ControlPlots_withGroundPAR.csv") 
-           nrow(comb.groundpar) #1044 obs
-           
-           #Panel FE Log-Log w Ground PAR       
-           PlotFEs.SiteYear.Log.groundPAR  = lm(log(live_mass) ~ log(rich) + Ground_PAR + newplotid + site_code:year, data = comb.groundpar)
-           clus.res.PlotFEs.SiteYear.Log.groundPAR = clx(PlotFEs.SiteYear.Log.groundPAR, cluster=comb.groundpar$plot) #clustered SEs on plot
-           clus.res.PlotFEs.SiteYear.Log.groundPAR$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.PlotFEs.SiteYear.Log.groundPAR$cl.res)),]
-           #store results
-           coef.info = clus.res.PlotFEs.SiteYear.Log.groundPAR$cl.res[rownames(clus.res.PlotFEs.SiteYear.Log.groundPAR$cl.res) == "log(rich)", c(1,2)]
-           all.results.SI = rbind(all.results.SI, list("Model"=2, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           
-           
-           # Lagged-dependent Log-Log with Ground PAR
-           
-           ## data filtered to subset of plots with Ground_PAR 
-           comb.lagged.groundpar = comb.laggedmod.dat[!is.na(Ground_PAR),]
-           nrow(comb.lagged.groundpar) # 877 obs
-           # write out what this dataset includes
-           comb.lagged.withGP =  table(comb.lagged.groundpar$site_name, comb.lagged.groundpar$year)
-           #write.csv(comb.lagged.withGP, "DatasetDescript-Controlplots_laggedwGP.csv") 
-           
-           # Log-Log w/ site*year effect   w/ Ground_PAR
-           lagDependentGP.log1 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + Ground_PAR + site_code:year, data= comb.lagged.groundpar )
-           clus.res.lagDependentGP.log1 = clx(lagDependentGP.log1, cluster = comb.lagged.groundpar$newplotid)
-           clus.res.lagDependentGP.log1$cl.res
-           
-           coef.info = clus.res.lagDependentGP.log1$cl.res[rownames(clus.res.lagDependentGP.log1$cl.res) == "log(rich)", c(1,2)]
-           all.results.SI = rbind(all.results.SI, list("Model"=4, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           
-           # plotresults for SI Figure 1
-           all.results.SI$Model <- as.factor(all.results.SI$Model)
-           
-           p.loglog.SI1.CI <- ggplot(all.results.SI, aes(x = Model, y = Est, fill = Model)) +
-             geom_bar(stat = "identity", color= "black", 
-                      position=position_dodge()) + ylim(-0.5, 0.3) +
-             geom_hline(yintercept=0, linetype="dashed", color = "black", size = 1.5) +
-             geom_errorbar(aes(ymin= Est- (SE*1.96), ymax=Est + (SE*1.96)), width=.2,
-                           position=position_dodge(.9)) +  theme_bw() +
-             theme(axis.text.y = element_text(size = 14, face = "bold")) + 
-             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-             theme(axis.text.x = element_text(size=14, face = "italic")) + 
-             labs(x = "Model", y = "Estimate for log(richness) effect size") +
-             theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
-             labs(title = "Log-Log Model Results") + theme(plot.title = element_text(hjust = 0.5)) +
-             theme(plot.title = element_text( face= "bold", size = "16"))
-           
-           p.loglog.SI1.CI + scale_fill_brewer(palette="Blues")
-           
-#####################################################################################################
-#### Robustness: Models with a squared richness term #################################################################
-#######################################################################################################
-           
-           # Log-log  w squared richness term
-           PlotFEs.SiteYear.Log.richSQ  = lm(log(live_mass) ~ log(rich) + I(log(rich)^2) + newplotid + site_code:year, data = comb)
-           clus.res.PlotFEs.SiteYear.Log.richSQ = clx(PlotFEs.SiteYear.Log.richSQ, cluster=comb$plot) #clustered SEs on plot
-           clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res
-           clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.PlotFEs.SiteYear.Log.richSQ$cl.res)),]
-           # weakly significant and negative of log(rich)
-           
-           #Log-Log w ground PAR & squared richness term     
-           PlotFEs.SiteYear.Log.groundPAR.richSQ  = lm(log(live_mass) ~ log(rich) + I(log(rich)^2) + Ground_PAR + newplotid + site_code:year, data = comb.groundpar)
-           clus.res.PlotFEs.SiteYear.Log.groundPAR.richSQ = clx(PlotFEs.SiteYear.Log.groundPAR.richSQ, cluster=comb.groundpar$plot) #clustered SEs on plot
-           clus.res.PlotFEs.SiteYear.Log.groundPAR.richSQ$cl.res
-           clus.res.PlotFEs.SiteYear.Log.groundPAR.richSQ$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.PlotFEs.SiteYear.Log.groundPAR.richSQ$cl.res)),]
-           
-           screenreg(list(clus.res.PlotFEs.SiteYear.Log.groundPAR.richSQ, clus.res.PlotFEs.SiteYear.Log.richSQ ),       # object with results from clx
-                     custom.model.names=c("Log-Log w/ Ground PAR", "Log-Log"),
-                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-          
-
-#####################################################################################################
-#### Robustness: Models with Levels & log-levels #################################################################
-#######################################################################################################
-           
-           ### PANEL Fixed-effects MODELS ##########
-           
-           ##Levels and fixed effects/dummies only.
-           PlotFEs.SiteYear.Levels  = lm(live_mass ~ rich + newplotid + site_code:year, data = comb)
-           clust.res.PlotFEs.SiteYear.Levels = clx(PlotFEs.SiteYear.Levels, cluster = comb$newplotid)
-           # print results and do not print the FE's and dummies:
-           clust.res.PlotFEs.SiteYear.Levels$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.Levels$cl.res)),]
-           BIC(PlotFEs.SiteYear.Levels)
-           
-           # Example of texreg with one model
-           texreg(clust.res.PlotFEs.SiteYear.Levels,       # object with results from clx
-                  omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           
-           screenreg(clust.res.PlotFEs.SiteYear.Levels,       # object with results from clx
-                     omit.coef=c("(site_code)|(newplotid)")) 
-           
-           # Log-level
-           PlotFEs.SiteYear.LogLevels  = lm(live_mass ~ log(rich) + newplotid + site_code:year, data = comb)
-           clust.res.PlotFEs.SiteYear.LogLevels = clx(PlotFEs.SiteYear.LogLevels, cluster = comb$newplotid)
-           # print results and do not print the FE's and dummies:
-           clust.res.PlotFEs.SiteYear.LogLevels$cl.res[-grep("(site_code)|(newplotid)", rownames(clust.res.PlotFEs.SiteYear.LogLevels$cl.res)),]
-           BIC(PlotFEs.SiteYear.LogLevels)
-           # run to check for weak significance which is not printed out in screenreg. [Not significant ] = 0.1043088 
-           clust.res.PlotFEs.SiteYear.LogLevels$cl.res 
-           
-           #output models into a table (all results with no ground par)
-           screenreg(list(clust.res.PlotFEs.SiteYear.Log, clust.res.PlotFEs.SiteYear.Levels, 
-                          clust.res.PlotFEs.SiteYear.LogLevels ),       # object with results from clx
-                     custom.model.names=c("Log-Log'", "Levels'", "Level-Log'"),
-                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           
-           ###### Models that control for Ground_PAR - i.e., need to subset data further ######
-           
-           # this means we need to exclude the dataset that does has NAs for Ground_PAR 
-           comb.groundpar = comb[!is.na(Ground_PAR),] # filter to exclude NAs for the clustering 
-           data.descript.withGroundPar <- table(comb.groundpar$site_name, comb.groundpar$year)
-           # write.csv(data.descript.withGroundPar, "DatasetDescript-ControlPlots_withGroundPAR.csv") 
-           nrow(comb.groundpar) #1044 obs
-           
-           ##Levels -- Control for Ground PAR
-           PlotFEs.SiteYear.Levels.groundPAR  = lm(live_mass ~ rich + Ground_PAR + newplotid + site_code:year, data = comb.groundpar)
-           clust.res.PlotFEs.SiteYear.Levels.groundPAR = clx(PlotFEs.SiteYear.Levels.groundPAR, cluster=comb.groundpar$plot)
-           BIC(PlotFEs.SiteYear.Levels.groundPAR)
-           clust.res.PlotFEs.SiteYear.Levels.groundPAR$cl.res
-           
-           #Levels-Log
-           PlotFEs.SiteYear.LevelLog.groundPAR  = lm(live_mass ~ log(rich) + Ground_PAR + newplotid + site_code:year, data = comb.groundpar)
-           clus.res.PlotFEs.SiteYear.LevelLog.groundPAR = clx(PlotFEs.SiteYear.LevelLog.groundPAR, cluster=comb.groundpar$plot) #clustered SEs on plot
-           BIC(PlotFEs.SiteYear.LevelLog.groundPAR)
-           clus.res.PlotFEs.SiteYear.LevelLog.groundPAR
-           
-           #output models into a table for Ground_PAR models
-           screenreg(list(clus.res.PlotFEs.SiteYear.Log.groundPAR, clust.res.PlotFEs.SiteYear.Levels.groundPAR,
-                          clus.res.PlotFEs.SiteYear.LevelLog.groundPAR),       # object with results from clx
-                     custom.model.names=c("Log-Log''", "Levels''", "Level-Log''"),
-                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           
-           #output models into a single table
-           screenreg(list(clust.res.PlotFEs.SiteYear.Log, clust.res.PlotFEs.SiteYear.Levels,  clust.res.PlotFEs.SiteYear.LogLevels ,
-                          clus.res.PlotFEs.SiteYear.Log.groundPAR, clust.res.PlotFEs.SiteYear.Levels.groundPAR,
-                          clus.res.PlotFEs.SiteYear.LevelLog.groundPAR),       # object with results from clx
-                     custom.model.names=c("Log-Log'", "Levels'", "Level-Log'","Log-Log''", "Levels''", "Level-Log''" ),
-                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           
-           
-          
-#############################################################################################################
-  #### ** IV models ** ###################################################################################
-##############################################################################################################
-           
- #****check to see if ivreg works with implements estfun - if so, clx() for clustered SE should work with that too**
-           
-##### IV models without Ground_PAR ################################
-           
-           ## IV here is average neighbor richness of the site (for each control plot and year) ##
-           #no NA's --> summary(comb$avg_neighbor_rich) 
-           modiv1 <- ivreg(log(live_mass) ~ log(rich) + newplotid + site_code:year  
-                           | avg_neighbor_rich + newplotid + site_code:year, data = comb)
-           clus.res.modiv1 = clx(modiv1, cluster = comb$newplotid)
-           clus.res.modiv1$cl.res
-           clus.res.modiv1$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modiv1$cl.res)),]
-           # to see relevance tests
-           summary(modiv1, diagnostics=T)
-           
-           # store results
-           coef.info = clus.res.modiv1$cl.res[rownames(clus.res.modiv1$cl.res) == "log(rich)", c(1,2)]
-           all.results = rbind(all.results.SI, list("Model"=3, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           all.results.IV = rbind(all.results.SI, list("Model"=1, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           
-           ## IV 2 - in a block, an average neighbor's treated richness IV ##
-           # 12 NAs for avg.trt.neigh.rich.within.block
-           # summary(comb$avg.trt.neigh.rich.within.block) 
-           modivTreated <- ivreg(log(live_mass) ~ log(rich) + newplotid + site_code:year 
-                                 | avg.trt.neigh.rich.within.block + newplotid + site_code:year, data = comb[!is.na(comb$avg.trt.neigh.rich.within.block)] )
-           summary(modivTreated, diagnostics=T)  # to see relevance tests
-           clus.res.modivTreated = clx(modivTreated, cluster = comb$newplotid[!is.na(comb$avg.trt.neigh.rich.within.block)])
-           clus.res.modivTreated$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modivTreated$cl.res)),]
-           clus.res.modivTreated$cl.res
-           
-           #### IV models with Ground_PAR ################################
-           comb.groundpar = comb[!is.na(Ground_PAR),]
-           
-           # IV here is average neighbor richness of the site (for each control plot and year)
-           modiv1.groundpar <- ivreg(log(live_mass) ~ log(rich) + newplotid + site_code:year + Ground_PAR 
-                                     | avg_neighbor_rich + newplotid + Ground_PAR + site_code:year, data = comb.groundpar)
-           #clustering won't work with missing data so need to remove it.
-           clus.res.modiv1.groundpar = clx(modiv1.groundpar, cluster = comb.groundpar$newplotid[!is.na(comb$avg_neighbor_rich) & !is.na(comb$Ground_PAR)])
-           summary(modiv1.groundpar , diagnostics=T)  # to see relevance tests
-           clus.res.modiv1.groundpar$cl.res
-           
-           ## IV 2 - in a block, an average neighbor's treated richness IV 
-           modivT.groundpar <- ivreg(log(live_mass) ~ log(rich) + newplotid + site_code:year + Ground_PAR 
-                                     | avg.trt.neigh.rich.within.block + newplotid + Ground_PAR + site_code:year, data = comb.groundpar[!is.na(comb.groundpar$avg.trt.neigh.rich.within.block)])
-           summary(modivT.groundpar, diagnostics=T)  # to see relevance tests
-           clus.res.modivT.groundpar = clx(modivT.groundpar, cluster = comb.groundpar$newplotid[!is.na(comb.groundpar$avg.trt.neigh.rich.within.block)])
-           clus.res.modivT.groundpar$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modivT.groundpar$cl.res)),]
-           clus.res.modivT.groundpar$cl.res
-           
-           #output IV results into a single table
-           screenreg(list(clus.res.modiv1$cl.res, clus.res.modivTreated$cl.res, clus.res.modiv1.groundpar$cl.res, clus.res.modivT.groundpar$cl.res),       # object with results from clx
-                     custom.model.names=c("IV 1", "IV 2", "IV 1'","IV 2'"),
-                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           
-           ### write out results of significant IVs, with IV 1, to make plots
-           # for log-log IV
-           IV1 <- clus.res.modiv1$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modiv1$cl.res)),]
-           # write.csv(IV1, "IV1loglogRes.csv")
-           IV1.gp <-clus.res.modiv1.groundpar$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modiv1.groundpar$cl.res)),]
-           # write.csv(IV1.gp, "IV1GPloglog_Res.csv")
-           
-           ####################################################################################
-           ### IV with levels ########## only one (IV1 with ground par is weakly sig) ##################
-           ####################################################################################
-           
-           ## IV1: here is average neighbor richness of the site (for each control plot and year) ##
-           #no NA's --> summary(comb$avg_neighbor_rich) 
-           modiv1lev <- ivreg(live_mass ~ rich + newplotid + site_code:year  
-                              | avg_neighbor_rich + newplotid + site_code:year, data = comb)
-           clus.res.modiv1lev = clx(modiv1lev, cluster = comb$newplotid)
-           clus.res.modiv1lev$cl.res
-           clus.res.modiv1lev$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modiv1lev$cl.res)),]
-           # to see relevance tests
-           summary(modiv1lev, diagnostics=T)
-           
-           ## IV 2 - in a block, an average neighbor's treated richness IV ##
-           # 12 NAs for avg.trt.neigh.rich.within.block
-           # summary(comb$avg.trt.neigh.rich.within.block) 
-           modivTreatedlev <- ivreg(live_mass ~ rich + newplotid + site_code:year 
-                                    | avg.trt.neigh.rich.within.block + newplotid + site_code:year, data = comb[!is.na(comb$avg.trt.neigh.rich.within.block)] )
-           summary(modivTreatedlev, diagnostics=T)  # to see relevance tests
-           clus.res.modivTreatedlev = clx(modivTreatedlev, cluster = comb$newplotid[!is.na(comb$avg.trt.neigh.rich.within.block)])
-           clus.res.modivTreatedlev$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.modivTreatedlev$cl.res)),]
-           clus.res.modivTreatedlev$cl.res
-           
-           #### IV levels models with Ground_PAR ################################
-           comb.groundpar = comb[!is.na(Ground_PAR),]
-           
-           # IV here is average neighbor richness of the site (for each control plot and year)
-           # weakly signigicant: p = 0.1000198 
-           modiv1lev.groundpar <- ivreg(live_mass ~ rich + newplotid + site_code:year + Ground_PAR 
-                                        | avg_neighbor_rich + newplotid + Ground_PAR + site_code:year, data = comb.groundpar)
-           #clustering won't work with missing data so need to remove it.
-           clus.res.modiv1lev.groundpar = clx(modiv1lev.groundpar, cluster = comb.groundpar$newplotid[!is.na(comb$avg_neighbor_rich) & !is.na(comb$Ground_PAR)])
-           summary(modiv1lev.groundpar , diagnostics=T)  # to see relevance tests
-           clus.res.modiv1lev.groundpar$cl.res
-           
-          
-           
-#######################################################################################################################################
- ### Lagged-dependent models ############################################################################################################
-#########################################################################################################################################
-           
-           ## there are NAs for lagged live mass so we need to subset this data
-           summary(comb$laggedlive_mass)
-           comb.laggedmod.dat = comb[!is.na(laggedlive_mass)]
-           
-           # write out what this dataset includes
-           comb.lagged.descript =  table(comb.laggedmod.dat$site_name, comb.laggedmod.dat$year)
-           #write.csv(comb.descript.v1, "DatasetDescript-ControlPlots_laggedanal.csv") 
-           # Determine the number of Obs.
-           nrow(comb.laggedmod.dat) #1075 observations
-           
-           ### Run models without Ground_PAR #########
-           
-           # Log-Log w/ site*year effect 
-           lagDependentMod_siteyear.log1 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + site_code:year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear.log1 = clx(lagDependentMod_siteyear.log1, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear.log1$cl.res
-           clus.res.lagDependentMod_siteyear.log1$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependentMod_siteyear.log1$cl.res)),]
-           
-           ### Store Results in a data frame to plot  ###
-           # Estimate some model and call the clustered standard error function
-           # Say results are in a variable called results.
-           coef.info = clus.res.lagDependentMod_siteyear.log1$cl.res[rownames(clus.res.lagDependentMod_siteyear.log1$cl.res) == "log(rich)", c(1,2)]
-           all.results = rbind(all.results, list("Model"=2, "Est"=coef.info["Estimate"], "SE"=coef.info["Std. Error"]))
-           
-           # to get the R-squared: 
-           summary(lagDependentMod_siteyear.log1)
-           
-           
-           # Log-Log w/ out site*year effect 
-           lagDependentMod_siteyear.log2 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear.log2 = clx(lagDependentMod_siteyear.log2, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear.log2$cl.res
-           clus.res.lagDependentMod_siteyear.log2$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependentMod_siteyear.log2$cl.res)),]
-           
-           # with year specific effects
-           lagDependentMod_siteyear.log1 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich)*year, data= comb.laggedmod.dat)
-           
-           #Log-Log w/ site*year. RHS lagged live_mass as levels
-           lagDependentMod_siteyear.log2 <- lm(log(live_mass) ~ laggedlive_mass + log(rich) + site_code:year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear.log2 = clx(lagDependentMod_siteyear.log2, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear.log2$cl.res
-           clus.res.lagDependentMod_siteyear.log2$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependentMod_siteyear.log2$cl.res)),]
-           
-           # Levels w/ site*year effect 
-           lagDependentMod_siteyear.levels <- lm(live_mass ~ laggedlive_mass + rich + site_code:year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear.levels = clx(lagDependentMod_siteyear.levels, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear.levels$cl.res
-           
-           #Levels-Log w/ site*year. RHS lagged live_mass as levels
-           lagDependentMod_siteyear1 <- lm(live_mass ~ laggedlive_mass + log(rich) + site_code:year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear1 = clx(lagDependentMod_siteyear1, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear1$cl.res
-           BIC(lagDependentMod_siteyear1)
-           
-           #Levels-Log w/ site*year effect w/ log lagged live_mass
-           lagDependentMod_siteyear2 <- lm(live_mass ~ log(laggedlive_mass) + log(rich) + site_code:year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear2 = clx(lagDependentMod_siteyear2, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear2$cl.res
-           
-           #output models into a single table
-           screenreg(list(clus.res.lagDependentMod_siteyear.log1, clus.res.lagDependentMod_siteyear.log2,
-                          clus.res.lagDependentMod_siteyear.levels,clus.res.lagDependentMod_siteyear2, clus.res.lagDependentMod_siteyear1),
-                     custom.model.names=c("Log-Log'", "Log-Log''", "Levels","Level-log'", "Level-Log''"),
-                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           
-           
-           #### Run with lagged richness ###### 
-           #Levels-Log w/ site*year effect w/ log lagged live_mass
-           #** need to filter data to remove lagged rich NAs
-           lagDependentMod_siteyear_lagrich <- lm(live_mass ~ log(laggedlive_mass) + log(rich) + log(laggedrich) + site_code:year, data= comb.laggedmod.dat)
-           clus.res.lagDependentMod_siteyear_lagrich = clx(lagDependentMod_siteyear_lagrich, cluster = comb.laggedmod.dat$newplotid)
-           clus.res.lagDependentMod_siteyear_lagrich$cl.res
-           
-           ### Run models with Ground_PAR #########
-           
-           ## data filtered to subset of plots with Ground_PAR
-           comb.lagged.groundpar = comb.laggedmod.dat[!is.na(Ground_PAR),]
-           nrow(comb.lagged.groundpar) # 877 obs
-           # write out what this dataset includes
-           comb.lagged.withGP =  table(comb.lagged.groundpar$site_name, comb.lagged.groundpar$year)
-           #write.csv(comb.lagged.withGP, "DatasetDescript-Controlplots_laggedwGP.csv") 
-           
-           # Log-Log w/ site*year effect   w/ Ground_PAR
-           lagDependentGP.log1 <- lm(log(live_mass) ~ log(laggedlive_mass) + log(rich) + Ground_PAR + site_code:year, data= comb.lagged.groundpar )
-           clus.res.lagDependentGP.log1 = clx(lagDependentGP.log1, cluster = comb.lagged.groundpar$newplotid)
-           clus.res.lagDependentGP.log1$cl.res
-           
-           #Log-Log w/ site*year. RHS lagged live_mass as levels  w/ Ground_PAR
-           lagDependentGP.log2 <- lm(log(live_mass) ~ laggedlive_mass + log(rich) +  Ground_PAR + site_code:year, data= comb.lagged.groundpar)
-           clus.res.lagDependentGP.log2 = clx(lagDependentGP.log2, cluster = comb.lagged.groundpar$newplotid)
-           clus.res.lagDependentGP.log2$cl.res # rich is NS
-           
-           # Levels w/ site*year effect  w/ Ground_PAR
-           lagDependent_GPlevels1 <- lm(live_mass ~ laggedlive_mass + rich +  Ground_PAR + site_code:year, data= comb.lagged.groundpar)
-           clus.res.lagDependent_GPlevels1 = clx(lagDependent_GPlevels1, cluster = comb.lagged.groundpar$newplotid)
-           clus.res.lagDependent_GPlevels1$cl.res
-           
-           #Levels-Log w/ site*year. RHS lagged live_mass as levels  w/ Ground_PAR
-           lagDependent_GP.LevelsLog1 <- lm(live_mass ~ laggedlive_mass + log(rich) +  Ground_PAR + site_code:year, data= comb.lagged.groundpar)
-           clus.res.lagDependent_GP.LevelsLog1 = clx(lagDependent_GP.LevelsLog1, cluster = comb.lagged.groundpar$newplotid)
-           clus.res.lagDependent_GP.LevelsLog1$cl.res
-           
-           #Levels-Log w/ site*year effect w/ log lagged live_mass
-           lagDependent_GP.LevelsLog2 <- lm(live_mass ~ log(laggedlive_mass) + log(rich) + Ground_PAR + site_code:year, data= comb.lagged.groundpar)
-           clus.res.lagDependent_GP.LevelsLog2  = clx(lagDependent_GP.LevelsLog2 , cluster = comb.lagged.groundpar$newplotid)
-           clus.res.lagDependent_GP.LevelsLog2$cl.res[-grep("(site_code)|(newplotid)", rownames(clus.res.lagDependent_GP.LevelsLog3$cl.res)),]
-           # need to print full results table to see if there are weakly significant levels
-           clus.res.lagDependent_GP.LevelsLog2$cl.res
-           # log richness has a p value of 0.0541811 
-           
-
-
-      # #### IV models with Ground_PAR ################################
-           comb.groundpar = comb[!is.na(Ground_PAR),]
-           
-           # # IV here is average neighbor richness of the site (for each control plot and year)
-           modivgp <- felm(log(live_mass) ~ 0 + Ground_PAR| newplotid + site.by.yeardummy |
-                             (log(rich) ~ log(avg_neighbor_rich) + log(avg.trt.neigh.rich.within.block)) | newplotid , # | newplotid + site.by.yeardummy), # first stage   Note the surrounding parentheses
-                           data = comb.groundpar)
-           summary(modivgp, cluster = TRUE, robust = TRUE)
-           
-           # Iv as log(avg.trt.neigh.rich.within.block)
-           modivgp2 <- felm(log(live_mass) ~ 0 + Ground_PAR| newplotid + site.by.yeardummy |
-                              (log(rich) ~  log(avg.trt.neigh.rich.within.block) + log(avg.trt.neigh.rich.within.block)) | newplotid , # | newplotid + site.by.yeardummy), # first stage   Note the surrounding parentheses
-                            data = comb.groundpar)
-           summary(modivgp2, cluster = TRUE, robust = TRUE)
-
-# Coding Notes and eXamples
-           
-           ### Plotting Results
-           #plotting coefficient estimates from felm objects:
-           # https://raw.githack.com/uo-ec607/lectures/master/08-regression/08-regression.html#high_dimensional_fes_and_(multiway)_clustering
-           
-           #https://gist.github.com/grantmcdermott/d86af2b8f21f4082595c0e717eea5a90
-           
-           coefs_Mod1A <- tidy(Mod1A, conf.int = T)
-           coefs_Mod1A
-           
-           coefs_Mod1B <- tidy(Mod1B, conf.int = T)
-           coefs_Mod1B
-           
-           bind_rows(
-             coefs_Mod1A %>% mutate(reg = "Model 1A"),
-             coefs_Mod1B %>% mutate(reg = "Model 4 (FE and no clustering)"),
-           ) %>%
-             ggplot(aes(x=reg, y=estimate, ymin=conf.low, ymax=conf.high)) +
-             geom_pointrange() +
-             labs(Title = "Marginal effect of height on mass") +
-             geom_hline(yintercept = 0, col = "orange") +
-             ylim(-0.5, NA) +
-             labs(
-               title = "Effect size of Native vs Invasive Species Richness on Productivitiy",
-               caption = ""
-             ) +
-             theme(axis.title.x = element_blank())
-           
-           # Notes on the data here are some key variables used:
-           # Field	column type	description
-           # site_name	varchar(45)	Expanded site name
-           # site_code	varchar(45)	code in the form of "shorthand.country" e.g., cdcr.us, kiny.au, frue.ch
-           # continent	varchar(45)	site continent
-           # region	varchar(45)	region 
-           # precipitation	double	Mean annual precip in mm
-           # elevation	double	mean elevation (m)
-           # latitude	double	latitude from -90 (S) to +90 (N) in decimal degrees
-           # longitude	double	longitude from -180 (W) to 180 (E) in decimal degrees
-           # plot	int(11)	plot number
-           # N	tinyint(1)	1=N added, 0 = control
-           # P	tinyint(1)	1=P added, 0 = control
-           # K	tinyint(1)	1=K added, 0 = control
-           # Exclose	tinyint(1)	1=fenced, 0=control
-           # year_trt	decimal(6,0)	0 = pretreatment observation; 1=first observations after treatments; 2=2nd year after treatment; etc
-           # rich	decimal(24,4)	COUNT of unique taxa in the plot
-           # site_year_rich	bigint(21)	COUNT of unique taxa observed across all plots at the site in that year
-           # site_richness	bigint(21)	COUNT of unique taxa ever observed across all plots in all years at that site
-           # dead_mass	double	SUM of dead plant biomass/litter per plot (g)
-           # live_mass	double	SUM of live plant biomass per plot (g)
-           # total_mass	double	SUM of biomass per plot (g)
-           # proportion_par	double	Ground_PAR / Ambient_PAR
-           
-           ##  Notes on variables:
-           #  Ground_PAR varies at plot-yr level (but 1/3 of obs missing)
-           #  ppm_P and ppm_K vary at plot level, but not across time.
-           
-           ####### Using texreg for storing model output - examples ######
-           # Example of texreg with two models - give it a list of models, give titles, etc
-           #   my.table = texreg(list(clust.res.PlotFEs.SiteYear.Levels,
-           #                          clust.res.PlotFEs.SiteYear.Levels.groundPAR),       # object with results from clx
-           #                     custom.model.names=c("Base mod", "another mod"),
-           #                     omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           #   
-           #   screenreg(list(clust.res.PlotFEs.SiteYear.Levels,
-           #                  clust.res.PlotFEs.SiteYear.Levels.groundPAR),       # object with results from clx
-           #             custom.model.names=c("Base mod", "another mod"),
-           #             omit.coef=c("(site_code)|(newplotid)"))  # object from estimation (unclustered) for BIC
-           #   
-           #   htmlreg(list(clust.res.PlotFEs.SiteYear.Levels,
-           #                clust.res.PlotFEs.SiteYear.Levels.groundPAR),       # object with results from clx
-           #           custom.model.names=c("Base mod", "another mod"),
-           #           omit.coef=c("(site_code)|(newplotid)"),
-           #           file="~/Desktop/lauratable.html")
-           
-           
-           #The last common operation is to provide a specific order to your levels, you can do so using the fct_relevel() function as follow:
-           #
-           # # Reorder following a precise order
-           # p <- data %>%
-           #   mutate(name = fct_relevel(name, 
-           #                             "north", "north-east", "east", 
-           #                             "south-east", "south", "south-west", 
-           #                             "west", "north-west")) %>%
-           #   ggplot( aes(x=name, y=val)) +
-           #   geom_bar(stat="identity") +
-           #   xlab("")
-           # #p
-
-           
-###########  Esa Talk  Figs
-           
-           #* to do: change the order of the models:
-           # Change the order of items - with limits fct p + scale_x_discrete(name ="Dose (mg)", limits=c("2","1","0.5"))
-           coefs_ModPFE <- tidy(ModPFE, conf.int = T)
-           coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T)
-           coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T)
-           
-           #to pull out just the richness term for plotting with other models -- to avoid plotting evenness 
-           coefs_ModPFE.2  <- filter(coefs_ModPFE.2 , term == "log(rich)") 
-           
-           #traditional ecological modeling approach estimate from Ferraro - in STATA
-           coefs.ferraro = tibble(term="log(rich)",
-                                  estimate=0.3792555,
-                                  std.error=0.1909606,
-                                  statistic=1.99,
-                                  p.value=0.047,
-                                  conf.low=0.0049797,
-                                  conf.high=0.7535313)
-           
-           # try to put all models on one line but group them
-           panelFE.main.2.data <-  bind_rows(
-             coefs_ModPFE %>% mutate(reg = "Richness Model"),
-             # coefs_ModPFE.2  %>% mutate(reg = "Richness Model controlling for Evenness"),
-             # coefs_ModPFEsimpsonD  %>% mutate(reg = "Simpson's Diversity Model"),
-             # coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
-           ) 
-           panelFE.main.2.data$term = factor(panelFE.main.2.data$term,
-                                             levels=c("log(rich)", 
-                                                      "log(simpson)",
-                                                      "ihs(even)"))
-           
-           panelFE.main.2 <-  ggplot(panelFE.main.2.data,
-                                     aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-             geom_pointrange(aes(col = reg), size = 1, position = position_dodge(width = 0.5)) +
-             #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-             scale_colour_discrete(name="Model") +
-             theme_classic() +
-             labs(Title = "Marginal effect of richness on live mass") +
-             geom_hline(yintercept = 0, col = "black") +
-             # geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-             ylim(-.7, .8) +
-             scale_y_continuous(name =  "Estimate for log(species richness) effect size", limits=c(-.8, .8), breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8))
-           labs(
-             title = "Effect size of Log Species Richness on Log Productivitiy",
-             caption = "", 
-           ) 
-           # + facet_wrap(~reg)
-           # + theme(axis.title.x = element_blank())
-           
-           
-           #Alternative y-axis label:
-           panelFE.main.2 + labs(
-             title = "Effect size of Log Species Richness on Log Productivitiy",
-             caption = "", x = "Variable", y = "Estimate for log(species richness) effect size")
-           
-           #panelFE.main.2 +  theme(legend.title=element_text(size=14), legend.text=element_text(size=14)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-           
-           cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
-           #panelFE.main.2  + scale_color_manual(values=cbPalette[c(7,3,4,8)])   +  theme(legend.title=element_text(size=14), legend.text=element_text(size=12)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-           
-           # theme(legend.position="top") 
-           #http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
-           
-           p <- panelFE.main.2 + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
-             title = "Effect size of Log Species Richness on Log Productivity",
-             caption = "", x = "Variable", y = "Estimate for log(species richness) effect size") + 
-             theme(legend.title=element_text(size=18), legend.text=element_text(size=18)) + 
-             theme(axis.title.y= element_text(size=16)) + theme(axis.title.x= element_text(size=18))
-           p
-           # adjusting the legend 
-           pp <- p + theme(legend.text = element_text(size=14)) +
-             theme(legend.title = element_text( size=18,  face="bold")) +
-             theme(legend.title = element_blank()) +
-             theme(legend.background = element_rect(# fill="lightblue", 
-               size=0.5, linetype="solid",
-               colour ="black"))
-           pp
-           # adjust the title and the text size:  # https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
-           ppp <- pp + theme(axis.text=element_text(size=22),
-                             axis.title=element_text(size=20,face="bold")) +
-             theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-           
-           # print final figure:
-           ppp + scale_x_discrete(labels = c('log(Species Richness)','log(Simpsons Diversity)')) + theme(
-             axis.title.x = element_text(size = 20),
-             axis.text.x = element_text(size = 16),
-             axis.text.y = element_text(size = 16),
-             axis.title.y = element_text(size = 16))
-## R TIPS
-           
-           # The last common operation is to provide a specific order to your levels, you can do so using the fct_relevel() function as follow:
-           #   
-           #   # Reorder following a precise order
-           #   p <- data %>%
-           #   mutate(name = fct_relevel(name, 
-           #                             "north", "north-east", "east", 
-           #                             "south-east", "south", "south-west", 
-           #                             "west", "north-west")) %>%
-           #   ggplot( aes(x=name, y=val)) +
-           #   geom_bar(stat="identity") +
-           #   xlab("")
-           
-           
-           # ## Option 2: Share plot area, but use position dodge and colouring
-           #  bind_rows(
-           #      fit1_coefs %>% mutate(model = "Partial MEs"),
-           #      fit2_coefs %>% mutate(model = "Full MEs")
-           #    ) %>%
-           #      filter(grepl("wt", term)) %>%
-           #      ## Optional regexp work to make plot look nicier  
-           #      mutate(
-           #        am = ifelse(grepl("am1", term), "Automatic", "Manual"),
-           #        vs = ifelse(grepl("vs1", term), "V-shaped", "Straight"),
-           #        x_lab = paste(am, vs, sep="\n")
-           #      ) %>%
-           #      ggplot(aes(x=x_lab, y=estimate, ymin=conf.low, ymax=conf.high)) +
-           #      geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-           #      geom_hline(yintercept = 0, col = "black") +
-           #      labs(
-           #        x = NULL, y = "Marginal effect (Δ in MPG : Δ in '000 lbs)",
-           #        title = " Marginal effect of vehicle weight on MPG", 
-           #        subtitle = "Conditional on transmission type and engine shape"
-           #      ) +
-           #      theme_ipsum() 
-           
