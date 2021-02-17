@@ -22,6 +22,7 @@
 
 #Close graphics and clear local memory
 #graphics.off()
+rm(list=ls())
 
 #load libraries
 require(ggplot2)
