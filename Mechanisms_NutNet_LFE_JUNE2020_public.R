@@ -36,7 +36,6 @@ library(tidyverse)
 library(cowplot)
 
 setwd("~/Dropbox/IV in ecology/NutNet")
-# source("clustering_BIC.R") # I dont think this is used anymore in this code since I switched to lfe
 
 ## Run functions
 # When log(0) need to use inverse hyperbolic sine transformation (Bellemare & Wichman 2020 Oxford Bulletin of Economics and Statistics)
@@ -44,6 +43,17 @@ setwd("~/Dropbox/IV in ecology/NutNet")
 ihs = function(x) {
   return(log(x + sqrt(x^2+1)))
 } # v.s. log(x+1) <- is defined for a negative x. 
+
+
+# run this function - critical for workflow for plotting results:
+tidy = function(model, ...) {
+  data = cbind.data.frame(term = names(coef(model)),
+                          coef(summary(model, robust= T)),
+                          confint(model))
+  names(data) = c("term","estimate","std.error", "statistic","p.value","conf.low","conf.high")
+  return(data)
+}
+
 
 ### Load Data 
 ##Load Processed Cover Data, processed from version 'full-cover-09-April-2018.csv'
