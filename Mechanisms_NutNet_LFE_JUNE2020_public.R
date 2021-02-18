@@ -25,7 +25,6 @@ rm(list=ls())
 require(ggplot2)
 library(plyr)
 library(data.table)
-library(AER)
 library(sandwich)
 library(foreign)
 library(car)
@@ -36,7 +35,6 @@ library(tidyverse)
 library(cowplot)
 
 setwd("~/Dropbox/IV in ecology/NutNet")
-# source("clustering_BIC.R") # I dont think this is used anymore in this code since I switched to lfe
 
 ## Run functions
 # When log(0) need to use inverse hyperbolic sine transformation (Bellemare & Wichman 2020 Oxford Bulletin of Economics and Statistics)
@@ -45,11 +43,21 @@ ihs = function(x) {
   return(log(x + sqrt(x^2+1)))
 } # v.s. log(x+1) <- is defined for a negative x. 
 
+
+# run this function - critical for workflow for plotting results:
+tidy = function(model, ...) {
+  data = cbind.data.frame(term = names(coef(model)),
+                          coef(summary(model, robust= T)),
+                          confint(model))
+  names(data) = c("term","estimate","std.error", "statistic","p.value","conf.low","conf.high")
+  return(data)
+}
+
+
 ### Load Data 
 ##Load Processed Cover Data, processed from version 'full-cover-09-April-2018.csv'
 #code for data processing is NutNet_coverData_Sept2018.R
 cover <- fread("NutNetCoverData_ProcessedAug2019.csv")  
-#cover <- fread("NutNet_FullCoverData_ProcessedApril2020.csv")
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-28-Apr-2017.csv'
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
@@ -120,7 +128,7 @@ cover = cover[trt == "Control",]
 ### Confirm that only control plots are in the data
  table(cover$trt)
 ### Confirm the # of years 
- # table(cover$year)
+  table(cover$year)
 
 ###############################################################################
 #### Filter Data by years   ################################################
