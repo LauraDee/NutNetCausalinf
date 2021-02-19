@@ -22,7 +22,7 @@
 
 #Close graphics and clear local memory
 #graphics.off()
-rm(list=ls())
+#rm(list=ls())
 
 #load libraries
 require(ggplot2)
@@ -57,7 +57,7 @@ tidy = function(model, ...) {
 
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'
-setwd("~/Dropbox/IV in ecology/NutNet")
+#setwd("~/Dropbox/IV in ecology/NutNet")
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
 
 length(comb$live_mass) #74 NAs for live mass
