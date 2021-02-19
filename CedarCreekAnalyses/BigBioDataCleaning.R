@@ -11,16 +11,16 @@ rm(list=ls())
 graphics.off()
 
 library(plyr)
-library(here) ## KK addition
+library(here)
 
 #######    READ IN DATA    #######
-d<-read.csv(here::here("bigbio","e120-biomass-data-2020-12-04.csv"), strip.white=T)
+d<-read.csv(here::here("CedarCreekAnalyses", "data", "e120-biomass-data-2020-12-04.csv"), strip.white=T)
 d$mass <- d$Biomass..g.m2.  
 d$Species <- toupper(d$Species)
 names(d)[] <- tolower(names(d))
 summary(d)
 
-bbspecies <- read.csv(here::here("bigbio", "CDRSPDat.csv"))
+bbspecies <- read.csv(here::here("CedarCreekAnalyses", "data", "CDRSPDat.csv"))
 # Remove oak trees and seedlings
 d <- d[grep("QUERCUS", d$species, invert=TRUE),]
 
@@ -70,25 +70,25 @@ d <- d[!is.na(d$strip),]
 # For richness look at live, sorted, vascular plants
 # Make sure there is only one measurement per species per strip
 d$rich <- 1
-rich.strip.sp <- ddply(d[d$sorted & d$vasc & d$live,], .(year, plot, strip, numsp, spnum, species), colwise(max, .(rich)))
-# Summary species in each strip
-rich.strip <- ddply(rich.strip.sp, .(year, plot, strip, numsp, spnum), colwise(sum, .(rich)))
-summary(rich.strip)
+# rich.strip.sp <- ddply(d[d$sorted & d$vasc & d$live,], .(year, plot, strip, numsp, spnum, species), colwise(max, .(rich)))
+# # Summary species in each strip
+# rich.strip <- ddply(rich.strip.sp, .(year, plot, strip, numsp, spnum), colwise(sum, .(rich)))
+# summary(rich.strip)
 
 # For mass look at live, vascular plants
 # Make sure there is only one measurement per species per strip
 d$mass.live <- d$mass
-mass.strip.sp <- ddply(d[d$vasc & d$live,], .(year, plot, strip, species), colwise(mean, .(mass.live)))
-# Sum up mass in each strip
-mass.strip <- ddply(mass.strip.sp, .(year, plot, strip), colwise(sum, .(mass.live)))
-summary(mass.strip)
-
-# Merge mass and richness data
-comb <- merge(rich.strip, mass.strip, by=c("year", "plot", "strip"))
-summary(comb)
-
-# Output data
-write.csv(comb, file="e120-biomass-data-output.csv")
+# mass.strip.sp <- ddply(d[d$vasc & d$live,], .(year, plot, strip, species), colwise(mean, .(mass.live)))
+# # Sum up mass in each strip
+# mass.strip <- ddply(mass.strip.sp, .(year, plot, strip), colwise(sum, .(mass.live)))
+# summary(mass.strip)
+# 
+# # Merge mass and richness data
+# comb <- merge(rich.strip, mass.strip, by=c("year", "plot", "strip"))
+# summary(comb)
+# 
+# # Output data
+# write.csv(comb, file="e120-biomass-data-output.csv")
 
 
 ### Planted species only ###
@@ -104,8 +104,8 @@ names(planted.sp)[2] <- "planted.sp"
 
 newdf <- d %>% pivot_longer(c(17:34),names_to = 'X5Lspecid', values_to = 'planted')
 newdf <- merge(newdf, planted.sp, all.x = TRUE) 
-### amopet and monsol not matching over with any species - need to figure out what those are
-### assuming amopet = Amorpha canescens and monsol = Monarda fistulosa - we should check with Eric or Forest.
+### amopet and monsol not matching over with any species
+### assuming amopet = Amorpha canescens and monsol = Monarda fistulosa 
 newdf$planted.sp[newdf$X5Lspecid == "amopet"] <- "Amorpha canescens"
 newdf$planted.sp[newdf$X5Lspecid == "monsol"] <- "Monarda fistulosa"
 newdf$planted.sp <- toupper(newdf$planted.sp)
@@ -127,5 +127,7 @@ summary(mass.strip1)
 comb1 <- merge(rich.strip1, mass.strip1, by=c("year", "plot", "strip"))
 summary(comb1)
 
+comb1$spnum <- NULL
+
 # Output data
-write.csv(comb1, file="e120-plantedbiomass-data-output.csv")
+write.csv(comb1, file=here::here("CedarCreekAnalyses", "data", "e120-plantedbiomass-data-output.csv"))
