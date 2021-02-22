@@ -25,7 +25,6 @@ rm(list=ls())
 require(ggplot2)
 library(plyr)
 library(data.table)
-library(AER)
 library(sandwich)
 library(foreign)
 library(car)
@@ -59,7 +58,6 @@ tidy = function(model, ...) {
 ##Load Processed Cover Data, processed from version 'full-cover-09-April-2018.csv'
 #code for data processing is NutNet_coverData_Sept2018.R
 cover <- fread("NutNetCoverData_ProcessedAug2019.csv")  
-#cover <- fread("NutNet_FullCoverData_ProcessedApril2020.csv")
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-28-Apr-2017.csv'
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
@@ -130,7 +128,7 @@ cover = cover[trt == "Control",]
 ### Confirm that only control plots are in the data
  table(cover$trt)
 ### Confirm the # of years 
- # table(cover$year)
+  table(cover$year)
 
 ###############################################################################
 #### Filter Data by years   ################################################
@@ -268,7 +266,6 @@ mech.data$year <- as.character(mech.data$year)
  class(mech.data$newplotid)
 
 # Filter data to records with non-NA live_mass and non-NA richness.
-# Models can generally handle NAs by implicitly dropping, but clustered SE function currently does not.
 mech.data = mech.data[!is.na(live_mass) & !is.na(rich)]
 
 ## Confirm that only control plots are in the data
@@ -288,68 +285,147 @@ mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
 mech.data[, even_year0 := even[year_trt.x == "0" ], by = .(plot, site_code)]
 
-######################################################################################################################
-#### A few more Robustness Models Using Cover Data ##########################################################################################################
-######################################################################################################################
-Mod.R1 <- felm(log(live_mass) ~ log(rich) + totplotcover.yr.live | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
-summary(Mod.R1, robust = TRUE, cluster = TRUE)
-
-Mod.R1b <- felm(log(live_mass) ~ log(rich) + totplotcover.yr.live + ihs(even) | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
-summary(Mod.R1b, robust = TRUE, cluster = TRUE)
-
-Mod.R2 <- felm(log(live_mass) ~ log(rich) + total_cover | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
-summary(Mod.R2, robust = TRUE, cluster = TRUE)
-
-#print results
-screenreg(list(Mod.R1, Mod.R1b, Mod.R2),     # object with results 
-          custom.model.names= "Model with Total cover by year"))
-       
-Mod.R3 <- felm(log(live_mass) ~ log(rich) + cover_nat_dom + cover_nat_sub + LegumePercentcover.yr| newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
-summary(Mod.R3, robust = TRUE, cluster = TRUE)
-
-Mod.R3b <- felm(log(live_mass) ~ log(rich) + cover_nat_dom + cover_nat_sub + lagged_N_fixer_cover.yr + LegumePercentcover.yr + WoodyPercentcover.yr | newplotid + site.by.yeardummy, data = mech.data, exactDOF='rM')
-summary(Mod.R3b, robust = TRUE, cluster = TRUE)
-
-#prep results to plot 
-coefs_Mod.R1 <- tidy(Mod.R1, conf.int = T, robust = T) 
-coefs_Mod.R1b <- tidy(Mod.R1b, conf.int = T, robust = T) 
-coefs_Mod.R2 <- tidy(Mod.R2, conf.int = T, robust = T)  
-coefs_Mod.R3 <- tidy(Mod.R3, conf.int = T, robust = T)  
-coefs_Mod.R3b <- tidy(Mod.R3b, conf.int = T, robust = T)  
-# coefs_Mod.R4 <- tidy(Mod.R4, conf.int = T,  robust = T)   
-
-#plot
-panelFE.SI3 <-  bind_rows(
-  coefs_Mod.R1 %>% mutate(reg = "Model 1 Incld total live cover"),
-  coefs_Mod.R1b %>% mutate(reg = "Model 1 Incld total live cover and evenness"),
-  coefs_Mod.R3 %>% mutate(reg = "Model 1 Incld total native dom and sub cover"),
-  coefs_Mod.R3 %>% mutate(reg = "Model 1 Incld total native dom and sub cover and lagged N fixer cover"),
-  
-) %>%
-  ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  geom_pointrange(aes(col = reg), position = position_dodge(width = 0.5)) +
-  #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-  scale_colour_discrete(name="Model") +
-  theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-1.8, 1.8) +
-  labs(
-    title = "Effect size of Log Species Richness on Log Productivitiy",
-    caption = ""
-  ) 
-# + facet_wrap(~reg)
-# + theme(axis.title.x = element_blank())
-
-panelFE.SI3 + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate")
-
 
 ####################################################################################################################################
 #### Models for the role of rare and non-native species  ##########################################################################################################
 ####################################################################################################################################
+
+# This section is organized as follows, and accompanies section S7 in the SM. 
+# Analysis for reproducing Figure 5 in the main text. 
+# SM analyses for Section 7, where we do seperate analyses for:
+#....... *** to fill in ****
+
+
+######################################################################################################################
+###  Figure 5 - Main text. Rare vs Non-Rare and Native vs Invasive  #######################################################################
+####################################################################################################################
+###########
+### Figure 5 - Main text. Grouped based on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0),
+##########
+#. We first present the analyses shown in the main text figure 5, which include 4 groups of species: 
+# 1) rare, native: sr_nat_rare
+#2) rare non-native: sr_non.nat_rare
+#3) non-rare, native: sr_non.rare_nat
+#4), non-rare, non-native: 
+# the analyses presented in the main text Figure 5 use classify rare versus non-rare groups based 
+# on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0), where non-rare are
+#both subordinate and dominant species (e.g., species with DI greater than the .2 cutoff). 
+
+# run model of main design with the four groups of species richness: 
+Mod4A.1 <- felm(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) | newplotid + site.by.yeardummy | 0 | newplotid, data = mech.data)
+summary(Mod4A.1, robust = TRUE)
+
+## Hypothesis tests (F-tests)
+# not rare: native vs non-native 
+linearHypothesis(Mod4A.1, hypothesis.matrix = "ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", 
+                 test = "F", vcov = Mod4A.1$fevcov,  singular.ok = T)
+
+# Native rare vs non-rare
+linearHypothesis(Mod4A.1, hypothesis.matrix = "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)", 
+                 test = "F", vcov = Mod4A.1$fevcov,  singular.ok = T)
+
+#non-native rare vs non-rare
+linearHypothesis(Mod4A.1, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)", 
+                 test = "F", vcov = Mod4A.1$fevcov,  singular.ok = T)
+
+#non-native vs native rare 
+linearHypothesis(Mod4A.1, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)", 
+                 test = "F", vcov = Mod4A.1$fevcov,  singular.ok = T)
+
+
+###################################################################################################################################
+### Plot Figure 5 ######################################################################################################################
+#####################################################################################################################################
+### Plot Results - Plotting coefficient estimates from felm objects:
+# https://raw.githack.com/uo-ec607/lectures/master/08-regression/08-regression.html#high_dimensional_fes_and_(multiway)_clustering
+
+coefs_Mod4A.1 <- tidy(Mod4A.1, conf.int = T, robust = T)
+
+# try to put all models on one line but group them
+panelFE.Fig4C.data <-  bind_rows(
+  coefs_Mod4A.1 %>% mutate(reg = "Richness Model"),
+) 
+
+panelFE.Fig4C.data$term = factor(panelFE.Fig4C.data$term,
+                                 levels=c( "ihs(sr_nat_rare)", 
+                                           "ihs(sr_non.rare_nat)",
+                                           "ihs(sr_non.rare_non.nat)",
+                                           "ihs(sr_non.nat_rare)"))
+
+Fig4C <-  # ggplot(panelFE.Fig4C.data, aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
+  ggplot(panelFE.Fig4C.data, aes(x=term, y=estimate, ymin=estimate - (1.96*std.error), ymax= estimate + (1.96*std.error), colour = term)) +
+  geom_pointrange(size = 1.5, position = position_dodge(width = 0.5)) +
+  #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
+  scale_colour_discrete(name="term") +
+  theme_classic() +
+  labs(Title = "Marginal effect of richness on live mass") +
+  geom_hline(yintercept = 0, col = "black") +
+  # geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
+  ylim(-.7, .8)  +
+  scale_y_continuous(name =  "Estimate for log(species richness) effect size", limits=c(-.7, .7), breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8))
+Fig4C
+
+#Alternative y-axis label:
+Fig4C <- Fig4C + labs(
+  caption = "", x = "Type of Species", y = "Estimate for log(species richness) effect size")
+Fig4C
+
+#ggplot2 colors to pick from: http://sape.inf.usi.ch/quick-reference/ggplot2/colour
+palette <- c("darkslateblue", "green4", "grey69", "maroon4" )
+
+p <- Fig4C  + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="term") + scale_color_manual(values=palette[c(1,2, 3,4)])   +  labs(
+  title = "Effect size of Log Species Richness on Log Productivity",
+  caption = "", x = "Type of Species", y = "Estimate for log(species richness) effect size") + 
+  theme(legend.title=element_text(size=18), legend.text=element_text(size=18)) + 
+  theme(axis.title.y= element_text(size=16)) + theme(axis.title.x= element_text(size=18))
+p
+# adjusting the legend 
+pp <- p + theme(legend.text = element_text(size=14)) +
+  theme(legend.title = element_text( size=18,  face="bold")) +
+  theme(legend.title = element_blank()) +
+  theme(legend.background = element_rect(# fill="lightblue", 
+    size=0.5, linetype="solid",
+    colour ="black"))
+pp 
+# adjust the title and the text size:  # https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
+ppp <- pp + theme(axis.text=element_text(size=22),
+                  axis.title=element_text(size=20,face="bold")) +
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5)) 
+ppp
+
+# print final figure:
+ppp <- ppp + theme(
+  legend.position="none",  #to remove the legend 
+  axis.title.x = element_text(size = 20),
+  axis.text.x = element_text(size = 16),
+  axis.text.y = element_text(size = 16),
+  axis.title.y = element_text(size = 16)) + scale_x_discrete(labels = c('ihs(Rare native)','ihs(Non-rare native)', 'ihs(Non-rare Non-native', 'ihs(Rare Non-native)')) 
+ppp
+
+#alt simplified variable labels on x-axis
+Fig4C <- ppp + theme(
+  legend.position="none",  #to remove the legend 
+  axis.title.x = element_text(size = 20),
+  axis.text.x = element_text(size = 16),
+  axis.text.y = element_text(size = 16),
+  axis.title.y = element_text(size = 16)) + scale_x_discrete(labels = c('Rare & Native','Non-rare & Native', 'Non-rare & Non-native', 'Rare & Non-native')) 
+Fig4C
+
+Fig4C <- Fig4C + labs(title="C. Rare Native vs. Non-rare Native vs. Non-rare non-native vs Rare non-native") +  theme(plot.title = element_text(size = 16, face = "bold", hjust = 0)) 
+#print final
+Fig4C
+
+#simplify title
+Fig4C <- Fig4C + labs(title="C.") +  theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5)) 
+#print final
+Fig4C
+#title to the left
+Fig4C <- Fig4C + labs(title="C.") +  theme(plot.title = element_text(size = 25, face = "bold", hjust = -0.1)) 
+#print final
+Fig4C
+
+
+
 
 ######################################################################################################################
 ### 1. Native vs Non-Native Richness (in SM only) ################################################################
@@ -442,10 +518,6 @@ inv <- inv + theme(
   axis.title.y = element_text(size = 16),
   plot.title = element_text(hjust = -0.1))  
  
- #accurate labels 
-# inv <-  inv + labs(caption = "", x = "Variable", y = "Estimate for log(species richness) effect size")  + scale_x_discrete(labels = c('ihs(Non-native)','ihs(Native)')) 
-# inv
-
 #simplified plot labels
 inv <-  inv +  labs(caption = "", title =  "A.", x = "Variable", y = "Estimate for log(species richness) effect size") + scale_x_discrete(labels = c('Non-native','Native')) 
 inv
@@ -892,15 +964,7 @@ ppp <- pp + theme(axis.text=element_text(size=22),
                   axis.title=element_text(size=20,face="bold")) +
   theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5)) 
 
-# print final figure:
-# ppp <- ppp + theme(
-#   legend.position="none",  #to remove the legend 
-#   axis.title.x = element_text(size = 20),
-#   axis.text.x = element_text(size = 16),
-#   axis.text.y = element_text(size = 16),
-#   axis.title.y = element_text(size = 16)) + scale_x_discrete(labels = c('ihs(Rare species)','ihs(Non-rare species)')) 
-
-#alt simplified variable labels on x-axis
+#simplified variable labels on x-axis
 Fig4d <- ppp + theme(
   legend.position="none",  #to remove the legend 
   axis.title.x = element_text(size = 20),
@@ -1416,3 +1480,4 @@ sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, non_rare_spp,
                      sr_non.nat_dom, sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare )]
  cor(sr.metrics)
 corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
+

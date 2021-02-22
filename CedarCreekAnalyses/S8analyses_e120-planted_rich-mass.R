@@ -13,6 +13,7 @@ library(lme4)
 library(lmerTest)
 library(data.table)
 library(lfe)
+library(here)
 
 # When log(0) need to use inverse hyperbolic sine transformation (Bellemare & Wichman 2020 Oxford Bulletin of Economics and Statistics)
 #https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Inverse_hyperbolic_sine
@@ -21,11 +22,8 @@ ihs = function(x) {
 } # v.s. log(x+1) <- is defined for a negative x. 
 
 #######    READ IN DATA    #######
-setwd("~/Documents/GitHub/Causality_BioCON/bigbio/")
-
 # read in file that Kaitlin Kimmel processed using the R code e120-biomass-data-2020-12-04.R 
-# KK: e120-plantedbiomass-data-output.csv is the one you want to use because it only includes planted species.
-d <-fread("e120-plantedbiomass-data-output.csv", strip.white=T)  
+d <-fread(here("CedarCreekAnalyses", "data", "e120-plantedbiomass-data-output.csv"), strip.white=T)  
 ## meta-data and variables used: ##
   # numsp is the treatment -- Planted number of species: 1, 2, 4, 8, or 16 
   # rich is the observed richness ofthe  planted species

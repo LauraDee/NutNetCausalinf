@@ -12,6 +12,7 @@ library(data.table)
 library(lfe)  # to run econometric fixed effect models 
 require(ggplot2)
 library(texreg)
+library(here)
 
 # When log(0) need to use inverse hyperbolic sine transformation (REF NEEDED)
 #https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Inverse_hyperbolic_sine
@@ -21,10 +22,9 @@ ihs = function(x) {
 ## it is generally frowned upon, when taking the log, to add small numbers (e.g., log(richness + 0.01))
 
 ### LOAD DATA ##########
-setwd("~/Documents/GitHub/Causality_BioCON/data/")
 
 #processed by Kaitlin on Dec 16 2020; KK used the biomass files for richness and biomass to be consistent with BigBio.
-findat <-  fread( "biocon_plantedbiomass_output.csv")
+findat <-  fread(here::here("CedarCreekAnalyses","data", "biocon_plantedbiomass_output.csv"))
 # The TreatmentSR column = treatment level of spp
 # The ObservedSR = observed species based on what was planted in the plot
 # Live.mass = biomass
