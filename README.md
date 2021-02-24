@@ -34,7 +34,8 @@ Figure 5
 * Results only in R
 * Figure produced in R
 
-Table S1 -- NO IDEA
+Table S1
+* Results and Table produced in Stata
 
 Table S2
 * Results and Table produced in R
