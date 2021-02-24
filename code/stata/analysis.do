@@ -17,9 +17,22 @@ use 	"$datadir/processed/NutNet_Prepped.dta"
 ** Including l_even controls for log evenness, l_rich barely changes
 ** l_simpson is Simpson's diversity index
 
+
+** Figure 2A shows the following:
 reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+
+** Table S2 includes the following 
+
+est clear
+
+eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
 
 // ADDITIONAL SUPPORT //
 
@@ -98,58 +111,78 @@ psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Table S4 (Functional Form Tests)
+** Table S3 (Functional Form Tests)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+est clear
 
 ** Log-Log
-reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Log-Level
-reghdfe l_lmass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Level-Level
-reghdfe live_mass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe live_mass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Level-Quadratic
-reghdfe live_mass rich rich2, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe live_mass rich rich2, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S3.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+** Table S7 (Sensitivity Analysis a la Oster)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+** areg on outcome equation log-log specification **
+est clear
+eststo: areg l_lmass l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
+
+** areg on selection equation **
+eststo: areg l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
+
+psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_id)) delta(-0.1) rmax(1)
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+** Table S8 (IV)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+est clear
+eststo: ivreghdfe l_lmass (l_rich = l_nbrichblock), a(plst_id styr_id) cluster(plst_id) first
+
+gen 	includeinfirst = e(sample)
+eststo: reghdfe l_rich l_nbrichblock if includeinfirst==1, a(plst_id styr_id) cluster(plst_id) 
+
+esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
+drop includeinfirst
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Table S5 Not in SM
+** Table S9: Lagged Dependent Varaibles (also replicates a result in Table 3)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+est clear
 
+eststo: reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
 
+eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-** Table S11: IV (replicates IV results of Table 3)
-//
-////////////////////////////////////////////////////////////////////////////////
-ivreghdfe l_lmass (l_rich = l_nbrichblock), a(plst_id styr_id) cluster(plst_id) first
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-** Table S12: Lagged Dependent Varaibles (also replicates a result in Table 3)
-//
-////////////////////////////////////////////////////////////////////////////////
-
-reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
-reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-
-reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
-reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-
-
+esttab * using "$userdir/output/Table_S9.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
