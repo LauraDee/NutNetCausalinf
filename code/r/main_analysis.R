@@ -10,6 +10,23 @@ MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(
 
 
 
+
+################################################
+## Table S2
+#######################################
+etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+       coefstat = "se")
+
+etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+       coefstat = "confint")
+
+#esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+#      coefstat = c("se", "confint"))
+
+
+
+
+
 ################################################
 ## Plot Figure 2A
 #######################################
