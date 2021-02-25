@@ -12,10 +12,17 @@ tidy = function(model, ...) {
                             confint(model))
     names(data) = c("term","estimate","std.error", "statistic","p.value","conf.low","conf.high")
   } else if (attributes(model)$class == "fixest") {
-    data = cbind.data.frame(term = names(coef(model)),
-                            coef(summary(model)),
-                            se(model),
-                            confint(model))
+    if (is.null(model$call$cluster)) {
+      data = cbind.data.frame(term = names(coef(model)),
+                              coef(summary(model)),
+                              se(model),
+                              confint(model))
+    } else {
+      data = cbind.data.frame(term = names(coef(model)),
+                              coef(summary(model)),
+                              se(model, cluster = model$call$cluster),
+                              confint(model, cluster = model$call$cluster))
+    }
     names(data) = c("term","estimate","std.error","conf.low","conf.high")
   } else if ((attributes(model)$class == "lmerMod") || (attributes(model)$class == "lme4")) {
     sumdat <- summary(model)
@@ -26,6 +33,7 @@ tidy = function(model, ...) {
   }
   return(data)
 }
+
 
 # run this function - critical for workflow for plotting results:
 # tidy = function(model, ...) {
