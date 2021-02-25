@@ -50,10 +50,24 @@ library(cowplot)
 ### purpose built functions ###
 source("./code/r/useful_functions.R")
 
-
-####### Code Calls #######
+##########################################
+## Analysis using small complete data ####
+combonly <- TRUE  # combonly -> finalprocess_and_datachecks
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
-
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 
-source("./code/r/main_analysis.R") ## Produces only Figure 2A so FAR
+source("./code/r/analysis_main.R") ## Produces only Figures 2A, 2B, 3, and Table S2 (maybe others???)
+
+##########################################
+## Analysis using large coverage data ####
+## cover data is in separate location!!!!!
+rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
+combonly <- FALSE
+comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
+
+cover <- fread("C:/Dropbox/Dropbox/Research_Active/IV in ecology/NutNet/NutNetCoverData_ProcessedAug2019.csv")  
+
+source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
+source("./code/r/finalprocess_coverdata.R") # Doesn't produce Table S1 this time
+
+source("./code/r/analysis_fig5.R") ## Produces only Figures 2A, 2B, 3, and Table S2 (maybe others???)

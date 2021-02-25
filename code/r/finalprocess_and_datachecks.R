@@ -51,25 +51,26 @@ comb = comb[singleton == F, ]
 nrow(comb) #1231 
 length(unique(comb$newplotid)) #151
 
-##############################################################################
-### Make dummy variables for the panel regression  analyses #################
-##############################################################################
-
-# make year a character, to be a dummy variable: 
-comb$year <- as.character(comb$year)
-
 #make a factor that is site by year
 comb[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
-
-#########################################################################################################################################
-###Print Table of Data ##########################################################################################################
-##############################################################################################################################################
-
-# Write out what is covered in this dataset for these models with dataset version 1:
-# for a SI Table: #print which sites and years are in this version of the filtered dataset.
-comb.descript.v1 =  table(comb$site_name, comb$year)
-# to view: 
-# table(comb$site_code, comb$year)
-write.csv(comb.descript.v1, "./output/Table_S1.csv")
-# length(unique(comb$site_code))
+if (combonly == TRUE) {
+  ##############################################################################
+  ### Make dummy variables for the panel regression  analyses #################
+  ##############################################################################
+  
+  # make year a character, to be a dummy variable: 
+  comb$year <- as.character(comb$year)
+  
+  #####################################################
+  ###Print Table of Data ##############################
+  #####################################################
+  
+  # Write out what is covered in this dataset for these models with dataset version 1:
+  # for a SI Table: #print which sites and years are in this version of the filtered dataset.
+  comb.descript.v1 =  table(comb$site_name, comb$year)
+  # to view: 
+  # table(comb$site_code, comb$year)
+  write.csv(comb.descript.v1, "./output/Table_S1.csv")
+  # length(unique(comb$site_code))
+}
