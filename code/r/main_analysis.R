@@ -1,5 +1,5 @@
 ##############################################
-## Models for Figure 2 and Table S2 ETX XXX #######
+## Models for Figure 2A and Table S2 ETX XXX #
 ##############################################
 
 MainMod_Rich     <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
@@ -8,7 +8,62 @@ MainMod_Simpson  <- feols(log(live_mass) ~ log(simpson) | newplotid + site.by.ye
 MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
 MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
 
+##############################################
+## Models for Figure 2B and Table S2 ETX XXX #
+##############################################
 
+varnames <- "live_mass rich even simpson newplotid site_code country habitat year elevation managed burned grazed anthropogenic TEMP_VAR_v2 MIN_TEMP_v2 MAX_TEMP_v2 TEMP_WET_Q_v2 TEMP_DRY_Q_v2 TEMP_WARM_Q_v2 TEMP_COLD_Q_v2 pct_C pct_N ppm_P ppm_K ppm_Na ppm_Mg ppm_S ppm_Na ppm_Zn ppm_Mn ppm_Fe ppm_Cu ppm_B pH PercentSand PercentSilt PercentClay"
+
+vv <- unlist(strsplit(varnames," "))
+for (i in 1:38) {
+  print(paste(i, grep(vv[i],names(ml_comb)), sep = " , "))
+}
+
+ml_comb <- as.data.frame(comb)
+ml_comb <- ml_comb[,vv]
+ml_comb <- ml_comb[complete.cases(ml_comb),]
+
+## Run mixed models
+
+
+MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
+                        elevation + managed + burned + grazed + anthropogenic + 
+                        TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
+                        pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
+                        pH + PercentSand + PercentSilt + PercentClay + 
+                        (1|newplotid) + (1|site_code), ml_comb, REML = F)
+
+MixedMod_RichEven <- lmer(log(live_mass) ~ log(rich) + ihs(even) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
+                            elevation + managed + burned + grazed + anthropogenic + 
+                            TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
+                            pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
+                            pH + PercentSand + PercentSilt + PercentClay + 
+                            (1|newplotid) + (1|site_code), ml_comb, REML = F)
+
+MixedMod_Simpson <- lmer(log(live_mass) ~ log(simpson) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
+                           elevation + managed + burned + grazed + anthropogenic + 
+                           TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
+                           pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
+                           pH + PercentSand + PercentSilt + PercentClay + 
+                           (1|newplotid) + (1|site_code), ml_comb, REML = F)
+
+
+## Because I couldn't find heteroskedasticity and autocorrelation robust variances with lme4, let's
+## read in these more conservative CIs from stata to adjust
+
+Fig2B.1 <- tidy(MixedMod_Rich) %>%
+  filter(term == "log(rich)")
+Fig2B.2 <- tidy(MixedMod_RichEven) %>%
+  filter(term == "log(rich)")
+Fig2B.3 <- tidy(MixedMod_Simpson) %>%
+  filter(term == "log(simpson)")
+
+Fig2B.1$conf.low <- .0049797 
+Fig2B.1$conf.high <- .7535313
+Fig2B.2$conf.low <- -.0117337
+Fig2B.2$conf.high <- .8204197
+Fig2B.3$conf.low <- -.0855739
+Fig2B.3$conf.high <- .2348401
 
 
 ################################################
@@ -23,13 +78,22 @@ etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, Mai
 #esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
 #      coefstat = c("se", "confint"))
 
+################################################
+## Table ?? FOR TRADITIOL RESULTS
+#######################################
 
 
 
+
+######################################
+## PLOTTING YEAH! ####
+###############################
+
+## Master Palette
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1", "red")
 
 ################################################
 ## Plot Figure 2A
-#######################################
 
 # Prep Data
 Fig2A.1 <- tidy(MainMod_Rich)
@@ -48,7 +112,6 @@ Fig2A.data$term = factor(Fig2A.data$term,
                                   "ihs(even)"))
 
 # Plot
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
 
 Fig2A.plot <- Fig2A.data %>%
   ggplot(aes(x=term, y=estimate, ymin = conf.low, ymax = conf.high, colour = term)) +
@@ -72,570 +135,70 @@ Fig2A.plot <- Fig2A.data %>%
   geom_hline(yintercept = 0, col = "black") +
   ylim(-.7, .8) +
   scale_x_discrete(labels = c("Species Richness", "Simpson's Diversity")) + 
-  scale_y_continuous(limits=c(-.8, .8), 
+  scale_y_continuous(limits=c(-.8, .85), 
                      breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
                      ) %>%
-  labs(title = "Our Main Study Design",
-       caption = "", x = "Variable", y = "Estimate for log(species richness) effect size"
+  labs(title = "Main Study Design",
+       caption = "", x = "Variable", y = "Estimated effect size"
        )
 
 Fig2A.plot
 
+################################################
+## Plot Figure 2B
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-######################################################################################################################
-### Main Models (Models 1). Log-Log and fixed effects/dummies only. ################################################################
-##################################################################################################################
-
-
-
-
-
-
-
-
-
-ModPFE_A <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
-ModPFE_B <- feols(log(live_mass) ~ log(rich) + ihs(even) | newplotid + site.by.yeardummy, comb) 
-ModPFE_C <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
-ModPFE_D <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
-
-##### Models with productivity as the Y variable as log live mass ##########
-#A.  Log-log and fixed effects/dummies only.
-ModPFE <- felm(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy | 0 | newplotid, 
-              data = comb, 
-              cmethod = 'reghdfe')
-se_ModPFE <- se(ModPFE)
-
-my_vcov <- vcov()
-
-summary(ModPFE, robust = FALSE, cluster = TRUE)
-
-
-ModPFE_A <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
-summary(ModPFE_A)
-
-
-## TESTS OF THE TIDY FUNCTON HERE****
-cof <- tidy(ModPFE, robust = TRUE,  conf.int = T)
-cof
-# coefs.test <-tidy(ModPFE, cluster = T, robust = T)
-cof <- tidy(ModPFE, robust = F)
-cof
-
-#with evenness:
-ModPFE.2 <- felm(log(live_mass) ~ log(rich) + ihs(even)  | newplotid + site.by.yeardummy | 0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFE.2 , robust = TRUE, cluster = TRUE)
-
-#with lagged richness:
-ModPFE.3 <- felm(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.3 , robust = TRUE, cluster = TRUE)
-
-#with lagged rich and evenness
-ModPFE.4 <- felm(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, data = comb, exactDOF='rM')
-summary(ModPFE.4 , robust = TRUE, cluster = TRUE)
-
-#print log-log results
-screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results 
-          custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"))
-      
-
-#print log-log results with clustered robust SEs and corresponding p-values 
-screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results 
-          custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"),
-          override.se=list(summary(ModPFE,)$coef[,2],
-                           summary(ModPFE.2,)$coef[,2],
-                           summary(ModPFE.3,)$coef[,2],
-                           summary(ModPFE.4,)$coef[,2]),
-          override.pval=list(summary(ModPFE,)$coef[,4],
-                                 summary(ModPFE.2,)$coef[,4],
-                                 summary(ModPFE.3,)$coef[,4],
-                                 summary(ModPFE.4,)$coef[,4]), 
-          )
-
-## The palette with grey:
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
-coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
-coefs_ModPFE.3 <- tidy(ModPFE.3, conf.int = T,  robust = T)
-coefs_ModPFE.4 <- tidy(ModPFE.4, conf.int = T,  robust = T)
-
-panelFE.main <-  bind_rows(
-  coefs_ModPFE %>% mutate(reg = "Model 1"),
-  coefs_ModPFE.2  %>% mutate(reg = "Model 1 with evenness"),
-  coefs_ModPFE.3  %>% mutate(reg = "Model 1 with lagged richness"),
-  coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-) %>%
-  ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  geom_pointrange() + theme_classic() +
-  scale_colour_discrete(name="Model") +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .5) +
-  labs(
-    title = "Effect size of Log Species Richness on Log Productivitiy",
-    caption = ""
-  ) +
-  facet_wrap(~reg)
-  theme(axis.title.x = element_blank())
-
-panelFE.main + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate") 
-
-panelFE.main + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate") 
-
-# try to put all models on one line but group them
-panelFE.main.2 <-  bind_rows(
-  coefs_ModPFE %>% mutate(reg = "Model 1"),
-  coefs_ModPFE.2  %>% mutate(reg = "Model 1 with evenness"),
-  coefs_ModPFE.3  %>% mutate(reg = "Model 1 with lagged richness"),
-  coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-  coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover")
-) %>%
-  ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  geom_pointrange(aes(col = reg), position = position_dodge(width = 0.5)) +
-  #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-  scale_colour_discrete(name="Model") +
- theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .5) +
-  labs(
-    title = "Effect size of Log Species Richness on Log Productivitiy",
-    caption = ""
-  ) 
- # + facet_wrap(~reg)
-# + theme(axis.title.x = element_blank())
-
-panelFE.main.2 + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate")
- # labs(fill = "reg")
-
-############################################################################################
-# Simpson's Diversity Models - Panel FE #######################################################
-##########################################################################################
-##### Models with productivity as the Y variable as log live mass ##########
-#D.  Log-log and fixed effects/dummies only.
-ModPFEsimpsonD <- felm(log(live_mass) ~ log(simpson)  | newplotid + site.by.yeardummy |0 | newplotid, data = comb, exactDOF='rM')
-summary(ModPFEsimpsonD, robust = TRUE, cluster = TRUE)
-
-#print log-log results
-#print results
-screenreg(list(ModPFE, ModPFE.2, ModPFEsimpsonD),     # object with results 
-          custom.model.names= c("Main Model with Richness" , "Main Model with Richness and Evenness", "Model with Simpson's D"))
-
-#print results - simple table for main results 
-screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4, ModPFEsimpsonD),     # object with results 
-          custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both", "Simpson's D"))
-
-#######################################################################################################################################
-### Make Figure 2 for Main text  #################################################################################################################
-#######################################################################################################################################
-coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
-coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T,  robust = T)
-coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T,  robust = T)
-
-# coefficients from the traditional ecological model design (Ferraro estimated in STATA)
-coefs.ferraro = tibble(term="log(rich)",
-                       estimate=0.3792555,
-                       std.error=0.1909606,
-                       statistic=1.99,
-                       p.value=0.047,
-                       conf.low=0.0049797,
-                       conf.high=0.7535313)
-
-plot.data.main <-  bind_rows(
-  coefs_ModPFE %>% mutate(reg = "Model with Species Richness"),
-  coefs_ModPFE.2  %>% mutate(reg = "Model  with Richness and Evenness"),
-  coefs_ModPFEsimpsonD  %>% mutate(reg = "Model with Simpson's Diversity"),
-  coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
- # coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-) 
-
-panelFE.main <-
-  ggplot(plot.data.main,
-      #   aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-      aes(x=term, y=estimate, ymin= estimate - (1.96*std.error), ymax= estimate + (1.96*std.error), colour = term)) +
-  geom_pointrange() + theme_classic() +
-  scale_colour_discrete(name="Model") +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .5) +
-  labs(
-    title = "Effect size of Log Species Richness on Log Productivitiy",
-    caption = ""
-  ) +
-  facet_wrap(~reg) +
-theme(axis.title.x = element_blank())
-
-panelFE.main + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate") 
-
-panelFE.main + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate") 
-
-##############################################################################
-### Figure 2 - Main Text #########################################################
-#################################################################################
-coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
-coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
-coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T, robust = T)
-
-coefs.ferraro = tibble(term="log(rich)",
-                       estimate=0.3792555,
-                       std.error=0.1909606,
-                       statistic=1.99,
-                       p.value=0.047,
-                       conf.low=0.0049797,
-                       conf.high=0.7535313)
-
-# try to put all models on one line but group them
-panelFE.main.2.data <-  bind_rows(
-  coefs_ModPFE %>% mutate(reg = "Richness Model"),
-  coefs_ModPFE.2  %>% mutate(reg = "Richness Model controlling for Evenness"),
-  coefs_ModPFEsimpsonD  %>% mutate(reg = "Simpson's Diversity Model"),
-  coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
-) 
-panelFE.main.2.data$term = factor(panelFE.main.2.data$term,
-                                  levels=c("log(rich)", 
-                                           "log(simpson)",
-                                           "ihs(even)"))
-panelFE.main.2 <-  ggplot(panelFE.main.2.data,
-                          aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  geom_pointrange(aes(col = reg), size = 1, position = position_dodge(width = 0.5)) +
-  #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-  scale_colour_discrete(name="Model") +
-  theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
- # geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .8) +
-  labs(
-    title = "Effect size of Log Species Richness on Log Productivitiy",
-    caption = ""
-  ) 
-# + facet_wrap(~reg)
-# + theme(axis.title.x = element_blank())
-
-panelFE.main.2 + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate")
-# labs(fill = "reg")
-
-################################################################################################################################
-###**** Final Figure****  Figure 2 - Main Text - without plotting evenness estimate #########################################################
-############################################################################################################################################
-
-#* to do: change the order of the models:
-# Change the order of items - with limits fct p + scale_x_discrete(name ="Dose (mg)", limits=c("2","1","0.5"))
-coefs_ModPFE <- tidy(ModPFE, conf.int = T, robust = T)
-coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T,  robust = T)
-coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T,  robust = T)
-
-#to pull out just the richness term for plotting with other models -- to avoid plotting evenness 
-coefs_ModPFE.2  <- filter(coefs_ModPFE.2 , term == "log(rich)") 
-
-#traditional ecological modeling approach estimate from Ferraro - in STATA
-coefs.ferraro = tibble(term="log(rich)",
-                       estimate=0.3792555,
-                       std.error=0.1909606,
-                       statistic=1.99,
-                       p.value=0.047,
-                       conf.low=0.0049797,
-                       conf.high=0.7535313)
-
-# try to put all models on one line but group them
-panelFE.main.2.data <-  bind_rows(
-  coefs_ModPFE %>% mutate(reg = "Richness Model"),
- coefs_ModPFE.2  %>% mutate(reg = "Richness Model controlling for Evenness"),
- coefs_ModPFEsimpsonD  %>% mutate(reg = "Simpson's Diversity Model"),
- coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
-) 
-panelFE.main.2.data$term = factor(panelFE.main.2.data$term,
-                                  levels=c("log(rich)", 
-                                           "log(simpson)",
-                                           "ihs(even)"))
-
-panelFE.main.2 <-  ggplot(panelFE.main.2.data,
-          #                aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  aes(x=term, y=estimate, ymin= estimate - (1.96*std.error), ymax=estimate + (1.96*std.error) , colour = term)) +
-  geom_pointrange(aes(col = reg), size = 1, position = position_dodge(width = 0.5)) +
-  #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-  scale_colour_discrete(name="Model") +
-  theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  # geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .8) +
-  scale_y_continuous(name =  "Estimate for log(species richness) effect size", limits=c(-.8, .8), breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8))
-  labs(
-    title = "Effect size of Log Species Richness on Log Productivitiy",
-    caption = "", 
-  ) 
-# + facet_wrap(~reg)
-# + theme(axis.title.x = element_blank())
-
-#Alternative y-axis label:
-panelFE.main.2 + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Estimate for log(species richness) effect size")
-
-#panelFE.main.2 +  theme(legend.title=element_text(size=14), legend.text=element_text(size=14)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
-
-p <- panelFE.main.2 + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
-  title = "Effect size of Log Species Richness on Log Productivity",
-  caption = "", x = "Variable", y = "Estimate for log(species richness) effect size") + 
-  theme(legend.title=element_text(size=18), legend.text=element_text(size=18)) + 
-  theme(axis.title.y= element_text(size=16)) + theme(axis.title.x= element_text(size=18))
-p
-# adjusting the legend 
-pp <- p + theme(legend.text = element_text(size=14)) +
-  theme(legend.title = element_text( size=18,  face="bold")) +
-  theme(legend.title = element_blank()) +
- theme(legend.background = element_rect(# fill="lightblue", 
-                                        size=0.5, linetype="solid",
-                                             colour ="black"))
-pp
-# adjust the title and the text size:  # https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
-ppp <- pp + theme(axis.text=element_text(size=22),
-              axis.title=element_text(size=20,face="bold")) +
-  theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-
-# print final figure:
-ppp + scale_x_discrete(labels = c('log(Species Richness)','log(Simpsons Diversity)')) + theme(
-  axis.title.x = element_text(size = 20),
-   axis.text.x = element_text(size = 16),
-  axis.text.y = element_text(size = 16),
-  axis.title.y = element_text(size = 16))
-
-###### End ######################
-
-###########################################################################################
-### Figure 2 A FINAL #################################################################
-#################################################################
-
-#### Plot Result from our Design separately:
-coefs_ModPFE <- tidy(ModPFE, conf.int = T , robust = T)
-coefs_ModPFE.2 <- tidy(ModPFE.2, conf.int = T, robust = T)
-coefs_ModPFEsimpsonD <- tidy(ModPFEsimpsonD, conf.int = T , robust = T)
-
-#to pull out just the richness term for plotting with other models -- to avoid plotting evenness 
-coefs_ModPFE.2  <- filter(coefs_ModPFE.2 , term == "log(rich)") 
-
-# try to put all models on one line but group them
-panelFE.main.2.data <-  bind_rows(
-  coefs_ModPFE %>% mutate(reg = "Species Richness"),
-  coefs_ModPFE.2  %>% mutate(reg = "Species Richness controlling for Evenness"),
-  coefs_ModPFEsimpsonD  %>% mutate(reg = "Simpson's Diversity"),
- # coefs.ferraro %>% mutate(reg = "Traditional Ecological Approach")
-) 
-panelFE.main.2.data$term = factor(panelFE.main.2.data$term,
-                                  levels=c("log(rich)", 
-                                           "log(simpson)",
-                                           "ihs(even)"))
-
-panelFE.main.2 <-  ggplot(panelFE.main.2.data,
-                       #   aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  aes(x=term, y=estimate, ymin= estimate - (1.96*std.error), ymax=estimate + (1.96*std.error) , colour = term)) +
-  geom_pointrange(aes(col = reg), size = 1.5, position = position_dodge(width = 0.5)) +
-  #  geom_pointrange(aes(col = model), position = position_dodge(width = 0.5)) +
-  scale_colour_discrete(name="Model") +
-  theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  # geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .8) +
-  scale_y_continuous(name =  "Estimated effect size", limits=c(-.8, .8), breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8))
-labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", 
-) 
-# + facet_wrap(~reg)
-# + theme(axis.title.x = element_blank())
-panelFE.main.2
-
-#Alternative y-axis label:
-panelFE.main.2 + labs(
-  title = "Effect size of Log Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Estimate for log(species richness) effect size")
-
-#panelFE.main.2 +  theme(legend.title=element_text(size=14), legend.text=element_text(size=14)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1")
-#panelFE.main.2  + scale_color_manual(values=cbPalette[c(7,3,4,8)])   +  theme(legend.title=element_text(size=14), legend.text=element_text(size=12)) + theme(axis.title.y= element_text(size=18)) + theme(axis.title.x= element_text(size=18))
-
-p <- panelFE.main.2 + theme(legend.position = c(0.6, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(7,9,4,8)])   +  labs(
-  title = "Effect size of Log Species Richness on Log Productivity",
-  caption = "", x = "Variable", y = "Estimate for log(species richness) effect size") + 
-  theme(legend.title=element_text(size=18), legend.text=element_text(size=18)) + 
-  theme(axis.title.y= element_text(size=16)) + theme(axis.title.x= element_text(size=18))
-p
-# adjusting the legend 
-pp <- p + theme(legend.text = element_text(size=14)) +
-  theme(legend.title = element_text( size=18,  face="bold")) +
-  theme(legend.title = element_blank()) +
-  theme(legend.background = element_rect(# fill="lightblue", 
-    size=0.5, linetype="solid",
-    colour ="black"))
-pp
-# # adjust the title and the text size:  # https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
-ppp <- pp + theme(axis.text=element_text(size=22),
-                   axis.title=element_text(size=20,face="bold")) +
-                 theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-
-# print final figure:
-ppp <- ppp + scale_x_discrete(labels = c('log(Species Richness)','log(Simpsons Diversity)')) + theme(
-  axis.title.x = element_text(size = 20),
-  axis.text.x = element_text(size = 16),
-  axis.text.y = element_text(size = 16),
-  axis.title.y = element_text(size = 16))
-
-# a title to point out these results are from "Our study Design"
-
-ppp <- ppp + scale_x_discrete(labels = c("Species Richness", "Simpson's Diversity")) 
-Fig2A <- ppp + labs(title="Our Main Study Design") +  theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5)) 
-#print final
-Fig2A 
-
-
-##### Fig 2 B ############################################################################################
-## Plot traditional ecol. model results on their own plot: #####################################
-################################################################################################
-
-#traditional ecological modeling approach estimate from Ferraro - in STATA
-coefs.ferraro = tibble(term="log(rich)",
-                       estimate=0.3792555,
-                       std.error=0.1909606,
-                       statistic=1.99,
-                       p.value=0.047,
-                       conf.low=0.0049797,
-                       conf.high=0.7535313)
-
-##  Include other STATA output:
-# Is the first estimate here for Simpson's the one from xtreg (the one to report,I gather, based on your comment on the evenness estimate?
-# coef estimate; std error ; t val ; p- val, 95% conf interval [low, high]:
-#           l_simpson |   .0744933   .0891051     0.84   0.403    -.1001496    .2491361
-#           l_simpson |   .0746331   .0804479     0.93   0.354    -.0830419    .2323081
-
-coefs.ferraro.simpsons = tibble(term="log(simpsons)",
-                                estimate=.0744933,
-                                std.error=.0891051 ,
-                                statistic= 0.84,
-                                p.value=  0.403,
-                                conf.low= -.1001496 ,
-                                conf.high= .2491361)
-
-#STATA output from Paul 
-# richness model with EVENNESS: Then I replicated the mixed-model with the addition of evenness (using xtreg and xtmixed – until I figure out whether xtmixed is estimating SEs correctly, use the first estimate from xtreg with random effects estimator).
-#  # coef estimate; std error ; t val ; p- val, 95% conf interval [low, high]:
-#              l_rich |   .3907834   .1838099     2.13   0.034     .0305227    .7510441
-#              l_rich |   .3870898   .0956131     4.05   0.000     .1996916     .574488
-# 
-coefs.ferraro.even  = tibble(term="log(rich)",
-                             estimate= .3907834,
-                             std.error= .1838099,
-                             statistic= 2.13,
-                             p.value= 0.034,
-                             conf.low= .0305227,
-                             conf.high= .7510441)
-
-# try to put all models on one line but group them
 Fig2B.data <-  bind_rows(
-   coefs.ferraro %>% mutate(reg = "Species Richness"), # "Richness Model"
-   coefs.ferraro.even  %>% mutate(reg = "Species Richness controlling for Evenness"),  # "Richness Model controlling for Evenness"
-   coefs.ferraro.simpsons  %>% mutate(reg = "Simpson's Diversity") # "Simpson's Diversity Model"
-) 
+  Fig2B.1 %>% mutate(reg = "Species Richness"),
+  Fig2B.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
+  Fig2B.3 %>% mutate(reg = "Simpson's Diversity") )
 
 Fig2B.data$term = factor(Fig2B.data$term,
-                                  levels=c("log(rich)", 
-                                           "log(simpson)",
-                                           "ihs(even)"))
-Fig.2B <-  ggplot(Fig2B.data,
-                          aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
+                         levels=c("log(rich)", 
+                                  "log(simpson)",
+                                  "ihs(even)"))
+
+# Plot
+
+Fig2B.plot <- Fig2B.data %>%
+  ggplot(aes(x=term, y=estimate, ymin = conf.low, ymax = conf.high, colour = term)) +
   geom_pointrange(aes(col = reg), size = 1.5, position = position_dodge(width = 0.5)) +
-  # scale_colour_discrete(name="Model") +
+  scale_colour_discrete() +
+  scale_color_manual(values=cbPalette[c(8,3,10)]) +
   theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
+  theme(legend.position = c(.5, 0.3),
+        legend.title = element_blank(), 
+        legend.text  = element_text(size=14),
+        legend.background = element_rect(size=0.5, 
+                                         linetype="solid",
+                                         colour ="black" ),
+        axis.text=element_text(size=22),
+        axis.title=element_text(size=20, face="bold"),
+        axis.title.x = element_text(size=20),
+        axis.title.y = element_text(size=16),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5) ) + 
   geom_hline(yintercept = 0, col = "black") +
- # geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  ylim(-.7, .8) +
-  scale_y_continuous(name =  "Estimated effect size", limits=c(-.8, .8), breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8))
-Fig.2B 
+  ylim(-.7, .85) +
+  scale_x_discrete(labels = c("Species Richness", "Simpson's Diversity")) + 
+  scale_y_continuous(limits=c(-.8, .85), 
+                     breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
+  ) %>%
+  labs(title = "Traditional Ecological Design",
+       caption = "", x = "Variable", y = "Estimated effect size"
+  )
 
-#Alternative y-axis label:
-Fig.2B + labs(
-  title = "Traditional Ecological Design",
-  # caption = "", x = "Variable", y = "Estimate for log(species richness) effect size")
-  caption = "", x = "Variable", y = "Estimated effect size") 
-Fig.2B
+Fig2B.plot
 
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1", "red")
+#################################
+######## COMBINE 
 
-Fig.2B <- Fig.2B + theme(legend.position = c(0.74, 0.77)) + scale_colour_discrete(name="Model") + scale_color_manual(values=cbPalette[c(8, 3, 10)])   +  labs(
-  title = "Traditional Ecological Design",
- # caption = "", x = "Variable", y = "Estimate for log(species richness) effect size") + 
- caption = "", x = "Variable", y = "Estimated effect size") + 
-  theme(legend.title=element_text(size=18), legend.text=element_text(size=14)) 
-Fig.2B
-
-# adjusting the legend 
-Fig.2B <- Fig.2B +  theme(legend.title = element_blank()) +
-  theme(legend.position = c(.5, 0.3)) +
-  theme(legend.background = element_rect(# fill="lightblue", 
-    size=0.5, linetype="solid",
-    colour ="black"))
-Fig.2B
-
-# adjust the title and the text size:  # https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
-Fig.2B <- Fig.2B + theme(axis.text=element_text(size=22),
-                  axis.title=element_text(size=20,face="bold")) +
-  theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-Fig.2B
-
-# simplified variable names
-Fig.2B <- Fig.2B + scale_x_discrete(labels = c('Species Richness', "Simpson's Diversity")) + theme(
-  axis.title.x = element_text(size = 20),
-  axis.text.x = element_text(size = 16),
-  axis.text.y = element_text(size = 16),
-  axis.title.y = element_text(size = 16)) + theme(plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
-Fig.2B
-
-###############################################################################################################################
-### Put Fig 2 plots in same plot #####################################################################################################
-#####################################################################################################
-plot_grid(Fig2A , Fig.2B )
+plot_grid(Fig2A.plot , Fig.2B.plot )
 
 common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity from a 1% Change in Diversity
-plot_grid(Fig2A  + common.ylab,
-          Fig.2B + common.ylab)
+plot_grid(Fig2A.plot  + common.ylab,
+          Fig2B.plot + common.ylab)
+
 
 ###################################################################################################
 ###### For information on the following, see the file NutNutAnalyses_SMSection5.R              ####
