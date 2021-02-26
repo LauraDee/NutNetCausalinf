@@ -9,14 +9,14 @@ Please provide instructions for accessing and using the tutorial HERE.
 
 The analysis for this project was done in R and Stata, with the majority in R. Below, under *Provenance of Results*, is a list of all results in the paper and supplemental materials and where the authoritative version can be found. 
 
-R Replication Instructions:
+R Replication Instructions: Set cdir to your local repo location. Note that only *comb* data is included; *cover* is larger and must be obtained separately, and requires settings its own path.
 
-Stata Replication Insructions:
+Stata Replication Insructions: Set the global macros to local repo location.
 
 #### Provenance of Results
 
 Figure 2A
-* All results in R (CHECK)
+* All results in R 
 * Figure produced in R
 * Replicable in Stata (except for minor standard error differences)
 
@@ -26,7 +26,7 @@ Figure 2B
 * NOT replicated in R
 
 Figure 3 
-* Results 1, 2, and 4 in R (CHECK)
+* Results 1, 2, and 4 in R 
 * Result 3 and 5 in Stata
 * Replicable in Stata (except for minor standard error differences)
 
@@ -54,10 +54,10 @@ Table S6
 * Results and Table produced in R
 
 Table S7
-* Results and Table produced in Stata (CHECK)
+* Results and Table produced in Stata 
 
 Table S8
-* Results and Table produced in Stata (CHECK)
+* Results and Table produced in Stata 
 
 Table S9
 * Results and Table produced in R
