@@ -17,9 +17,22 @@ use 	"$datadir/processed/NutNet_Prepped.dta"
 ** Including l_even controls for log evenness, l_rich barely changes
 ** l_simpson is Simpson's diversity index
 
+
+** Figure 2A shows the following:
 reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+
+** Table S2 includes the following 
+
+est clear
+
+eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
 
 // ADDITIONAL SUPPORT //
 
@@ -35,7 +48,7 @@ reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(site_code
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Figure 2B: Bivariate and Traditional Multi-variate Approaches
+** Figure 2B: Traditional Multi-variate Approaches
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,8 +60,6 @@ local control_vars i.pais i.tierra i.year elevation managed burned grazed anthro
 xtmixed l_lmass l_rich `control_vars' || site_code2: || plst_id:, vce(robust)
 xtmixed l_lmass l_rich ihs_even `control_vars' || site_code2: || plst_id:, vce(robust)
 xtmixed l_lmass l_simpson `control_vars' || site_code2: || plst_id:, vce(robust)
-
-** Possible to Replication with <lmer> in R? 
 
 // ADDITIONAL SUPPORT //
 
@@ -67,7 +78,41 @@ reghdfe l_lmass l_rich if elevation~=. & managed~=. & burned~=. & grazed~=. & //
 							ph~=. & percentsand_2~=. &  percentsilt_2~=. &  percentclay_2~=., ///
 						keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 
+** "Simple" bivariate analysis done with random effects
+						
+** From Paul F:
+/* Ecologists would look for correlation between richness and biomass in a mixed 
+	(or multi-level)modeling approach, which would be like a random effects
+	model in economics
+	They would estimate SEs clustered at the plot level and add year indicator
+*/
+** A very simple model
+xtreg l_lmass l_rich i.year, mle 
 
+** From Paul F:
+/* Now move on to multivariate approach that tries to control for observable confounders
+	They would condition on site management history, year and a plethora of 
+	site-level weather and soil attributes; in other words, observable attributes 
+	to which they had access (not necessarily the "best" observables to condition
+	on. note that usually people would not add this many variables because the 
+	cross-sectional sample sizes they use are too small, particularly after units 
+	are dropped because of missing covariate values
+	Whether country and habitat would be added is uncertain. 
+	Are they potential confounders or words that describe the overall system that 
+	includes the richness and biomass. But we can add them too. Does not change
+	estimated coefficient by much.
+*/
+xtreg l_lmass l_rich i.pais i.tierra i.year elevation managed burned grazed anthropogenic temp_var_v2  min_temp_v2 max_temp_v2 temp_wet_q_v2 temp_dry_q_v2 temp_warm_q_v2 temp_cold_q_v2 pct_c2 pct_n2 ppm_p ppm_k ppm_ca ppm_mg ppm_s ppm_na ppm_zn ppm_mn ppm_fe ppm_cu ppm_b ph percentsand_2 percentsilt_2 percentclay_2, mle
+
+xtreg l_lmass l_rich i.pais i.tierra i.year elevation managed burned grazed anthropogenic temp_var_v2  min_temp_v2 max_temp_v2 temp_wet_q_v2 temp_dry_q_v2 temp_warm_q_v2 temp_cold_q_v2 pct_c2 pct_n2 ppm_p ppm_k ppm_ca ppm_mg ppm_s ppm_na ppm_zn ppm_mn ppm_fe ppm_cu ppm_b ph percentsand_2 percentsilt_2 percentclay_2, re
+
+/* Note that this last regression includes 59 covariates and explains 57% of the 
+	overall (spatial and temporal) variation in biomass. Explains 95% of between 
+	plot variation; controls include 7 country variables, 11 habitat variables, 
+	11 year variables, 4 historical management variables, 7 weather variables, 
+	17 soil variables, and elevation	
+*/
+						
 ////////////////////////////////////////////////////////////////////////////////
 //
 ** Figure 3: Robustness across various designs
@@ -98,58 +143,78 @@ psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Table S4 (Functional Form Tests)
+** Table S3 (Functional Form Tests)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+est clear
 
 ** Log-Log
-reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Log-Level
-reghdfe l_lmass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Level-Level
-reghdfe live_mass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe live_mass rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Level-Quadratic
-reghdfe live_mass rich rich2, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe live_mass rich rich2, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S3.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+** Table S7 (Sensitivity Analysis a la Oster)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+** areg on outcome equation log-log specification **
+est clear
+eststo: areg l_lmass l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
+
+** areg on selection equation **
+eststo: areg l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
+
+psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_id)) delta(-0.1) rmax(1)
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+** Table S8 (IV)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+est clear
+eststo: ivreghdfe l_lmass (l_rich = l_nbrichblock), a(plst_id styr_id) cluster(plst_id) first
+
+gen 	includeinfirst = e(sample)
+eststo: reghdfe l_rich l_nbrichblock if includeinfirst==1, a(plst_id styr_id) cluster(plst_id) 
+
+esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
+drop includeinfirst
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Table S5 Not in SM
+** Table S9: Lagged Dependent Varaibles (also replicates a result in Table 3)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+est clear
 
+eststo: reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
 
+eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-** Table S11: IV (replicates IV results of Table 3)
-//
-////////////////////////////////////////////////////////////////////////////////
-ivreghdfe l_lmass (l_rich = l_nbrichblock), a(plst_id styr_id) cluster(plst_id) first
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-** Table S12: Lagged Dependent Varaibles (also replicates a result in Table 3)
-//
-////////////////////////////////////////////////////////////////////////////////
-
-reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
-reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-
-reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
-reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-
-
+esttab * using "$userdir/output/Table_S9.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear

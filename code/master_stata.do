@@ -45,8 +45,6 @@ do 		"$codedir/stata/final_processing.do"
 
 do 		"$codedir/stata/analysis.do"
 
-*do		"$codedir/stata/extended_analysis.do" ** NOT INCORPORATED YET
-
 ////////////////////////////////////////////////////////////////////////////////
 // Clean up
 
