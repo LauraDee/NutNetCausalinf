@@ -22,24 +22,9 @@ Fig2A.3 <- tidy(MainMod_Simpson) %>%
   filter(term == "log(simpson)")
 
 ##############################################
-## Models for Figure 2B and Table S2 ETX XXX 
+## Models for Figure 2B and Table S2, and "Simple" Bivariate and Multivariate Analyses
 
-
-varnames <- "live_mass rich even simpson newplotid site_code country habitat year elevation managed burned grazed anthropogenic TEMP_VAR_v2 MIN_TEMP_v2 MAX_TEMP_v2 TEMP_WET_Q_v2 TEMP_DRY_Q_v2 TEMP_WARM_Q_v2 TEMP_COLD_Q_v2 pct_C pct_N ppm_P ppm_K ppm_Na ppm_Mg ppm_S ppm_Na ppm_Zn ppm_Mn ppm_Fe ppm_Cu ppm_B pH PercentSand PercentSilt PercentClay"
-
-vv <- unlist(strsplit(varnames," "))
-#for (i in 1:38) { # for testing only
-#  print(paste(i, grep(vv[i],names(ml_comb)), sep = " , "))
-#} 
-
-ml_comb <- as.data.frame(comb)
-ml_comb <- ml_comb[,vv]
-ml_comb <- ml_comb[complete.cases(ml_comb),]
-
-## Run mixed models
-
-
-MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
+MixedMod_Rich2 <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                         elevation + managed + burned + grazed + anthropogenic + 
                         TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
                         pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
@@ -59,6 +44,17 @@ MixedMod_Simpson <- lmer(log(live_mass) ~ log(simpson) + as.factor(country) + as
                            pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
                            pH + PercentSand + PercentSilt + PercentClay + 
                            (1|newplotid) + (1|site_code), ml_comb, REML = F)
+
+# "Simple" Models
+
+SimpleRE_TwoVar <- lmer(log(live_mass) ~ log(rich) + as.factor(year) + (1|newplotid), comb, REML = F)
+
+SimpleRE_MultiVar <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
+                        elevation + managed + burned + grazed + anthropogenic + 
+                        TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
+                        pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
+                        pH + PercentSand + PercentSilt + PercentClay + 
+                        (1|newplotid), ml_comb, REML = F)
 
 
 ## Because I couldn't find heteroskedasticity and autocorrelation robust variances with lme4, let's
@@ -102,6 +98,14 @@ Fig3.4 <- tidy(MainMod_MechBlocking) %>%
 Fig3.5 <- tidy(MainMod_IVRevCaus) %>%
   filter(term == "fit_log(rich)")
 
+##############################################
+## Models for Table S3 (functional form)
+
+MainMod_LogLog  <- MainMod_Rich
+MainMod_LogLev  <- feols(log(live_mass) ~ rich  | newplotid + site.by.yeardummy, comb) 
+MainMod_LevLev  <- feols(live_mass ~ rich | newplotid + site.by.yeardummy, comb) 
+MainMod_LevQuad <- feols(live_mass ~ rich + I(rich^2) | newplotid + site.by.yeardummy, comb) 
+
 
 ##############################################
 ##############################################
@@ -112,21 +116,38 @@ Fig3.5 <- tidy(MainMod_IVRevCaus) %>%
 ################################################
 ## Table S2
 #######################################
-etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
-       coefstat = "se")
 
-etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
-       coefstat = "confint")
+esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+       coefstat = "se",
+       file = "./output/Table_S2_R_se.tex")
 
-#esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
-#      coefstat = c("se", "confint"))
+esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+       coefstat = "confint",
+       file = "./output/Table_S2_R_ci.tex")
 
 ################################################
-## Table ?? FOR TRADITIOL RESULTS
+## Table S3
 #######################################
 
+esttex(MainMod_LogLog, MainMod_LogLev, MainMod_LevLev, MainMod_LevQuad, 
+       coefstat = "se",
+       file = "./output/Table_S3_R_se.tex")
 
+esttex(MainMod_LogLog, MainMod_LogLev, MainMod_LevLev, MainMod_LevQuad, 
+       coefstat = "confint",
+       file = "./output/Table_S3_R_ci.tex")
 
+################################################
+## Table for Fig 3
+#######################################
+
+esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, MainMod_IVRevCaus, 
+       coefstat = "se",
+       file = "./output/Table_forFig3_R_se.tex")
+
+esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, MainMod_IVRevCaus,
+       coefstat = "confint",
+       file = "./output/Table_forFig3_R_ci.tex")
 
 ##############################################
 ##############################################
@@ -183,6 +204,7 @@ Fig2A.plot <- Fig2A.data %>%
        )
 
 Fig2A.plot
+ggsave("./output/Fig2A.pdf", Fig2A.plot)
 
 ################################################
 ## Plot Figure 2B
@@ -229,15 +251,17 @@ Fig2B.plot <- Fig2B.data %>%
   )
 
 Fig2B.plot
+ggsave("./output/Fig2B.pdf", Fig2B.plot)
+
 
 #################################
 ######## Combine 2A and 2B
 
-plot_grid(Fig2A.plot , Fig.2B.plot )
-
 common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity from a 1% Change in Diversity
-plot_grid(Fig2A.plot  + common.ylab,
-          Fig2B.plot + common.ylab)
+Fig2.both <- plot_grid(Fig2A.plot  + common.ylab,
+                       Fig2B.plot + common.ylab)
+
+ggsave("./output/Fig2.pdf", Fig2.both, width=13, height=6)
 
 #################################
 ######## Figure 3
@@ -248,7 +272,6 @@ Fig3.data <-  bind_rows(
   Fig3.3 %>% mutate(reg = "3. Sensitivity Test"),
   Fig3.4 %>% mutate(reg = "4. Mechanism Blocking Design"),
   Fig3.5 %>% mutate(reg = "5. Instrumental Variable Design") )
-
 
 
 # Plot                    
@@ -280,5 +303,5 @@ Fig3.plot <- Fig3.data %>%
   )
 
 Fig3.plot
-
+ggsave("./output/Fig3.pdf", Fig3.plot)
 

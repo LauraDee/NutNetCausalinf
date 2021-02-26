@@ -47,11 +47,20 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
 
+##################
+## Export Table
+
+esttex(MechMod_All, 
+       coefstat = "se",
+       file = "./output/Table_forFig5_R_se.tex")
+
+esttex(MechMod_All,
+       coefstat = "confint",
+       file = "./output/Table_forFig5_R_ci.tex")
+
 ###################################################################################################################################
 ### Plot Figure 5 ######################################################################################################################
 #####################################################################################################################################
-### Plot Results - Plotting coefficient estimates from felm objects:
-# https://raw.githack.com/uo-ec607/lectures/master/08-regression/08-regression.html#high_dimensional_fes_and_(multiway)_clustering
 
 Fig5.data <- tidy(MechMod_All)
 
@@ -93,4 +102,4 @@ Fig5.plot <- Fig5.data %>%
   )
 
 Fig5.plot
-
+ggsave("./output/Fig5.pdf", Fig5.plot)

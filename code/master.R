@@ -56,7 +56,7 @@ combonly <- TRUE  # combonly -> finalprocess_and_datachecks
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 
-source("./code/r/analysis_main.R") ## Produces only Figures 2A, 2B, 3, and Table S2 (maybe others???)
+source("./code/r/analysis_main.R") ## Produces only Figures 2A, 2B, 3, and Tables S2, S3
 
 ##########################################
 ## Analysis using large coverage data ####
@@ -70,4 +70,4 @@ cover <- fread("C:/Dropbox/Dropbox/Research_Active/IV in ecology/NutNet/NutNetCo
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 source("./code/r/finalprocess_coverdata.R") # Doesn't produce Table S1 this time
 
-source("./code/r/analysis_fig5.R") ## Produces only Figures 2A, 2B, 3, and Table S2 (maybe others???)
+source("./code/r/analysis_fig5.R") ## Produces only Figure 5

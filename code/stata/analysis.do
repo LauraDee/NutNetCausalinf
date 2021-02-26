@@ -48,7 +48,7 @@ reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(site_code
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Figure 2B: Bivariate and Traditional Multi-variate Approaches
+** Figure 2B: Traditional Multi-variate Approaches
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,8 +60,6 @@ local control_vars i.pais i.tierra i.year elevation managed burned grazed anthro
 xtmixed l_lmass l_rich `control_vars' || site_code2: || plst_id:, vce(robust)
 xtmixed l_lmass l_rich ihs_even `control_vars' || site_code2: || plst_id:, vce(robust)
 xtmixed l_lmass l_simpson `control_vars' || site_code2: || plst_id:, vce(robust)
-
-** Possible to Replication with <lmer> in R? 
 
 // ADDITIONAL SUPPORT //
 
@@ -80,7 +78,41 @@ reghdfe l_lmass l_rich if elevation~=. & managed~=. & burned~=. & grazed~=. & //
 							ph~=. & percentsand_2~=. &  percentsilt_2~=. &  percentclay_2~=., ///
 						keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 
+** "Simple" bivariate analysis done with random effects
+						
+** From Paul F:
+/* Ecologists would look for correlation between richness and biomass in a mixed 
+	(or multi-level)modeling approach, which would be like a random effects
+	model in economics
+	They would estimate SEs clustered at the plot level and add year indicator
+*/
+** A very simple model
+xtreg l_lmass l_rich i.year, mle 
 
+** From Paul F:
+/* Now move on to multivariate approach that tries to control for observable confounders
+	They would condition on site management history, year and a plethora of 
+	site-level weather and soil attributes; in other words, observable attributes 
+	to which they had access (not necessarily the "best" observables to condition
+	on. note that usually people would not add this many variables because the 
+	cross-sectional sample sizes they use are too small, particularly after units 
+	are dropped because of missing covariate values
+	Whether country and habitat would be added is uncertain. 
+	Are they potential confounders or words that describe the overall system that 
+	includes the richness and biomass. But we can add them too. Does not change
+	estimated coefficient by much.
+*/
+xtreg l_lmass l_rich i.pais i.tierra i.year elevation managed burned grazed anthropogenic temp_var_v2  min_temp_v2 max_temp_v2 temp_wet_q_v2 temp_dry_q_v2 temp_warm_q_v2 temp_cold_q_v2 pct_c2 pct_n2 ppm_p ppm_k ppm_ca ppm_mg ppm_s ppm_na ppm_zn ppm_mn ppm_fe ppm_cu ppm_b ph percentsand_2 percentsilt_2 percentclay_2, mle
+
+xtreg l_lmass l_rich i.pais i.tierra i.year elevation managed burned grazed anthropogenic temp_var_v2  min_temp_v2 max_temp_v2 temp_wet_q_v2 temp_dry_q_v2 temp_warm_q_v2 temp_cold_q_v2 pct_c2 pct_n2 ppm_p ppm_k ppm_ca ppm_mg ppm_s ppm_na ppm_zn ppm_mn ppm_fe ppm_cu ppm_b ph percentsand_2 percentsilt_2 percentclay_2, re
+
+/* Note that this last regression includes 59 covariates and explains 57% of the 
+	overall (spatial and temporal) variation in biomass. Explains 95% of between 
+	plot variation; controls include 7 country variables, 11 habitat variables, 
+	11 year variables, 4 historical management variables, 7 weather variables, 
+	17 soil variables, and elevation	
+*/
+						
 ////////////////////////////////////////////////////////////////////////////////
 //
 ** Figure 3: Robustness across various designs
