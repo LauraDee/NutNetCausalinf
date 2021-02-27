@@ -29,21 +29,21 @@ MixedMod_Rich2 <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.fact
                         TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
                         pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
                         pH + PercentSand + PercentSilt + PercentClay + 
-                        (1|newplotid) + (1|site_code), ml_comb, REML = F)
+                        (1|newplotid) + (1|site_code), comb, REML = F)
 
 MixedMod_RichEven <- lmer(log(live_mass) ~ log(rich) + ihs(even) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                             elevation + managed + burned + grazed + anthropogenic + 
                             TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
                             pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
                             pH + PercentSand + PercentSilt + PercentClay + 
-                            (1|newplotid) + (1|site_code), ml_comb, REML = F)
+                            (1|newplotid) + (1|site_code), comb, REML = F)
 
 MixedMod_Simpson <- lmer(log(live_mass) ~ log(simpson) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                            elevation + managed + burned + grazed + anthropogenic + 
                            TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
                            pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
                            pH + PercentSand + PercentSilt + PercentClay + 
-                           (1|newplotid) + (1|site_code), ml_comb, REML = F)
+                           (1|newplotid) + (1|site_code), comb, REML = F)
 
 # "Simple" Models
 
@@ -54,7 +54,7 @@ SimpleRE_MultiVar <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.f
                         TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
                         pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn + ppm_Mn + ppm_Fe + ppm_Cu + ppm_B + 
                         pH + PercentSand + PercentSilt + PercentClay + 
-                        (1|newplotid), ml_comb, REML = F)
+                        (1|newplotid), comb, REML = F)
 
 
 ## Because I couldn't find heteroskedasticity and autocorrelation robust variances with lme4, let's

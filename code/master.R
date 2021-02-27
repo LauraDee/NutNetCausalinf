@@ -20,7 +20,6 @@
 # theme(legend.position="top") 
 #http://www.sthda.com/english/wiki/ggplot2-legend-easy-steps-to-change-the-position-and-the-appearance-of-a-graph-legend-in-r-software
 
-
 rm(list = ls())
 
 # Define project directory
@@ -46,6 +45,7 @@ library(broom)
 library(tidyverse)
 library(RColorBrewer)
 library(cowplot)
+library(corrplot)
 
 ### purpose built functions ###
 source("./code/r/useful_functions.R")
@@ -56,7 +56,8 @@ combonly <- TRUE  # combonly -> finalprocess_and_datachecks
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 
-source("./code/r/analysis_main.R") ## Produces only Figures 2A, 2B, 3, and Tables S2, S3
+source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3
+source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
 
 ##########################################
 ## Analysis using large coverage data ####
@@ -68,6 +69,11 @@ comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='N
 cover <- fread("C:/Dropbox/Dropbox/Research_Active/IV in ecology/NutNet/NutNetCoverData_ProcessedAug2019.csv")  
 
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
-source("./code/r/finalprocess_coverdata.R") # Doesn't produce Table S1 this time
+source("./code/r/finalprocess_coverdata.R") 
 
-source("./code/r/analysis_fig5.R") ## Produces only Figure 5
+source("./code/r/analysis_fig5.R") ## Produces Figure 5
+source("./code/r/analysis_sm7.R") ## In progress <_> LAURA TO WORK ON.
+
+
+
+
