@@ -22,22 +22,24 @@
 
 #Close graphics and clear local memory
 #graphics.off()
-rm(list=ls())
+#rm(list=ls())
 
 #load libraries
-require(ggplot2)
+library(tidyverse)
+#require(ggplot2) # loadded through library(tidyverse)
+library(data.table) #@needed for fread
+library(lfe)
+library(texreg)
+library(cowplot)
+
+# Below packages are not necessary to produce Fig 2
 library(plyr)
-library(data.table)
 library(AER)
 library(sandwich)
 library(foreign)
 library(car)
-library(lfe)
-library(texreg)
-library(broom)
-library(tidyverse)
+#library(broom)
 library(RColorBrewer)
-library(cowplot)
 
 # When log(0) need to use inverse hyperbolic sine transformation (REF NEEDED)
 #https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Inverse_hyperbolic_sine
@@ -57,11 +59,11 @@ tidy = function(model, ...) {
 
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'
-setwd("~/Dropbox/IV in ecology/NutNet")
+#setwd("~/Dropbox/IV in ecology/NutNet")
 comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
 
-length(comb$live_mass) #74 NAs for live mass
-summary(comb$live_mass)
+length(comb$live_mass) 
+summary(comb$live_mass) #74 NAs for live mass
 length(comb$rich)
 summary(comb$rich) # 2 NAs for richness
 
@@ -172,6 +174,7 @@ screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"))
       
 
+#### Is it still necessary ? It is the same as the previous command
 #print log-log results with clustered robust SEs and corresponding p-values 
 screenreg(list(ModPFE, ModPFE.2, ModPFE.3, ModPFE.4),     # object with results 
           custom.model.names= c("Main Model 1" , "Incld Evenness", "Incld Lagged Richness", "Incld Both"),
@@ -210,12 +213,13 @@ panelFE.main <-  bind_rows(
     title = "Effect size of Log Species Richness on Log Productivitiy",
     caption = ""
   ) +
-  facet_wrap(~reg)
+  facet_wrap(~reg) 
   theme(axis.title.x = element_blank())
 
 panelFE.main + labs(
   title = "Effect size of Log Species Richness on Log Productivitiy",
   caption = "", x = "Variable", y = "Coefficient Estimate") 
+
 
 panelFE.main + labs(
   title = "Effect size of Log Species Richness on Log Productivitiy",
@@ -227,7 +231,7 @@ panelFE.main.2 <-  bind_rows(
   coefs_ModPFE.2  %>% mutate(reg = "Model 1 with evenness"),
   coefs_ModPFE.3  %>% mutate(reg = "Model 1 with lagged richness"),
   coefs_ModPFE.4  %>% mutate(reg = "Model 1 with evenness & lagged richness"),
-  coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover")
+  coefs_Mod.R1 %>% mutate(reg = "Model 1 with total live cover") # coef model R1 does not exist!
 ) %>%
   ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
   geom_pointrange(aes(col = reg), position = position_dodge(width = 0.5)) +
@@ -312,6 +316,7 @@ panelFE.main + labs(
   title = "Effect size of Log Species Richness on Log Productivitiy",
   caption = "", x = "Variable", y = "Coefficient Estimate") 
 
+# duplicated
 panelFE.main + labs(
   title = "Effect size of Log Species Richness on Log Productivitiy",
   caption = "", x = "Variable", y = "Coefficient Estimate") 
