@@ -7,12 +7,13 @@
 ##############################################
 ## Models for Figure 2A and Table S2 
 
-
+# ---- buildmodels ----
 MainMod_Rich     <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
 MainMod_RichEven <- feols(log(live_mass) ~ log(rich) + ihs(even) | newplotid + site.by.yeardummy, comb) 
 MainMod_Simpson  <- feols(log(live_mass) ~ log(simpson) | newplotid + site.by.yeardummy, comb) 
 MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
 MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
+
 
 Fig2A.1 <- tidy(MainMod_Rich) %>%
   filter(term == "log(rich)")
@@ -24,6 +25,7 @@ Fig2A.3 <- tidy(MainMod_Simpson) %>%
 ##############################################
 ## Models for Figure 2B and Table S2, and "Simple" Bivariate and Multivariate Analyses
 
+# ----mixedeffectmodels ----
 MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                         elevation + managed + burned + grazed + anthropogenic + 
                         TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 + TEMP_COLD_Q_v2 + 
@@ -74,6 +76,9 @@ Fig2B.2$conf.high <- .8204197
 Fig2B.3$conf.low <- -.0855739
 Fig2B.3$conf.high <- .2348401
 
+
+
+# ---- ignore ----
 
 ##############################################
 ## Models for Figure 3
@@ -155,11 +160,13 @@ esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, M
 ##############################################
 ##############################################
 
+# ---- fig2plot ----
 ## Master Palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "gray1", "red")
 
 ################################################
 ## Plot Figure 2A
+
 
 # Prep Data
 Fig2A.data <-  bind_rows(
@@ -203,8 +210,8 @@ Fig2A.plot <- Fig2A.data %>%
        caption = "", x = "Variable", y = "Estimated effect size"
        )
 
-Fig2A.plot
-ggsave("./output/Fig2A.pdf", Fig2A.plot)
+#Fig2A.plot
+#ggsave("./output/Fig2A.pdf", Fig2A.plot)
 
 ################################################
 ## Plot Figure 2B
@@ -250,8 +257,8 @@ Fig2B.plot <- Fig2B.data %>%
        caption = "", x = "Variable", y = "Estimated effect size"
   )
 
-Fig2B.plot
-ggsave("./output/Fig2B.pdf", Fig2B.plot)
+#Fig2B.plot
+#ggsave("./output/Fig2B.pdf", Fig2B.plot)
 
 
 #################################
@@ -260,8 +267,12 @@ ggsave("./output/Fig2B.pdf", Fig2B.plot)
 common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity from a 1% Change in Diversity
 Fig2.both <- plot_grid(Fig2A.plot  + common.ylab,
                        Fig2B.plot + common.ylab)
+print(Fig2.both)
 
 ggsave("./output/Fig2.pdf", Fig2.both, width=13, height=6)
+
+
+# ---- fig3plot ----
 
 #################################
 ######## Figure 3

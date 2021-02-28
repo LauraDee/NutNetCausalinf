@@ -1,0 +1,74 @@
+---
+title: "Tutorial for causal inference analysis"
+author: "Laura Dee et al."
+date: "2/28/2021"
+output: 
+  html_document: 
+    df_print: kable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=T)
+
+source("code/r/useful_functions.R")
+knitr::read_chunk("code/r/finalprocess_and_datachecks.R")
+knitr::read_chunk("code/r/analysis_main.R")
+
+```
+
+## Data loading 
+
+These are the libraries we need for the analysis. 
+
+```{r libraries, message=F}
+library(data.table)
+library(fixest)
+library(lme4)
+library(ggplot2)
+library(tidyverse)
+library(cowplot)
+```
+
+We first load the data.
+
+```{r data load}
+comb <- fread("data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
+```
+
+The table `comb` has `r dim(comb)[1]` lines and `r dim(comb)[2]` columns. The column containing live mass data (`comb$live_mass`) contains `r sum(is.na(comb$live_mass))` values and the column containing richness data (`comb$rich`)  `r sum(is.na(comb$rich))` values that need to be remove. We also rename the `comb$site` column to `comb$site_code`.
+
+```{r process}
+```
+
+The table only contains data corresponding to the NutNet `r unique(comb$trt)` sites for years from `r min(comb$year)` to `r max(comb$year)`. 
+
+The `year`, `site_code` and `newplotid` has to be factors.
+
+```{r classcheck}
+```
+
+Some sites (see below) have only one year. We remove them. 
+```{r removesingleton}
+```
+
+and create a new site x year factor for the analyses.
+```{r morefactors}
+```
+
+This is the table shown as table S1 in the supplementary material. 
+```{r tableS1}
+```
+
+## Statistical analysis
+
+We create four models 
+```{r buildmodels}
+```
+
+We also define a few "classical" models, as generally done in Ecology analyses. 
+```{r mixedeffectmodels}
+```
+
+We make the plot.
+```{r fig2plot, fig.width=13, fig.height=6}
+```
