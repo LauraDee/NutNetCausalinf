@@ -213,31 +213,6 @@ nrow(coversummaries)
 
 # sr_non.rare_non.nat.Freq, sr_non.rare_nat.Freq , 
 
-# lagged and change variable removed from above but included here:
-coversummaries.robustness = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, LegumePercentcover.yr, cover_nat_dom, cover_nat_sub,
-                                  sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare, sr_INT, sr_NAT, sr_domspp, sr_rarespp, sr_subordspp, sr_non_rare_spp, 
-                                  sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, relabund_sr_domspp,
-                                  sr_non_rare_spp.RelA, sr_non_rare_spp.Freq, sr_non.rare_nat.Freq, sr_rare_non.nat.Freq, 
-                                  #rare_spp.DI2,
-                                  sr_domspp2, sr_rarespp2 , sr_subordspp2, 
-                                  relabund_sr_rarespp, relabund_sr_subordspp, sr_non.rare_non.nat.Freq,  sr_nat_dom.Freq, sr_non.nat_dom.Freq,
-                                  sr_nat_sub.Freq, sr_non.nat_sub.Freq, sr_non.rare_nat.RelA, sr_non.rare_non.nat.RelA, sr_rare_non.nat.RelA, sr_rare_nat.RelA,
-                                  # sr_non.rare_nat.Freq,  sr_rare_non.nat.Freq, sr_rare_nat.Freq, 
-                                  non_rare_spp2, non_rare_spp.DI2,
-                                  sr_non.rare_nat.Freq2, sr_non.rare_non.nat.Freq2, sr_rare_non.nat.Freq2, sr_rare_nat.Freq2,
-                                  sr_non.rare_nat.RelA2, sr_non.rare_non.nat.RelA2, sr_rare_non.nat.RelA2, sr_rare_nat.RelA2, # non_rare_spp2,
-                                  sr_non.rare_nat2, sr_non.rare_non.nat2, sr_non.nat_rare2, sr_nat_rare2, sr_Nfixer, 
-                                  # sr_rarespp2, 
-                                  #rare_spp.DI2,  
-                                  sr_non.Nfixer, change_sr_Nfixer, lagged_sr_Nfixer, N_fixer_cover.yr ,change_N_fixer_cover, lagged_N_fixer_cover.yr,
-                                  NonNative_cover.yr , Native_cover.yr , sr_annual, sr_peren, sr_null.lspan, sr_biennial ,
-                                  sr_indeter, change_sr_annual, change_sr_peren, AnnualPercentcover.yr, PerenPercentcover.yr , sr_graminoid, sr_forbs, sr_woody,
-                                  sr_legume, sr_bryophyte , sr_cactus,
-                                  change_sr_non.live, GrassPercentcover.yr ,ForbPercentcover.yr, WoodyPercentcover.yr, lagged_LegumePercentCover.yr,
-                                  freq_sr_domspp, freq_sr_rarespp, freq_sr_subordspp
-                                )])
-
-
 
 #################################################################################################
 ## Merge comb with Processed Cover Data #######################################################
@@ -285,6 +260,15 @@ mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
 mech.data[, even_year0 := even[year_trt.x == "0" ], by = .(plot, site_code)]
 
+## Create a variable for "unknown species richness" - species that came into the plot after the pre-treatment year
+mech.data[, counted_rich := sum(sr_non.rare_nat + sr_non.rare_non.nat  + sr_non.nat_rare +  sr_nat_rare), by = .(plot, site_code, year)]
+
+mech.data[, NA_rich := rich - counted_rich, by = .(plot, site_code, year)]
+summary(mech.data$NA_rich)
+
+mech.data[, NA_as_rare_rich := sum(NA_rich + sr_nat_rare), by = .(plot, site_code, year)]
+summary(mech.data$NA_rich)
+
 
 ####################################################################################################################################
 #### Models for the role of rare and non-native species  ##########################################################################################################
@@ -331,6 +315,15 @@ linearHypothesis(Mod4A.1, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_non
 #non-native vs native rare 
 linearHypothesis(Mod4A.1, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)", 
                  test = "F", vcov = Mod4A.1$fevcov,  singular.ok = T)
+
+#####
+## Test robustness to species as NAs
+Mod4A.1 <- felm(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) +ihs(NA_rich) | newplotid + site.by.yeardummy | 0 | newplotid, data = mech.data)
+summary(Mod4A.1, robust = TRUE)
+
+Mod4A.1 <- felm(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(NA_as_rare_rich) | newplotid + site.by.yeardummy | 0 | newplotid, data = mech.data)
+summary(Mod4A.1, robust = TRUE)
+
 
 
 ###################################################################################################################################
