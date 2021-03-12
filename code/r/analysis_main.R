@@ -160,6 +160,7 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 
 ################################################
 ## Plot Figure 2A
+################################################
 
 # Prep Data
 Fig2A.data <-  bind_rows(
@@ -204,11 +205,9 @@ Fig2A.plot <- Fig2A.data %>%
 Fig2A.plot
 ggsave("./output/Fig2A.pdf", Fig2A.plot)
 
-
-
 ################################################
 ## Plot Figure 2B
-
+################################################
 Fig2B.data <-  bind_rows(
   Fig2B.1 %>% mutate(reg = "Species Richness"),
   Fig2B.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
@@ -267,7 +266,7 @@ ggsave("./output/Fig2.pdf", Fig2.both, width=13, height=6)
 ######## Figure 3
 
 Fig3.data <-  bind_rows(
-  Fig3.1 %>% mutate(reg = "1. Our Main Study Design"),
+  Fig3.1 %>% mutate(reg = "1. Main Study Design"),
   Fig3.2 %>% mutate(reg = "2. Dynamic Panel Design"),
   Fig3.3 %>% mutate(reg = "3. Sensitivity Test"),
   Fig3.4 %>% mutate(reg = "4. Mechanism Blocking Design"),
@@ -275,7 +274,6 @@ Fig3.data <-  bind_rows(
 
 
 # Plot                    
-
 Fig3.plot <- Fig3.data %>%
   ggplot(aes(x=reg, y=estimate, ymin = conf.low, ymax = conf.high, colour = reg)) +
   geom_pointrange(size = 1.5) +
