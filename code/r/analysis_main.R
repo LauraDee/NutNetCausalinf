@@ -164,12 +164,10 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 # Prep Data
 Fig2A.data <-  bind_rows(
   Fig2A.1 %>% mutate(reg = "Species Richness"),
-  Fig2A.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
-  Fig2A.3 %>% mutate(reg = "Simpson's Diversity") )
+  Fig2A.2 %>% mutate(reg = "Species Richness controlling for Evenness"))
 
 Fig2A.data$term = factor(Fig2A.data$term,
-                         levels=c("log(rich)", 
-                                  "log(simpson)",
+                         levels=c("log(rich)",
                                   "ihs(even)"))
 
 # Plot
@@ -195,16 +193,18 @@ Fig2A.plot <- Fig2A.data %>%
         plot.title = element_text(size = 25, face = "bold", hjust = 0.5) ) + 
   geom_hline(yintercept = 0, col = "black") +
   ylim(-.7, .8) +
-  scale_x_discrete(labels = c("Species Richness", "Simpson's Diversity")) + 
+  scale_x_discrete(labels = c("Species Richness" , "Simpson's Diversity")) + 
   scale_y_continuous(limits=c(-.8, .85), 
                      breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
-                     ) %>%
+  ) %>%
   labs(title = "Main Study Design",
        caption = "", x = "Variable", y = "Estimated effect size"
-       )
+  )
 
 Fig2A.plot
 ggsave("./output/Fig2A.pdf", Fig2A.plot)
+
+
 
 ################################################
 ## Plot Figure 2B
@@ -304,4 +304,51 @@ Fig3.plot <- Fig3.data %>%
 
 Fig3.plot
 ggsave("./output/Fig3.pdf", Fig3.plot)
+
+
+##################################################################
+# Figure S4: Including Simpson's Diversity Estimate 
+##################################################################
+# Prep Data
+FigS4.data <-  bind_rows(
+  FigS4.1 %>% mutate(reg = "Species Richness"),
+  FigS4.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
+  FigS4.3 %>% mutate(reg = "Simpson's Diversity") )
+
+FigS4.data$term = factor(FigS4.data$term,
+                         levels=c("log(rich)", 
+                                  "log(simpson)",
+                                  "ihs(even)"))
+# Plot
+FigS4.plot <- FigS4.data %>%
+  ggplot(aes(x=term, y=estimate, ymin = conf.low, ymax = conf.high, colour = term)) +
+  geom_pointrange(aes(col = reg), size = 1.5, position = position_dodge(width = 0.5)) +
+  scale_colour_discrete() +
+  scale_color_manual(values=cbPalette[c(7,9,4,8)]) +
+  theme_classic() +
+  theme(legend.position = c(0.6, 0.77),
+        legend.title = element_blank(), 
+        legend.text  = element_text(size=14),
+        legend.background = element_rect(size=0.5, 
+                                         linetype="solid",
+                                         colour ="black" ),
+        axis.text=element_text(size=22),
+        axis.title=element_text(size=20, face="bold"),
+        axis.title.x = element_text(size=20),
+        axis.title.y = element_text(size=16),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5) ) + 
+  geom_hline(yintercept = 0, col = "black") +
+  ylim(-.7, .8) +
+  scale_x_discrete(labels = c("Species Richness" , "Simpson's Diversity")) + 
+  scale_y_continuous(limits=c(-.8, .85), 
+                     breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
+  ) %>%
+  labs(title = "Main Study Design",
+       caption = "", x = "Variable", y = "Estimated effect size"
+  )
+
+FigS4.plot
+ggsave("./output/FigS4.pdf", FigS4.plot)
 
