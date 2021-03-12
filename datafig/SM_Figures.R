@@ -54,6 +54,18 @@ FigS2 <- ggplot(data = comb, aes(x = changerich)) + geom_histogram()+ facet_wrap
   theme(axis.text.x = element_text(size=14)) 
 FigS2
 
+## Figure S3. Change in species evenness per plot (overall data)
+FigS3 <- ggplot(data = comb, aes(x = changeEvenness)) + geom_histogram() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in evenness") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigS3
+
+
+
 
 #hist of overall change in native, rare species  
 hist(merged.data$change_rare.native, main = "Plot-level change in rare species richness (native)" ,
