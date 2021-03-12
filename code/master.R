@@ -29,25 +29,27 @@ cdir <- "C:/GitHub/NutNetCausalinf/"
 ## BELOW THIS POINT, code should just run ##
 
 setwd(cdir)
+setwd("~/Documents/GitHub/NutNetCausalinf/")
+# load packages; version numbers are noted for each package used.
+require(ggplot2) # 3.3.3
+library(plyr) # 1.8.6
+library(data.table) # v 1.13.6
+library(AER) # v 1.2-9 ### Do we use this anymore??? 
+library(sandwich) #3.0-0
+library(foreign) # 0.8-80
+library(car)  #v  3.0-10
+library(lfe)  # 2.8-6
+library(fixest)  # v 0.8.2
+library(lme4)  # 1.1-26
+library(texreg) # 1.37. 5  #### Do we use this anymore??? 
+library(broom)  # v 0.7.4
+library(tidyverse)  # v 1.3.0 
+library(RColorBrewer) #1.1-2
+library(cowplot) # 1.1.1
+library(corrplot)  # 0.84
 
-require(ggplot2)
-library(plyr)
-library(data.table)
-library(AER)
-library(sandwich)
-library(foreign)
-library(car)
-library(lfe)
-library(fixest)
-library(lme4)
-library(texreg)
-library(broom)
-library(tidyverse)
-library(RColorBrewer)
-library(cowplot)
-library(corrplot)
-
-### purpose built functions ###
+###  *** Need to run *** 
+### purpose built functions 
 source("./code/r/useful_functions.R")
 
 ##########################################
@@ -56,17 +58,19 @@ combonly <- TRUE  # combonly -> finalprocess_and_datachecks
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 
-source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3
+source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3, and Figure S4 
 source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
+
 
 ##########################################
 ## Analysis using large coverage data ####
 ## cover data is in separate location!!!!!
+
 rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
 combonly <- FALSE
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
 
-cover <- fread("C:/Dropbox/Dropbox/Research_Active/IV in ecology/NutNet/NutNetCoverData_ProcessedAug2019.csv")  
+cover <- fread("~/Dropbox/IV in ecology/NutNet/NutNetCoverData_ProcessedAug2019.csv")  
 
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 source("./code/r/finalprocess_coverdata.R") 
