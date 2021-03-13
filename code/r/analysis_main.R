@@ -272,7 +272,6 @@ Fig3.data <-  bind_rows(
   Fig3.4 %>% mutate(reg = "4. Mechanism Blocking Design"),
   Fig3.5 %>% mutate(reg = "5. Instrumental Variable Design") )
 
-
 # Plot                    
 Fig3.plot <- Fig3.data %>%
   ggplot(aes(x=reg, y=estimate, ymin = conf.low, ymax = conf.high, colour = reg)) +
@@ -307,11 +306,12 @@ ggsave("./output/Fig3.pdf", Fig3.plot)
 ##################################################################
 # Figure S4: Including Simpson's Diversity Estimate 
 ##################################################################
+# for Main Design Figure S4A:
 # Prep Data
 FigS4.data <-  bind_rows(
-  FigS4.1 %>% mutate(reg = "Species Richness"),
-  FigS4.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
-  FigS4.3 %>% mutate(reg = "Simpson's Diversity") )
+  Fig2A.1 %>% mutate(reg = "Species Richness"),
+  Fig2A.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
+  Fig2A.3 %>% mutate(reg = "Simpson's Diversity") )
 
 FigS4.data$term = factor(FigS4.data$term,
                          levels=c("log(rich)", 
@@ -349,4 +349,48 @@ FigS4.plot <- FigS4.data %>%
 
 FigS4.plot
 ggsave("./output/FigS4.pdf", FigS4.plot)
+
+# plot traditional ecological model with simpsons for the SM Figure S4B
+#prep model output data
+FigS4B.data <-  bind_rows(
+  Fig2B.1 %>% mutate(reg = "Species Richness"),
+  Fig2B.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
+  Fig2B.3 %>% mutate(reg = "Simpson's Diversity") )
+
+FigS4B.data$term = factor(FigS4B.data$term,
+                         levels=c("log(rich)", 
+                                  "log(simpson)",
+                                  "ihs(even)"))
+# Plot
+FigS4B.plot <- FigS4B.data %>%
+  ggplot(aes(x=term, y=estimate, ymin = conf.low, ymax = conf.high, colour = term)) +
+  geom_pointrange(aes(col = reg), size = 1.5, position = position_dodge(width = 0.5)) +
+  scale_colour_discrete() +
+  scale_color_manual(values=cbPalette[c(8,3,10)]) +
+  theme_classic() +
+  theme(legend.position = c(.5, 0.3),
+        legend.title = element_blank(), 
+        legend.text  = element_text(size=14),
+        legend.background = element_rect(size=0.5, 
+                                         linetype="solid",
+                                         colour ="black" ),
+        axis.text=element_text(size=22),
+        axis.title=element_text(size=20, face="bold"),
+        axis.title.x = element_text(size=20),
+        axis.title.y = element_text(size=16),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5) ) + 
+  geom_hline(yintercept = 0, col = "black") +
+  ylim(-.7, .85) +
+  scale_x_discrete(labels = c("Species Richness", "Simpson's Diversity")) + 
+  scale_y_continuous(limits=c(-.8, .85), 
+                     breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
+  ) %>%
+  labs(title = "Traditional Ecological Design",
+       caption = "", x = "Variable", y = "Estimated effect size"
+  )
+
+FigS4B.plot
+ggsave("./output/FigS4B.pdf", FigS4B.plot)
 
