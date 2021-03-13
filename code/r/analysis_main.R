@@ -22,7 +22,7 @@ Fig2A.3 <- tidy(MainMod_Simpson) %>%
   filter(term == "log(simpson)")
 
 ##############################################
-## Models for Figure 2B and Table S2, and "Simple" Bivariate and Multivariate Analyses
+## Models for Figure 2B and Table S2, and Bivariate and Common Multivariate Analyses
 
 MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                         elevation + managed + burned + grazed + anthropogenic + 
@@ -45,7 +45,7 @@ MixedMod_Simpson <- lmer(log(live_mass) ~ log(simpson) + as.factor(country) + as
                            pH + PercentSand + PercentSilt + PercentClay + 
                            (1|newplotid) + (1|site_code), comb, REML = F)
 
-# "Simple" Models
+#  Bivariate and Common Multivariate Analyses Models
 
 SimpleRE_TwoVar <- lmer(log(live_mass) ~ log(rich) + as.factor(year) + (1|newplotid), comb, REML = F)
 
@@ -172,7 +172,6 @@ Fig2A.data$term = factor(Fig2A.data$term,
                                   "ihs(even)"))
 
 # Plot
-
 Fig2A.plot <- Fig2A.data %>%
   ggplot(aes(x=term, y=estimate, ymin = conf.low, ymax = conf.high, colour = term)) +
   geom_pointrange(aes(col = reg), size = 1.5, position = position_dodge(width = 0.5)) +
@@ -210,16 +209,13 @@ ggsave("./output/Fig2A.pdf", Fig2A.plot)
 ################################################
 Fig2B.data <-  bind_rows(
   Fig2B.1 %>% mutate(reg = "Species Richness"),
-  Fig2B.2 %>% mutate(reg = "Species Richness controlling for Evenness"),
-  Fig2B.3 %>% mutate(reg = "Simpson's Diversity") )
+  Fig2B.2 %>% mutate(reg = "Species Richness controlling for Evenness"))
 
 Fig2B.data$term = factor(Fig2B.data$term,
                          levels=c("log(rich)", 
-                                  "log(simpson)",
                                   "ihs(even)"))
 
 # Plot
-
 Fig2B.plot <- Fig2B.data %>%
   ggplot(aes(x=term, y=estimate, ymin = conf.low, ymax = conf.high, colour = term)) +
   geom_pointrange(aes(col = reg), size = 1.5, position = position_dodge(width = 0.5)) +
@@ -245,7 +241,7 @@ Fig2B.plot <- Fig2B.data %>%
   scale_y_continuous(limits=c(-.8, .85), 
                      breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
   ) %>%
-  labs(title = "Traditional Ecological Design",
+  labs(title = "Common Design in Ecology",
        caption = "", x = "Variable", y = "Estimated effect size"
   )
 
@@ -259,7 +255,7 @@ ggsave("./output/Fig2B.pdf", Fig2B.plot)
 common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity from a 1% Change in Diversity
 Fig2.both <- plot_grid(Fig2A.plot  + common.ylab,
                        Fig2B.plot + common.ylab)
-
+Fig2.both
 ggsave("./output/Fig2.pdf", Fig2.both, width=13, height=6)
 
 #################################
@@ -344,7 +340,7 @@ FigS4.plot <- FigS4.data %>%
                      breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
   ) %>%
   labs(title = "Main Study Design",
-       caption = "", x = "Variable", y = "Estimated effect size"
+       caption = "", x = "", y = "Estimated effect size"
   )
 
 FigS4.plot
@@ -387,10 +383,18 @@ FigS4B.plot <- FigS4B.data %>%
   scale_y_continuous(limits=c(-.8, .85), 
                      breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
   ) %>%
-  labs(title = "Traditional Ecological Design",
-       caption = "", x = "Variable", y = "Estimated effect size"
+  labs(title = "Common Design in Ecology",
+       caption = "", x = "", y = "Estimated effect size"
   )
 
 FigS4B.plot
 ggsave("./output/FigS4B.pdf", FigS4B.plot)
 
+#################################
+######## Combine Figure S4 A and B
+common.ylab = ylab("Estimated effect size") #Estimated % Change in Productivity from a 1% Change in Diversity
+common.xlab = xlab("") 
+FigS4.both <- plot_grid(FigS4.plot  + common.ylab,
+                       FigS4B.plot + common.ylab)
+FigS4.both
+ggsave("./output/FigS4.pdf", Fig2.both, width=13, height=6)
