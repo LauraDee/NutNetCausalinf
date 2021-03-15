@@ -11,11 +11,11 @@ ModrMod_YrSiteRich      <- feols(log(live_mass) ~ log(rich) + log(rich):site_yea
 ModrMod_AveSiteNatRich  <- feols(log(live_mass) ~ log(rich) + log(rich):site_native_richness | newplotid + site.by.yeardummy, comb) 
 
 esttex(ModrMod_AveSiteRich, ModrMod_AveSiteIntRich, ModrMod_YrSiteRich, ModrMod_AveSiteNatRich,
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_S4_R_se.tex")
 
 esttex(ModrMod_AveSiteRich, ModrMod_AveSiteIntRich, ModrMod_YrSiteRich, ModrMod_AveSiteNatRich,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_S4_R_ci.tex")
 
 #######################################################################################################################################
@@ -37,11 +37,11 @@ ModrMod_AveSiteProd <- feols(log(live_mass) ~ log(rich) + log(rich):ave_site_liv
 ModrMod_YrSiteProd  <- feols(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass.peryr  | newplotid + site.by.yeardummy, comb)
 
 esttex(ModrMod_AveSiteProd, ModrMod_YrSiteProd,
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_S5_R_se.tex")
 
 esttex(ModrMod_AveSiteProd, ModrMod_YrSiteProd,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_S5_R_ci.tex")
 
 
@@ -83,9 +83,9 @@ ModrMod_ProdGroup <- feols(log(live_mass) ~ log(rich) + log(rich):ProdGroup | ne
 ModrMod_ProdGroupWang  <- feols(log(live_mass) ~ log(rich) + log(rich):ProdGroup_WangCutoffs  | newplotid + site.by.yeardummy, comb)
 
 esttex(ModrMod_ProdGroup, ModrMod_ProdGroupWang,
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_S6_R_se.tex")
 
 esttex(ModrMod_ProdGroup, ModrMod_ProdGroupWang,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_S6_R_ci.tex")

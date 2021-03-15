@@ -118,11 +118,11 @@ MainMod_LevQuad <- feols(live_mass ~ rich + I(rich^2) | newplotid + site.by.year
 #######################################
 
 esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_S2_R_se.tex")
 
 esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_S2_R_ci.tex")
 
 ################################################
@@ -130,11 +130,11 @@ esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, Mai
 #######################################
 
 esttex(MainMod_LogLog, MainMod_LogLev, MainMod_LevLev, MainMod_LevQuad, 
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_S3_R_se.tex")
 
 esttex(MainMod_LogLog, MainMod_LogLev, MainMod_LevLev, MainMod_LevQuad, 
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_S3_R_ci.tex")
 
 ################################################
@@ -142,11 +142,11 @@ esttex(MainMod_LogLog, MainMod_LogLev, MainMod_LevLev, MainMod_LevQuad,
 #######################################
 
 esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, MainMod_IVRevCaus, 
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_forFig3_R_se.tex")
 
 esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, MainMod_IVRevCaus,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_forFig3_R_ci.tex")
 
 ##############################################
