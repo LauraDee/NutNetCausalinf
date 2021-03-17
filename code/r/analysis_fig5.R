@@ -30,7 +30,15 @@ MechMod_All <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.
 
 vcov_MechMod <- vcov(MechMod_All, cluster = "newplotid")
 
-# F-Tests for the groups: are their effects on productivity significantly differently?
+# Hypotheses Tests for the groups: are their effects on productivity significantly differently?
+
+#testing if the groups are not all the same: rejecting the null that they are the same
+linearHypothesis(MechMod_All, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
+                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
+
 
 # not rare: native vs non-native - are their effects on productivity significantly differently?
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", 
@@ -105,3 +113,4 @@ Fig5.plot <- Fig5.data %>%
 
 Fig5.plot
 ggsave("./output/Fig5.pdf", Fig5.plot)
+
