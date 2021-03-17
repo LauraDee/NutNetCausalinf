@@ -118,6 +118,46 @@ ggsave("./output/Fig5.pdf", Fig5.plot)
 ### SM Analyses for Section S7  ######################################################################################################################
 #####################################################################################################################################
 
+#####################################################################################################################
+#### Run Models Comparing with DI metrics for Rare vs Non-rare with different grouping cutoffs of using breaks=c(0.0,0.4,0.8,1.0).
+#####################################################################################################################
+
+#####################
+### Table S16 Models.  Grouped based on the Dominance Indicator (DI) and cutoffs of: breaks=c(0.0,0.4,0.8,1.0), versus cut-offs from Figure 5
+####################
+
+MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
+                     | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+
+vcov_MechMod2 <- vcov(MechMod_All2, cluster = "newplotid")
+
+#testing if rare native has different effect than non-rare native
+linearHypothesis(MechMod_All2, 
+                 hypothesis.matrix = "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)", 
+                 test = "F", vcov = vcov_MechMod2,  singular.ok = T)
+
+#test if the groups are not all the same: rejecting the null that they are the same
+linearHypothesis(MechMod_All2, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat2) = ihs(sr_non.rare_non.nat2)", "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)",
+                                       "ihs(sr_non.nat_rare2) = ihs(sr_non.rare_non.nat2)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod2,  singular.ok = T)
+
+################################################
+## Table S16 
+#######################################
+esttex(MechMod_All, MechMod_All2, 
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS16_R_se.tex")
+
+esttex(MechMod_All, MechMod_All2, 
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS16_R_CI.tex")
+
+#########################################################################################################################################################################
+## Table S17 and S18 Models. Compare estimates using other metrics for defining rare vs non-rare,  ##################################
+# based only on relative abundance and relative frequency for both cut-offs                       ##################################
+#########################################################################################################################################################################
+
 ###########
 ### B. Use a metric of rare or non-rare based on Relative Abundance in year 0 and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0)  (same cut-offs as in Figure 5)
 ##########
@@ -135,45 +175,20 @@ linearHypothesis(MechRelA1,
 ###########
 ### C. Grouped based on Relative Frequency in year 0 and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0)
 ##########
-
 MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) 
                   +  ihs(sr_rare_nat.RelA) | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
 
-# hypothesis tests
+################################################
+## Table S17
+#######################################
+esttex(MechMod_All, MechRelA1, MechFreq1,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS17_R_se.tex")
 
-
-#####################################################################################################################
-#### Run Models Comparing Rare vs Non-rare, Native or Invasive with different grouping cutoffs of breaks=c(0.0,0.4,0.8,1.0).
-#####################################################################################################################
-
-#####################
-### Table SX.  Grouped based on the Dominance Indicator (DI) and cutoffs of: breaks=c(0.0,0.4,0.8,1.0), versus cut-offs from Figure 5
-####################
-
-MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
-                    | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
-vcov_MechMod2 <- vcov(MechMod_All2, cluster = "newplotid")
-
-#testing if rare native has different effect than non-rare native
-linearHypothesis(MechMod_All2, 
-                 hypothesis.matrix = "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)", 
-                 test = "F", vcov = vcov_MechMod2,  singular.ok = T)
-
-#test if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechMod_All2, 
-                 hypothesis.matrix = c("ihs(sr_non.rare_nat2) = ihs(sr_non.rare_non.nat2)", "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)",
-                                       "ihs(sr_non.nat_rare2) = ihs(sr_non.rare_non.nat2)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
-                 test = "F", vcov = vcov_MechMod2,  singular.ok = T)
-
-
-
-
-
-#########################################################################################################################################################################
-## compare results with other ways of defining rare vs non-rare, based only on relative abundance and relative frequency for both cut-offs ##################################
-#########################################################################################################################################################################
+esttex(MechMod_All, MechRelA1, MechFreq1,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS17_R_CI.tex")
 
 ###########
 ### B. Grouped based on Relative Abundance in year 0 and cutoffs of:  breaks=c(0.0,0.4,0.8,1.0),
@@ -190,67 +205,24 @@ MechFreq2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq2) + ihs(sr_non.rare_
                   +  ihs(sr_rare_nat.Freq2)| newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
 
+################################################
+## Table S18
+#######################################
+esttex(MechMod_All2, MechRelA2, MechFreq2,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS18_R_se.tex")
 
-
-
-### Plot Results Using the Different ways of defining rarity 
-coefs_Mod5A.1 <- tidy(Mod5A.1, conf.int = T) 
-#%>% as_tibble(rownames = "ihs(sr_non.rare_nat2)") -> Non_Rare.Native
-coefs_Mod5B.1 <- tidy(Mod5B.1, conf.int = T)
-coefs_Mod5C.1 <- tidy(Mod5C.1, conf.int = T)
-
-panelMech.all_cutoff2 <-  bind_rows(
-  coefs_Mod5A.1 %>% mutate(reg = "Model Using Dominance Indicator"),
-  coefs_Mod5B.1 %>% mutate(reg = "Model Using Relative Abundance"),
-  coefs_Mod5C.1 %>% mutate(reg = "Model Using Frequency")
-) %>%
-  ggplot(aes(x=term, y=estimate, ymin=conf.low, ymax=conf.high, colour = term)) +
-  geom_pointrange() + theme_classic() +
-  labs(Title = "Marginal effect of richness on live mass") +
-  geom_hline(yintercept = 0, col = "black") +
-  geom_hline(yintercept = .2, col = "grey", linetype = "dotdash") +
-  scale_colour_discrete(name="Grouping Definition") +
-  ylim(-.7, .5) +
-  labs(
-    title = "Effect size of Log Species Richness By Group on Log Productivitiy",
-    caption = "" ) + facet_wrap(~reg) 
-#theme(axis.title.x = element_blank())
-
-panelMech.all_cutoff2 + labs(
-  # title = "Effect size of Log Group Species Richness on Log Productivitiy",
-  caption = "", x = "Variable", y = "Coefficient Estimate") 
-
-# save plots my_plot <- stops_facet_plot 
-ggsave("Fig4C", plot = panelMech.all_cutoff2, width=NA, height=NA)
-
-#make table of results
-screenreg(list(Mod5A.1, Mod5B.1, Mod5C.1),     # object with results 
-          custom.model.names= c("Dominance Indicator",  "Relative abundance", "Frequency"))
-# omit.coef=c("(site_code)|(newplotid)")) 
-
-# Print Results Comparing The Cut-Offs 
-#DI
-screenreg(list(Mod4A.1, Mod5A.1),     # object with results 
-          custom.model.names= c("Cut-Off 1", "Cut-Off 2"))
-
-# Print Results Comparing The Cut-Offs -- for relative abundance. 
-screenreg(list(Mod4B.1, Mod5B.1),     # object with results 
-          custom.model.names= c("Cut-Off 1", "Cut-Off 2"))
-
-# Print Results Comparing The Cut-Offs 
-screenreg(list(Mod4C.1, Mod5C.1),     # object with results 
-          custom.model.names= c("Cut-Off 1", "Cut-Off 2"))
+esttex(MechMod_All2, MechRelA2, MechFreq2,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS18_R_CI.tex")
 
 ############################################################################################################################
-#### Plot Correlations between all of the SR groupings ###################################################################
+#### Figure SZZ. Plot Correlations between all of the SR grouping variables ###################################################################
 #############################################################################################################################
 richnessvars.fig4c <- c("sr_non.rare_nat", "sr_non.rare_non.nat", "sr_non.nat_rare", "sr_nat_rare")
 richnessvars.to.plot <- mech.data[,richnessvars.fig4c, with=F] #with = F will then use the data.frame conventions, using "" for col names
 pairs(richnessvars.to.plot)
 
-######################################################################################################################
-#### Visualize Correlations between SR vars ##########################################################################################################
-######################################################################################################################
 sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, non_rare_spp,
                             sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom,
                             sr_non.nat_dom, sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare )]
