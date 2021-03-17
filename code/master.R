@@ -75,8 +75,7 @@ cover <- fread("~/Dropbox/IV in ecology/NutNet/NutNetCoverData_ProcessedAug2019.
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 source("./code/r/finalprocess_coverdata.R") 
 
-source("./code/r/analysis_fig5.R") ## Produces Figure 5
-source("./code/r/analysis_sm7.R") ## In progress <_> LAURA TO WORK ON.
+source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables and supplemental results for section S7 of the supplemental materials
 
 
 
