@@ -22,11 +22,11 @@ linearHypothesis(SpecMod_4Cats, hypothesis.matrix = "ihs(sr_INT) = ihs(sr_nat_do
                  vcov = vcov(SpecMod_4Cats, cluster = "newplotid"))
 
 esttex(SpecMod_NatvNonNat,
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_S10_R_se.tex")
 
 esttex(SpecMod_NatvNonNat,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_S10_R_ci.tex")
 
 

@@ -53,11 +53,11 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
 ## Export Table
 
 esttex(MechMod_All, 
-       coefstat = "se",
+       coefstat = "se", replace = TRUE,
        file = "./output/Table_forFig5_R_se.tex")
 
 esttex(MechMod_All,
-       coefstat = "confint",
+       coefstat = "confint", replace = TRUE,
        file = "./output/Table_forFig5_R_ci.tex")
 
 ###################################################################################################################################
