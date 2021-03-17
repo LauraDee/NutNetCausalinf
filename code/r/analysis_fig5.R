@@ -30,11 +30,13 @@ MechMod_All <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.
 
 vcov_MechMod <- vcov(MechMod_All, cluster = "newplotid")
 
-# not rare: native vs non-native 
+# F-Tests for the groups: are their effects on productivity significantly differently?
+
+# not rare: native vs non-native - are their effects on productivity significantly differently?
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-# native rare vs non-rare
+# native rare vs non-rare:
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
