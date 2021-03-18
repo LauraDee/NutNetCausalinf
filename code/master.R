@@ -64,7 +64,7 @@ source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
 
 ##########################################
 ## Analysis using large coverage data ####
-## cover data is in separate location!!!!!
+## cover data is in separate location due its size!!!!!
 
 rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
 combonly <- FALSE
