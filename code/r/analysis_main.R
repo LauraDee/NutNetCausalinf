@@ -81,7 +81,10 @@ Fig2B.3$conf.high <- .2348401
 MainMod_Rich #=Done above
 MainMod_LagLiveMass  <- feols(log(live_mass) ~ log(rich) + log(laggedlive_mass) | site.by.yeardummy, comb, cluster = "newplotid")
 MainMod_Oster <- "Done in Stata" 
-MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(Ground_PAR) | newplotid + site.by.yeardummy, comb)
+# MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(Ground_PAR) | newplotid + site.by.yeardummy, comb)
+MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(  proportion_par) | newplotid + site.by.yeardummy, comb)
+  
+
 MainMod_IVRevCaus <- feols(log(live_mass) ~ 1 | newplotid + site.by.yeardummy | log(rich) ~ log(avg.trt.neigh.rich.within.block), comb)
 
 Fig3.1 <- tidy(MainMod_Rich) %>%

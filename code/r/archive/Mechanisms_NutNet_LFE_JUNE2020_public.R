@@ -183,7 +183,7 @@ table(cover$DIgroup2)
 
 #to subset columns and also remove duplicate rows from the cover file so that there is one observation per plot and year 
 # and the data isn't artificially replicated 
-coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, LegumePercentcover.yr, cover_nat_dom, cover_nat_sub,
+coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live,cover_nat_dom, cover_nat_sub,
                                   sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare, sr_INT, sr_NAT, sr_domspp, sr_rarespp, sr_subordspp, sr_non_rare_spp, 
                                   sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, relabund_sr_domspp,
                                   sr_non_rare_spp.RelA, 
@@ -203,8 +203,8 @@ coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt 
                                   sr_non.Nfixer, N_fixer_cover.yr,
                                  NonNative_cover.yr , Native_cover.yr , sr_annual, sr_peren, sr_null.lspan, sr_biennial ,
                                  sr_indeter, AnnualPercentcover.yr, PerenPercentcover.yr , sr_graminoid, sr_forbs, sr_woody,
-                                 sr_legume, sr_bryophyte , sr_cactus, Dom_cover.yr, 
-                                  GrassPercentcover.yr ,ForbPercentcover.yr, WoodyPercentcover.yr, 
+                                # sr_legume, sr_bryophyte , sr_cactus, Dom_cover.yr, 
+                                 # GrassPercentcover.yr ,ForbPercentcover.yr, WoodyPercentcover.yr,  LegumePercentcover.yr, 
                                  freq_sr_domspp, freq_sr_rarespp, freq_sr_subordspp
                                  )])
 #make sure number of rows isnt inflated 
