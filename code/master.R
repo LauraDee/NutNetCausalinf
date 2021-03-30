@@ -12,7 +12,7 @@ cdir <- "C:/GitHub/NutNetCausalinf/"
 ## BELOW THIS POINT, code should just run ##
 
 setwd(cdir)
-setwd("~/Documents/GitHub/NutNetCausalinf/")
+
 # load packages; version numbers are noted for each package used.
 require(ggplot2) # 3.3.3
 library(plyr) # 1.8.6
