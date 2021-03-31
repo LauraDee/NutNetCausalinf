@@ -3,6 +3,12 @@
 #######################################################################################################################################
 
 ##### Analyses for Section S5c: Moderating Effect of site-level species richness ####
+#We consider several site-level species richness measures, including: 
+  #site-level richness across all years (site_richness: count of all unique taxa ever observed across all plots in all years at that site)
+  #the site-level richness per year (site_year_rich: count of unique taxa observed across all plots at the site in that year) 
+ #the count of all unique introduced taxa at the site (site_introduced_richness) 
+ #the count of all unique native taxa at the site (site_native_richness). 
+
 ## See Table S4: code to reproduce Table S4 is below.
 
 ModrMod_AveSiteRich     <- feols(log(live_mass) ~ log(rich) + log(rich):site_richness | newplotid + site.by.yeardummy, comb) 
