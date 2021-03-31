@@ -176,7 +176,7 @@ linearHypothesis(MechRelA1,
 ### C. Grouped based on Relative Frequency in year 0 and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0)
 ##########
 MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) 
-                  +  ihs(sr_rare_nat.RelA) | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+               | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
 
 ################################################
