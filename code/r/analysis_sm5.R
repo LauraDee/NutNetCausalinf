@@ -82,11 +82,12 @@ head(comb)
 table(comb$ProdGroup)
 plot(comb$ProdGroup, main = "Productivity Groups Per Year")
 
-## Table S6
+## Produce Table S6
 
 ModrMod_ProdGroup <- feols(log(live_mass) ~ log(rich) + log(rich):ProdGroup | newplotid + site.by.yeardummy, comb)
 ModrMod_ProdGroupWang  <- feols(log(live_mass) ~ log(rich) + log(rich):ProdGroup_WangCutoffs  | newplotid + site.by.yeardummy, comb)
 
+## Print Table S6
 esttex(ModrMod_ProdGroup, ModrMod_ProdGroupWang,
        coefstat = "se", replace = TRUE,
        file = "./output/Table_S6_R_se.tex")
