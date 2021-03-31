@@ -42,11 +42,11 @@ comb[, ave_site_livemass.peryr := ave(live_mass, na.rm = T), by = .(site_code, y
 ModrMod_AveSiteProd <- feols(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass  | newplotid + site.by.yeardummy, comb)
 ModrMod_YrSiteProd  <- feols(log(live_mass) ~ log(rich) + log(rich):ave_site_livemass.peryr  | newplotid + site.by.yeardummy, comb)
 
-esttex(ModrMod_AveSiteProd, ModrMod_YrSiteProd,
+esttex( ModrMod_YrSiteProd, ModrMod_AveSiteProd,
        coefstat = "se", replace = TRUE,
        file = "./output/Table_S5_R_se.tex")
 
-esttex(ModrMod_AveSiteProd, ModrMod_YrSiteProd,
+esttex(ModrMod_YrSiteProd, ModrMod_AveSiteProd, 
        coefstat = "confint", replace = TRUE,
        file = "./output/Table_S5_R_ci.tex")
 
