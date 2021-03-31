@@ -143,7 +143,7 @@ linearHypothesis(MechMod_All2,
                  test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
 ################################################
-## Table S16 
+## Table S9
 #######################################
 esttex(MechMod_All, MechMod_All2, 
        coefstat = "se", replace = TRUE,
@@ -154,7 +154,7 @@ esttex(MechMod_All, MechMod_All2,
        file = "./output/TableS16_R_CI.tex")
 
 #########################################################################################################################################################################
-## Table S17 and S18 Models. Compare estimates using other metrics for defining rare vs non-rare,  ##################################
+## Table S10 and S11 Models. Compare estimates using other metrics for defining rare vs non-rare,  ##################################
 # based only on relative abundance and relative frequency for both cut-offs                       ##################################
 #########################################################################################################################################################################
 
@@ -180,7 +180,7 @@ MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_n
 vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
 
 ################################################
-## Table S17
+## Table S10
 #######################################
 esttex(MechMod_All, MechRelA1, MechFreq1,
        coefstat = "se", replace = TRUE,
@@ -206,7 +206,7 @@ MechFreq2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq2) + ihs(sr_non.rare_
 vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
 
 ################################################
-## Table S18
+## Table S11
 #######################################
 esttex(MechMod_All2, MechRelA2, MechFreq2,
        coefstat = "se", replace = TRUE,
