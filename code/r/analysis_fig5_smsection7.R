@@ -182,13 +182,13 @@ vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
 ################################################
 ## Table S10
 #######################################
-esttex(MechMod_All, MechRelA1, MechFreq1,
+esttex(MechRelA1, MechRelA2,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS17_R_se.tex")
+       file = "./output/TableS10_R_se.tex")
 
-esttex(MechMod_All, MechRelA1, MechFreq1,
+esttex(MechRelA1, MechRelA2,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS17_R_CI.tex")
+       file = "./output/TableS10_R_CI.tex")
 
 ###########
 ### B. Grouped based on Relative Abundance in year 0 and cutoffs of:  breaks=c(0.0,0.4,0.8,1.0),
@@ -208,13 +208,39 @@ vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
 ################################################
 ## Table S11
 #######################################
+esttex(MechFreq1, MechFreq2,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS11_R_se.tex")
+
+esttex(MechFreq1, MechFreq2,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS11_R_CI.tex")
+
+
+################################################
+## Compare all metrics for each cut-off #########
+#############################################
+#Cut off 1 
+esttex(MechMod_All, MechRelA1, MechFreq1,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS9through11_ComparisonCutoff1_R_se.tex")
+
+esttex(MechMod_All, MechRelA1, MechFreq1,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS9through11_ComparisonCutoff1_R_CI.tex")
+
+
+#Cut off 2
 esttex(MechMod_All2, MechRelA2, MechFreq2,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS18_R_se.tex")
+       file = "./output/TableS9through11_ComparisonCutoff2_R_se.tex")
 
 esttex(MechMod_All2, MechRelA2, MechFreq2,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS18_R_CI.tex")
+       file = "./output/TableS9through11_ComparisonCutoff2_R_CI.tex")
+
+
+
 
 ############################################################################################################################
 #### Figure SZZ. Plot Correlations between all of the SR grouping variables ###################################################################
