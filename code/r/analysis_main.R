@@ -9,14 +9,12 @@
 
 
 MainMod_Rich     <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
+MainMod_Rich_sitecluster  <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb, cluster = "site_code")
 MainMod_RichEven <- feols(log(live_mass) ~ log(rich) + ihs(even) | newplotid + site.by.yeardummy, comb) 
 MainMod_Simpson  <- feols(log(live_mass) ~ log(simpson) | newplotid + site.by.yeardummy, comb) 
 MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
 MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
 
-#clustering the standard errors at the site level versus plot level (for Table S2)
-MainMod_Rich_sitecluster  <- #****CHRIS HERE
-  
 Fig2A.1 <- tidy(MainMod_Rich) %>%
   filter(term == "log(rich)")
 Fig2A.2 <- tidy(MainMod_RichEven) %>%
@@ -60,7 +58,7 @@ SimpleRE_MultiVar <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.f
                         (1|newplotid), comb, REML = F)
 
 
-## Because I couldn't find heteroskedasticity and autocorrelation robust variances with lme4, let's
+## CS: Because I couldn't find heteroskedasticity and autocorrelation robust variances with lme4, let's
 ## read in these more conservative CIs from stata to adjust
 
 Fig2B.1 <- tidy(MixedMod_Rich) %>%
@@ -123,11 +121,11 @@ MainMod_LevQuad <- feols(live_mass ~ rich + I(rich^2) | newplotid + site.by.year
 ## Table S2
 #######################################
 
-esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+esttex(MainMod_Rich, MainMod_Rich_sitecluster, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
        coefstat = "se", replace = TRUE,
        file = "./output/Table_S2_R_se.tex")
 
-esttex(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
+esttex(MainMod_Rich, MainMod_Rich_sitecluster,MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag, MainMod_Simpson,
        coefstat = "confint", replace = TRUE,
        file = "./output/Table_S2_R_ci.tex")
 
