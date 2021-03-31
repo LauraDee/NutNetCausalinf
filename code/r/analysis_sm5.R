@@ -55,7 +55,7 @@ esttex(ModrMod_AveSiteProd, ModrMod_YrSiteProd,
 #### Analyses for Table S6 using cut-offs akin to Wang et al. 2019 Nature Communications
 
 ## Using the productivity groups from Wang et al 2019 Nature Communications
-# Yongfans response:
+# Yongfan Wang's response for information on the grouping cut-offs:
 # The 151 grids in HerbDivNet data were divided into three equal groups,
 # depending on their mean productivity: low, medium, and high productivity (with 50 to 51 grids each).
 # The cutoff values of primary productivity of each group:
@@ -63,7 +63,6 @@ esttex(ModrMod_AveSiteProd, ModrMod_YrSiteProd,
 # Low (51 grids): 30.18-238.73 (g/m^2)
 # Medium (50 grids): 239.67-409.69 (g/m^2)
 # High (50 grids): 414.29-1382.42 (g/m^2)
-
 
 # do the groups based on the overall average since Wang et al was a cross-section so that is more comparable
 summary(comb$ave_site_livemass.peryr)
@@ -95,3 +94,6 @@ esttex(ModrMod_ProdGroup, ModrMod_ProdGroupWang,
 esttex(ModrMod_ProdGroup, ModrMod_ProdGroupWang,
        coefstat = "confint", replace = TRUE,
        file = "./output/Table_S6_R_ci.tex")
+
+### References
+# Y. Wang, M. W. Cadotte, Y. Chen, L. H. Fraser, Y. Zhang, F. Huang, S. Luo, N. Shi, M. Loreau, Global evidence of positive biodiversity effects on spatial ecosystem stability in natural grasslands. Nat. Commun. 10, 1–9 (2019).
