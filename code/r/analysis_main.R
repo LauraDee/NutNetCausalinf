@@ -14,6 +14,9 @@ MainMod_Simpson  <- feols(log(live_mass) ~ log(simpson) | newplotid + site.by.ye
 MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
 MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
 
+#clustering the standard errors at the site level versus plot level (for Table S2)
+MainMod_Rich_sitecluster  <- #****CHRIS HERE
+  
 Fig2A.1 <- tidy(MainMod_Rich) %>%
   filter(term == "log(rich)")
 Fig2A.2 <- tidy(MainMod_RichEven) %>%
@@ -83,7 +86,7 @@ MainMod_LagLiveMass  <- feols(log(live_mass) ~ log(rich) + log(laggedlive_mass) 
 MainMod_Oster <- "Done in Stata" 
 # MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(Ground_PAR) | newplotid + site.by.yeardummy, comb)
 MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(  proportion_par) | newplotid + site.by.yeardummy, comb)
-  
+
 
 MainMod_IVRevCaus <- feols(log(live_mass) ~ 1 | newplotid + site.by.yeardummy | log(rich) ~ log(avg.trt.neigh.rich.within.block), comb)
 
