@@ -1,5 +1,5 @@
 ---
-title: 'Problem Set 02'
+title: 'Panel Data and Fixed Effects Methods for Ecology'
 author: "Your Name Here: Group X"
 date: 'Last updated: `r Sys.Date()`'
 output:
@@ -11,15 +11,48 @@ output:
 ---
 
 
-## Setup
+## Setup and Load Data
 
 ```{r setup, message=FALSE, warning=FALSE}
-# FIXME
 library(tidyverse)
-library(readxl)
-library(cowplot)
-theme_set(theme_cowplot())
+library(data.table)
+library(fixest)
 ```
+
+This data has already been cleaned and processed, and is ready to use. It corresponds to what we use in the paper.
+
+```{r}
+cdir <- getwd()
+comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
+```
+
+## Working through different approaches
+
+### Simple correlations in single years
+
+A first place to start is looking correlations within a single year (i.e., using cross-sectional variation). we use all data and simple look at the correlation between log live mass and log richness in two years, 2012 and 2013. Throughout, we are going to cluster the standard errors by plot to acknowledge correlation in errors terms within a plot across years (though when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors).
+
+```{r}
+SimpleCorr2012 <- comb %>%
+  filter(year==2012) %>%
+  feols(log(live_mass) ~ log(rich), ., cluster = "newplotid") 
+
+SimpleCorr2013 <- comb %>%
+  filter(year==2013) %>%
+  feols(log(live_mass) ~ log(rich), ., cluster = "newplotid") 
+
+etable(SimpleCorr2012, SimpleCorr2013, 
+          cluster = "newplotid", 
+          drop = "Intercept", 
+          subtitles = c("Data in 2012", "Data in 2013"))  
+```
+
+In the results above, observe the results switches signs and significance between the two years. Is that whack?! Sure is, non-experimental cross-sectional data often has problems with omitted variable bias, as this simple comparison shows.
+
+
+
+
+## STUFF FROM TUTORIAL BELOW
 
 ## Working Directory
 
