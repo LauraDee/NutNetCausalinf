@@ -201,7 +201,7 @@ nrow(comb)
 nrow(cover)
 
 #to write out this data file:
-write.csv(mech.data, "merged_NutNet_Oct2019.csv")
+# write.csv(mech.data, "merged_NutNet_Oct2019.csv")
 
 ##########################################################################################
 ### Process merge data to prep to use it in the models  #################################
@@ -265,7 +265,123 @@ hist(mech.data$change_nonrare.nonnative, main = "Change in non-native, non-rare 
 mech.data[order(year), change_rare.nonnative := sr_non.nat_rare -shift(sr_non.nat_rare), by =.(plot, site_code)]
 hist(mech.data$change_rare.nonnative,  main = "Change in non-native, rare species richness")
 
-### COmpute average non-zero changes 
+
+# # function currently does not.
+mech.data = mech.data[!is.na(change_rare.native)]
+
+## plot change in rare species by site 
+FigSX <- ggplot(data = mech.data, aes(x = change_rare.native)) + geom_histogram()+ facet_wrap(~site) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in rare native species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+
+FigSX <- ggplot(data = mech.data, aes(x = change_nonrare.nonnative)) + geom_histogram()+ facet_wrap(~site) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in nonrare nonnative species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+
+
+## plot change in rare non native species by site 
+FigSX <- ggplot(data = mech.data, aes(x = change_rare.nonnative)) + geom_histogram()+ facet_wrap(~site) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in rare native speciesrichness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+# # function currently does not.
+mech.data = mech.data[!is.na(changerich)]
+
+#plot change richness vs change rare spp
+FigSX <- ggplot(data = mech.data, aes(x = change_rare.nonnative, y = changerich)) + geom_histogram()+ facet_wrap(~site) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in rare native species vs s richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+plot(mech.data$changerich, mech.data$change_rare.native)
+plot(mech.data$changerich, mech.data$change_rare.nonnative)
+plot(mech.data$changerich, mech.data$change_nonrare.nonnative)
+plot(mech.data$changerich, mech.data$change_nonrare.native)
+
+
+
+
+## create richness bins 
+mech.data[ ,RichGroup := cut(rich, breaks=c(1, 8,16,37), labels=c("Low","Medium","High"))]
+plot(mech.data$RichGroup)
+
+mech.data[ ,RichGroup2 := cut(rich, breaks=c(1, 10,37), labels=c("Low","High"))]
+plot(mech.data$RichGroup2)
+
+#create proportion of rare native species:
+#mech.data[ , proportion_rare  := (sr_non.nat_rare + sr_nat_rare)]
+mech.data[ , proportion_rare  := (sr_nat_rare)]
+mech.data[ , proportion_rare  := (proportion_rare/rich)]
+hist(mech.data$proportion_rare )
+hist(mech.data$proportion_rare )
+
+#create proportion of change in richness as change in rare native species:
+#mech.data[ , proportion_rare  := (sr_non.nat_rare + sr_nat_rare)]
+
+#****THIS DINDT WORK ****
+mech.data[ , proportion_changerare  := (change_rare.native/changerich)]
+hist(mech.data$proportion_changerare )
+
+
+
+#proportion non native spp
+mech.data[ , proportion_nonnative  := (sr_INT/rich)]
+hist(mech.data$proportion_nonnative )
+
+## plot proportion of rare species in richness group
+FigSX <- ggplot(data = mech.data, aes(x = proportion_rare)) + geom_histogram()+ facet_wrap(~RichGroup2) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in rare native species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+FigSX <- ggplot(data = mech.data, aes(x = proportion_nonnative)) + geom_histogram()+ facet_wrap(~RichGroup2) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+ # labs(x = "Plot-level change in rare native species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+
+#proportion rare by site
+FigSX <- ggplot(data = mech.data, aes(x = proportion_rare)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in rare native species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+
+ModrMod_YrSiteProd  <- feols(log(live_mass) ~ log(rich) + log(rich):RichGroup  | newplotid + site.by.yeardummy, mech.data)
+
 
 
 ###########
