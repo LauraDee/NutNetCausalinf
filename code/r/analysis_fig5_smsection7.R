@@ -239,37 +239,8 @@ esttex(MechMod_All2, MechRelA2, MechFreq2,
        file = "./output/TableS9through11_ComparisonCutoff2_R_CI.tex")
 
 
-################################################################################################################################################
-## Section SM S7d. SI Results: How different groups of species contribute to/effect overall species richness  #################################
-################################################################################################################################################
-
-MechMod_RichnessAll <-feols(log(rich) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
-                    | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
-vcov_MechMod_RichnessAll <- vcov(MechMod_RichnessAll, cluster = "newplotid")
-
-#native vs non-native contributions to overall richness
-MechMod_RichnessAll <-feols(log(rich) ~ ihs(sr_NAT) + ihs(sr_INT)  
-                            | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
-vcov_MechMod_RichnessAll <- vcov(MechMod_RichnessAll, cluster = "newplotid")
-
-#native vs non-native dominant and rare contributions to overall richness
-# **DO WE HAVE THIS VARIABLE FOR SUBORDINATE?
-MechMod_RichnessAll <-feols(log(rich) ~ ihs(sr_non.nat_dom ) + ihs(sr_nat_dom)  + ihs(sr_non.nat_rare) + ihs( sr_nat_rare) +ihs(sr_subordspp)
-                            | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechMod_RichnessAll <- vcov(MechMod_RichnessAll, cluster = "newplotid")
-
-
-#sr_nat_dom sr_non.nat_dom 
-#sr_NAT sr_domspp sr_rarespp sr_subordspp sr_non_rare_spp sr_non.nat_rare sr_nat_rare sr_non.rare_non.nat sr_non.rare_nat
-
-esttex(MechMod_RichnessAll,
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS12_RichnessOutcome_R_CI.tex")
-
 ############################################################################################################################
-#### Figure SZZ. Plot Correlations between all of the SR grouping variables ###################################################################
+#### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
 #############################################################################################################################
 richnessvars.fig4c <- c("sr_non.rare_nat", "sr_non.rare_non.nat", "sr_non.nat_rare", "sr_nat_rare")
 richnessvars.to.plot <- mech.data[,richnessvars.fig4c, with=F] #with = F will then use the data.frame conventions, using "" for col names
