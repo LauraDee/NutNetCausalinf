@@ -19,7 +19,7 @@ library(data.table)
 library(fixest)
 ```
 
-This data has already been cleaned and processed, and is ready to use. It corresponds to what we use in the paper.
+This data has already been cleaned and processed, and is ready to use. This data corresponds to what we use in the paper for the main analysis, and consists of control plots for NutNet sites. We include data from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have multiple years of data.
 
 ```{r}
 cdir <- getwd()
@@ -30,9 +30,17 @@ comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
 
 ### Simple correlations in single years
 
-A first place to start is looking correlations within a single year (i.e., using cross-sectional variation). we use all data and simple look at the correlation between log live mass and log richness in two years, 2012 and 2013. Throughout, we are going to cluster the standard errors by plot to acknowledge correlation in errors terms within a plot across years (though when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors).
+A first place to start is looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log live mass as the outcome and log richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details). That is, we estimate and report $\beta$ in:
+$$
+\ln(\text{Live Mass}_{pst}) = \alpha + \beta \ln(\text{Richness}_{pst}) + e_{pst}
+$$
+where $p$ indexes plots, $s$ indexes sites, and $t$ indexes years. The error term is captured by $e_{pst}$. We include a constant $\alpha$, but do not typically report it because we learn little from it.
+
+We report results below using all years of data first, and then report results using two individual years: 2012 and 2013. Here, as everywhere below, we cluster standard errors by plot to reflect serial correlation in errors terms within a plot across years (we don't to assume errors are iid). Note that when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors.
 
 ```{r}
+SimpleCorrAll <- feols(log(live_mass) ~ log(rich), comb, cluster = "newplotid") 
+
 SimpleCorr2012 <- comb %>%
   filter(year==2012) %>%
   feols(log(live_mass) ~ log(rich), ., cluster = "newplotid") 
@@ -41,68 +49,88 @@ SimpleCorr2013 <- comb %>%
   filter(year==2013) %>%
   feols(log(live_mass) ~ log(rich), ., cluster = "newplotid") 
 
-etable(SimpleCorr2012, SimpleCorr2013, 
+etable(SimpleCorrAll, SimpleCorr2012, SimpleCorr2013, 
           cluster = "newplotid", 
           drop = "Intercept", 
-          subtitles = c("Data in 2012", "Data in 2013"))  
+          subtitles = c("Data All Years", "Data in 2012", "Data in 2013"))  
 ```
 
-In the results above, observe the results switches signs and significance between the two years. Is that whack?! Sure is, non-experimental cross-sectional data often has problems with omitted variable bias, as this simple comparison shows.
+As you can see in the results, including all years of data gives a non-significant positive relationship between productivity and richness. In just the 2012 data, the coefficient is larger in magnitude, but still insignificant. Finally, just using 2013 data, the coefficient switches signs and becomes significant. 
 
+So... which one to believe? Well, probably none of these, because they are all whack---we are not identifying the true causal relationship of richness on productivity. The variability of these results highlights that research designs that rely on non-experimental **cross-sectional** data often has problems with omitted variable bias.
 
+When is $\beta$ identified? When there are no unobservables that are correlated with richness that also influence productivity. This assumption has a mathematical form: $\mathbb{E}[e_{pst} \times \ln(\text{Richness}_{pst})]=0$ (this is pretty similar to saying that $e_{pst}$ and $\ln(\text{Richness}_{pst})$ aren't correlated). In the above results, there's probably stuff in $e$ that is correlated with richness, like LAURA LAURA LAURA.
 
+### Getting Used to Dummies
+Of course, in the above correlations, we're just throwing in plots from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places!
 
-## STUFF FROM TUTORIAL BELOW
+We could measure the things about sites that we thought were important, decide the functional form that they should have (linear, quadratic, log, spline), and then include them in the analysis. Or, we could include a *dummy* for each site. In this setting, *site dummies* are just binary variables for each site. The big advantage of including the dummy is that captures whatever the average characteristics are within the site. We estimate:
+$$
+\ln(\text{Live Mass}_{pst}) = \beta \ln(\text{Richness}_{pst}) + \gamma_{s} + e_{pst}
+$$
+where the $\gamma$'s are the vector of site dummies (note that we omit the constant from here on out, technically the constant is collinear with full vector of site dummies, so we must either omit the constant or one of the site dummies). 
 
-## Working Directory
+To see how flexible the dummy is, consider what we could have done. Say we new that there were two important variables at the site level, and we want to model how they enter flexibly, and there's still probably some error, so we have included
+$$
+\gamma_s = g_1 x_{1s} + g_2 x_{2s} + g_3 x^2_{2s} + g_4 \frac{x_{1s}}{x_{2s}} + u_s
+$$
+where the $g$'s are coefficients to be estimated, the $x$'s are things we measure, and $u$ is the site-level error. If we include these $x$'s and whatnot in the above model instead of $\gamma_s$, we would still need $u_s$ to be uncorrelated with richness in order to identify $\beta$. In other words, we would need to measure *every single site-level variable that influences productivity and is correlated with richness*. 
 
-By default, R will read and write files from its working directory. The status of the current directory can be found at the top of the Console window. You can also check the current working directory with the command `getwd()`.
-
-### Best practices
-
-Store all the files for an analysis (problem set) in a single directory. You might have the following directory structure:
-
-- Quant_Meth_LifeSci
-    - Lecture_Slides
-    - Docs
-    - Problem_Sets
-        - PS_01
-            - `PS_1.Rmd`
-            - other files
-        - PS_02
-            - `PS_02.Rmd`
-            - other files
-        - PS_03, etc.
-
-Then set the R working directory to the current active file using the RStudio menus: **Session $\rightarrow$ Set Working Directory $\rightarrow$ To Source File Location**.
-
-Setting the working directory to the location of the current files will ensure that you can directly access the data files from the local folder, and that any files which are written will be in that directory.
-
-As you get more comfortable with R, you can move files around, use sub-directories, etc. For now, keep it simple and store associated files in the same directory, even if this means duplicating files (which is something you definitely don't want to do in general practice).
-
-### Activity
-
-Organize your files and set the working directory to the directory where this file and the required data files for this problem set are located. In the code chunk below set your working directory and use the '#' to outline and describe the folder structure you have chosen
-
+Instead, the dummies control for the average, time-invariant characteristics of each site. This means we're now only comparing plots within a site, although we're still combining plots that might be quite different from years that might be quite different. We repeat the above exercise, but now including site dummies:
 ```{r}
-# FIXME
-getwd()
+SiteCorrAll <- feols(log(live_mass) ~ log(rich) | site_code, comb, cluster = "newplotid") 
 
-# Should include folder structure here
-# Our example looks like:
-# - Quant_Meth_LifeSci
-#     - Lecture_Slides
-#     - Docs
-#     - Problem_Sets
-#         - PS_01
-#             - `PS_1.Rmd`
-#             - other files
-#         - PS_02
-#             - `PS_02.Rmd`
-#             - other files
-#         - PS_03, etc.
+SiteCorr2012 <- comb %>%
+  filter(year==2012) %>%
+  feols(log(live_mass) ~ log(rich) | site_code, ., cluster = "newplotid") 
 
+SiteCorr2013 <- comb %>%
+  filter(year==2013) %>%
+  feols(log(live_mass) ~ log(rich) | site_code, ., cluster = "newplotid") 
+
+etable(SiteCorrAll, SiteCorr2012, SiteCorr2013, 
+          cluster = "newplotid", 
+          drop = "Intercept", 
+          subtitles = c("Data All Years", "Data in 2012", "Data in 2013"))  
 ```
+
+Note some similarities and differences with the results above. With all the years of data, the coefficient is positive but insignificant. With only 2012, the results are now negative, but again insignficant. The 2013 results are once more significantly negative.
+
+This was to get you more comfortable with what dummies can do. It's pretty different than *random effects*, something ecologists use quite often. While random effects (and what I think of as their cousins, heirarchical models) can be helpful for some tasks, they generally are not very helpful for causal identification. Another very common use for dummies is to control for time differences. For us, that means year dummies, and hence estimating: 
+$$
+\ln(\text{Live Mass}_{pst}) = \beta \ln(\text{Richness}_{pst}) + \gamma_{s} + \delta_t + e_{pst}
+$$
+```{r}
+SiteYrCorrAll <- feols(log(live_mass) ~ log(rich) | site_code + year, comb, cluster = "newplotid") 
+
+SiteYrCorr2012 <- comb %>%
+  filter(year==2012) %>%
+  feols(log(live_mass) ~ log(rich) | site_code + year, ., cluster = "newplotid") 
+
+SiteYrCorr2013 <- comb %>%
+  filter(year==2013) %>%
+  feols(log(live_mass) ~ log(rich) | site_code + year, ., cluster = "newplotid") 
+
+etable(SiteYrCorrAll, SiteYrCorr2012, SiteYrCorr2013, 
+          cluster = "newplotid", 
+          drop = "Intercept", 
+          subtitles = c("Data All Years", "Data in 2012", "Data in 2013"))  
+```
+
+Only the first column changes, of course, because the next two columns only including one year of data to begin with! Note, though, that these year dummies might not be super helpful, because we have sites from across the world, and so using averages from e.g., Europe is likely not super informative about the e.g., the US (except for maybe El Nino...).
+
+### Changing up the Variation
+
+Introduce unit (plot) FEs
+
+discuss why useful
+
+talk about site-year FEs (si)
+
+
+
+## STUFF FROM ORIGINAL TUTORIAL BELOW
+
 
 ## Loading Packages
 
