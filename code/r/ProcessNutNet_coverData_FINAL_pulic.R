@@ -517,7 +517,7 @@ write.csv(NAspp2, "NAspp2.csv")
 cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
 
 # write as csv datafile to use for R
-write.csv(cover, "NutNetCoverData_ProcessedAug2019.csv")
+# write.csv(cover, "NutNetCoverData_ProcessedAug2019.csv")
 
 #############################################################################
 ### References ############################################################
