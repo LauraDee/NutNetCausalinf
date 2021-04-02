@@ -225,34 +225,7 @@ summary(cover$change_sr_rare)
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
 # -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
 
-# lagged effects of sr in these groups
-cover[order(year), lagged_sr_rarespp := shift(sr_rarespp), by =.(plot, site_code)]
-cover[order(year), lagged_sr_domspp := shift(sr_domspp), by =.(plot, site_code)]
-cover[order(year), lagged_sr_subordspp := shift(sr_subordspp), by =.(plot, site_code)]
-
-plot(ave_rel_abundance_over_time.live ~ DI, data= cover)
-abline(lm(ave_rel_abundance_over_time.live ~ DI, data= cover), col = "yellow")
-plot(relative_sp_cover.yr.live ~ DI, data = cover)
-
-## Make a variable that captures changes in *cover* of species classified as dominance, rare, subordinate each year 
-# (so we can look at variations from year to year)
-cover[, Dom_cover.yr := sum(relative_sp_cover.yr[DIgroup=="Dominant"]), by = .(plot, site_code, year)]
-cover[, Subord_cover.yr := sum(relative_sp_cover.yr[DIgroup=="Subordinate"]), by = .(plot, site_code, year)]
-cover[, Rare_cover.yr := sum(relative_sp_cover.yr[DIgroup=="Rare"]), by = .(plot, site_code, year)]
-
-hist(cover$Dom_cover.yr)
-hist(cover$Rare_cover.yr)
-hist(cover$Subord_cover.yr)
-# look at relationships between rare richness and cover of rare and dominant spp
-plot(cover$sr_rarespp, cover$Rare_cover.yr)
-plot(cover$sr_rarespp, cover$Dom_cover.yr,  xlab = "rare species richness", ylab = "dominant spcies cover per year")
-
-# make a change in the relative_sp_cover.yr.live and then look at relationship with DI?
-cover[order(year), change_rel_abundance_time.live := relative_sp_cover.yr.live - shift(relative_sp_cover.yr.live), by =.(plot, site_code)]
-
-hist(cover$change_rel_abundance_time.live, na.omit = TRUE)
-plot(change_rel_abundance_time.live ~ DI, na.omit = TRUE, data= cover)
-
+#
 #########################################################################################################################
 ### Create variables that are combined groups of: #######################################################################
 # non-native richness (dominant and rare) + native rare + native non-rare.  ################################################

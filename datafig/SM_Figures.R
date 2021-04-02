@@ -91,6 +91,12 @@ FigSX <- ggplot(data = merged.data, aes(x = change_rare.native)) + geom_histogra
 FigSX
 
 
+## SM Section 7 plot distribution of metrics 
+## filter to only the live (the dead cover will be 0, which inflates the 0, bc of how we computed stuff above)
+hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance indicator metric")
+# summary(cover[live == 1,DI])
+
+
 
 ##############################################################################
 ## Plot rare SR  vs overall SR
