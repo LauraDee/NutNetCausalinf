@@ -1,6 +1,6 @@
 ---
 title: 'Panel Data and Fixed Effects Methods for Ecology'
-author: "Your Name Here: Group X"
+author: "The online tutorial for the analyses run in: Dee et al."
 date: 'Last updated: `r Sys.Date()`'
 output:
   html_document:
@@ -9,7 +9,9 @@ output:
     toc: true
     toc_float: true
 ---
+## Outline of the Tutorial
 
+TO DO
 
 ## Setup and Load Data
 
@@ -19,7 +21,7 @@ library(data.table)
 library(fixest)
 ```
 
-This data has already been cleaned and processed, and is ready to use. This data corresponds to what we use in the paper for the main analysis, and consists of control plots for NutNet sites. We include data from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have multiple years of data.
+This data has already been cleaned and processed, and is ready to use. This data corresponds to what we use in the paper for the main analysis, and consists of control plots for NutNet sites. We include data from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have at least 5 years of data.
 
 ```{r}
 cdir <- getwd()
@@ -30,7 +32,7 @@ comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
 
 ### Simple correlations in single years
 
-A first place to start is looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log live mass as the outcome and log richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details). That is, we estimate and report $\beta$ in:
+A first place to start is looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log of productibity (measured as live aboveground biomass) as the outcome and log species richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details), also following prior studies (REFs). That is, we estimate and report $\beta$ in:
 $$
 \ln(\text{Live Mass}_{pst}) = \alpha + \beta \ln(\text{Richness}_{pst}) + e_{pst}
 $$
@@ -59,10 +61,64 @@ As you can see in the results, including all years of data gives a non-significa
 
 So... which one to believe? Well, probably none of these, because they are all whack---we are not identifying the true causal relationship of richness on productivity. The variability of these results highlights that research designs that rely on non-experimental **cross-sectional** data often has problems with omitted variable bias.
 
-When is $\beta$ identified? When there are no unobservables that are correlated with richness that also influence productivity. This assumption has a mathematical form: $\mathbb{E}[e_{pst} \times \ln(\text{Richness}_{pst})]=0$ (this is pretty similar to saying that $e_{pst}$ and $\ln(\text{Richness}_{pst})$ aren't correlated). In the above results, there's probably stuff in $e$ that is correlated with richness, like LAURA LAURA LAURA.
+When is $\beta$ identified? When there are no unobservables that are correlated with richness that also influence productivity. This assumption has a mathematical form: $\mathbb{E}[e_{pst} \times \ln(\text{Richness}_{pst})]=0$ (this is pretty similar to saying that $e_{pst}$ and $\ln(\text{Richness}_{pst})$ aren't correlated). In the above results, there's probably stuff in $e$ that is correlated with richness, like precipitation, disturbance, land-use history, soil characteristics, and other characteristics of sites and plots.
+
+A DAG can help us see the challenges of omitted, and potentially confounding, variables more clearly. In the above analyses from equation (1), we assume... CHRIS CHRIS  CHRIS
+One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of bias (Morgan & Winship 2015). 
+
+<center>
+<br />
+<img src="https://imgur.com/nNFnoL2.png" width="65%" />
+<br />
+</center>   
+
+Figure 1B (main text -- right panel) is known as a directed acyclic causal graph (DAG) and is a visualization of qualitative causal assumptions (Pearl 2009, 2011; Fieberg & Ditmer 2012; Schoolmaster et al. 2013, 2020). A DAG encodes knowledge and beliefs about how a system works. The graphical relations depicted in the DAG encode causal claims – not just representations of associations. A directed edge (e.g., R --> P) depicts a claim about the results of many hypothetical experiments, whereby if every other variable represented in the graph is held fixed, R and P will covary if R if manipulated, but not if P is manipulated (note, a DAG assumes that one can isolate the effect of R on P, but does not imply that P can never affect R; another DAG may represent the reverse direction, P --> R). 
+
+
+
+### Common Ecological Design - Multivariate lm 
+
+ Of course, in the above correlations, we're just throwing in plots from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
+ 
+ Selection on observables -- and DAG for it.
+
+```{r}
+
+## include examples with Just LM without random effects? 
+MixedMod_Rich_soillm <- lm(log(live_mass) ~ log(rich) + 
+               pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay , comb, REML = F)
+summary(MixedMod_Rich_soillm)  #rich is positive and significant
+
+# now positive but non-significant 
+MixedMod_Rich_soillm <- lm(log(live_mass) ~ log(rich) + 
+               pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B  , comb, REML = F)
+summary(MixedMod_Rich_soillm)
+
+
+## First, characteristics of soil influence both productivity and richness, including XXXXXX. We can use covariates that characterize several aspects of the soil fertility and nutrients... LAUREN FILL IN HERE: including 
+MixedMod_Rich_soil <- lmer(log(live_mass) ~ log(rich) + 
+               pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +   (1|site_code), comb, REML = F)
+summary(MixedMod_Rich_soil)
+
+
+### Based on prior studies and natural history, we would expect management and anthropogenic disturbances to be important confounding variables. The Nutrient Network data has indicator variables .... 
+MixedMod_Rich2 <- lmer(log(live_mass) ~ log(rich) + 
+                        managed + burned + grazed + anthropogenic + 
+                          pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +                             (1|site_code), comb, REML = F)
+summary(MixedMod_Rich2 )
+
+
+## we build to the model presented in Figure 2B in the main text that includes XXXX variables 
+MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
+                        elevation + managed + burned + grazed + anthropogenic + 
+                        TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 +                            TEMP_COLD_Q_v2 +   pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +            ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +                             (1|site_code), comb, REML = F)
+summary(MixedMod_Rich )
+
+
+```
 
 ### Getting Used to Dummies
-Of course, in the above correlations, we're just throwing in plots from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places!
+Some confounding variables may be straightforward to measure, like xxxxx, others are not ........ LAURA TO FINISH
 
 We could measure the things about sites that we thought were important, decide the functional form that they should have (linear, quadratic, log, spline), and then include them in the analysis. Or, we could include a *dummy* for each site. In this setting, *site dummies* are just binary variables for each site. The big advantage of including the dummy is that captures whatever the average characteristics are within the site. We estimate:
 $$
