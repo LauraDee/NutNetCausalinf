@@ -9,6 +9,20 @@ output:
     toc: true
     toc_float: true
 ---
+## internal notes for how to use markdown
+
+points 1 and 2 are quite easy to deal using bookdown instead of markdown. To do so you juste have to replace the "output: html_document"  with "output: bookdown::html_document2" in the yaml section. 
+
+-Then, you can make references to sections using \@ref(name-of-section) where name-of-section is the section title in downcase letters and with spaces replaced by ‘-‘. 
+-You can make references to figures using \@ref(fig:block) where block is the name of the r block that has produces the figure. Table will also work using \@ref(table:tablename).
+- For equations, you have to label the equations using (\#eqname) inside the \begin{equation} \end{equation} block and then use  \@ref(eq:eqname) in the text
+- For colours, I don’t know an easy solution but you can use html code directly: 
+<div style="color: red; »>
+        This is an R Markdown document. 
+</div>
+
+will print the sentence in red. 
+
 ## Outline of the Tutorial
 
 TO DO
