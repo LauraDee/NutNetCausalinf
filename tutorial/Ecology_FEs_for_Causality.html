@@ -1604,8 +1604,8 @@ etable(SimpleCorrAll, SimpleCorr2012, SimpleCorr2013,
 <div id="common-ecological-design---multivariate-lm" class="section level3">
 <h3>Common Ecological Design - Multivariate lm</h3>
 <p>Of course, in the above correlations, we’re throwing in plots from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places!</p>
-<p>A common strategy in ecological analyses to control for confounding variables is to measure them and include them directly in a regression. In causal inference literature, this approach is known as <strong>“conditioning on observables”</strong> or Pearl’s <strong>back-door criteria</strong> (refs).</p>
-<p>Selection on observables – and DAG for it.</p>
+<p>A common strategy in ecological analyses to control for confounding variables is to measure them and include them directly in a regression. In causal inference literature, this approach is known as <strong>“conditioning on observables”</strong> or Pearl’s <strong>back-door criteria</strong> (refs). Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the <strong>“Selection on Observables” Assumption.</strong> Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (REF 1). We can visualize this assumption by modifying our DAG, and using some examples in R:</p>
+<p><strong>INSERT DAG WITH THIS ASSUMPTION</strong></p>
 <pre class="r"><code>## include examples with Just LM without random effects? 
 MixedMod_Rich_soillm &lt;- lm(log(live_mass) ~ log(rich) + 
                pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay , comb, REML = F)</code></pre>
@@ -1989,13 +1989,25 @@ etable(SiteYrCorrAll, SiteYrCorr2012, SiteYrCorr2013,
 <div id="glossary" class="section level3">
 <h3>Glossary</h3>
 </div>
+<div id="confounding-variables-or-confounders" class="section level3">
+<h3>Confounding Variables (or “confounders”):</h3>
+<p>In this study, we use the term “confounding variable” to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a <strong>non-experimental?</strong> study design.</p>
+</div>
+<div id="bias-and-hidden-bias" class="section level3">
+<h3>Bias and Hidden Bias:</h3>
+<p>Bias is a property of an estimator of a causal effect: it captures the difference between the estimator’s expected value and the true value of the causal effect being estimated (11). The phrase “hidden bias” (also called “unobserved heterogeneity”) is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data (reviewed in (12)). The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability (“noise”) is different from hidden bias; sampling variability is not a source of bias.</p>
+</div>
 <div id="errors-versus-residuals" class="section level3">
 <h3>Errors versus Residuals:</h3>
 <p>The error term is part of the true data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure.</p>
 </div>
+<div id="selection-on-observables-assumption" class="section level3">
+<h3>“Selection on Observables” Assumption:</h3>
+<p>Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see (1).</p>
 </div>
-<div id="stuff-from-original-tutorial-below" class="section level2">
-<h2>STUFF FROM ORIGINAL TUTORIAL BELOW</h2>
+</div>
+<div id="stuff-from-original-tutorial-ex-below" class="section level2">
+<h2>STUFF FROM ORIGINAL TUTORIAL EX BELOW</h2>
 </div>
 <div id="loading-packages" class="section level2">
 <h2>Loading Packages</h2>
