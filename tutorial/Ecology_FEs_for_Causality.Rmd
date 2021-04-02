@@ -20,7 +20,6 @@ points 1 and 2 are quite easy to deal using bookdown instead of markdown. To do 
 <div style="color: red; »>
         This is an R Markdown document. 
 </div>
-
 will print the sentence in red. 
 
 ## Outline of the Tutorial
