@@ -323,7 +323,7 @@ plot(mech.data$changerich, mech.data$change_nonrare.native)
 
 
 ## create richness bins 
-mech.data[ ,RichGroup := cut(rich, breaks=c(1, 8,16,37), labels=c("Low","Medium","High"))]
+mech.data[ ,RichGroup := cut(rich, breaks=c(1, 5,10,37), labels=c("Low","Medium","High"))]
 plot(mech.data$RichGroup)
 
 mech.data[ ,RichGroup2 := cut(rich, breaks=c(1, 10,37), labels=c("Low","High"))]
@@ -333,26 +333,30 @@ plot(mech.data$RichGroup2)
 #mech.data[ , proportion_rare  := (sr_non.nat_rare + sr_nat_rare)]
 mech.data[ , proportion_rare  := (sr_nat_rare)]
 mech.data[ , proportion_rare  := (proportion_rare/rich)]
-hist(mech.data$proportion_rare )
-hist(mech.data$proportion_rare )
+hist(mech.data$proportion_rare)
+hist(mech.data$proportion_rare)
 
 #create proportion of change in richness as change in rare native species:
 #mech.data[ , proportion_rare  := (sr_non.nat_rare + sr_nat_rare)]
 
 #****THIS DINDT WORK ****
 mech.data[ , proportion_changerare  := (change_rare.native/changerich)]
-hist(mech.data$proportion_changerare )
-
+hist(mech.data$proportion_changerare)
 
 
 #proportion non native spp
 mech.data[ , proportion_nonnative  := (sr_INT/rich)]
 hist(mech.data$proportion_nonnative )
 
+summary(mech.data$site_year_rich)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#8.0    24.0    36.0    37.7    51.0    88.0 
+
+
 ## plot proportion of rare species in richness group
 FigSX <- ggplot(data = mech.data, aes(x = proportion_rare)) + geom_histogram()+ facet_wrap(~RichGroup2) + theme_bw() +
   geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Plot-level change in rare native species richness year to year") +  theme_bw() +
+  labs(x = "proportion rare native species out of total number of species per plot and yr ") +  theme_bw() +
   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
   theme(axis.text.y = element_text(size = 14)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +

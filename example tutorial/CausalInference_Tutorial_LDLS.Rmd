@@ -1,0 +1,132 @@
+---
+title: 'Causal Inference Tutorial'
+author: "The online tutorial for the analyses run in: Dee et al."
+date: 'Last updated: `r Sys.Date()`'
+output:
+  html_document:
+    smart: no
+    theme: flatly
+    toc: true
+    toc_float: true
+---
+
+```{r setup, echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(cowplot)
+theme_set(theme_cowplot())
+```
+
+## Outline of the Tutorial
+
+1.  Glossary of Key Terms
+1.  DAGs and their Utility
+
+
+
+## **Glossary of Key Terms**
+
+### Causal effect:
+The causal effect of a change in biodiversity from to  in plot i on productivity (Pi) is defined as [ ], where is the potential productivity outcome when and  is the potential productivity outcome when  (). In other words, the causal effect of R on P is the difference in productivity between two states of the world in which all other factors are held constant except R, which has been manipulated in a way that changes its value (and thus also changes the values of the mechanisms that mediate the effect of R on P). For a specific location and time, only one of these potential outcomes will be directly observable; the counterfactual values for the other potential outcomes must be estimated from data. For more background reading, see (2, 6, 7).
+
+### Counterfactual (contrary to fact):
+
+FIXME
+
+In the definition of a causal effect, a plot is assumed to have a potential productivity outcome under each potential richness level (e.g.,  is the potential productivity outcome when and  is the potential productivity outcome when  ()). But at any point in time, only one of those richness levels, and thus one of those productivity values, will be observed. The other values are counterfactual values – i.e., the productivity values that would have been observed had we instead observed the plot under the other possible richness levels. 
+
+### Average Treatment Effect (ATE):
+The ATE of biodiversity on productivity in plot i in year t is defined as E[ ],where E[is the expected productivity in plot i in year t when richness is held at the value  and E[is the expected productivity in plot i in year t when richness is held at the value  (). The ATE is the average (or expected) causal effect of R on P for a randomly selected plot from the study population when biodiversity goes from to.
+
+### Directed Acyclic Causal Graph (DAG):
+A DAG is a visualization of qualitative causal assumptions on which one relies for making causal claims from observable data (8). See Section S2 for more information and the relationship between a DAG and a “path diagram.” 
+
+### Internal Validity:
+The ability for a study design to infer a causal relationship from a correlation, by ruling out rival explanations. e.g. are the changes in the independent variable (X) causing a change in the dependent variable (Y), or can those changes in Y be attributed to other causes?
+External Validity: The extent to which inferences can be generalized (e.g., across sites, time periods, contexts, or scales). 
+ 
+###Construct Validity:
+Whether an experimental treatment or statistical estimate matches the phenomenon it intends to measure (9, 10).
+ 
+### Confounding Variables (or “confounders”):
+In this study, we use the term “confounding variable” to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a study design.
+ 
+### Bias and Hidden Bias:
+Bias is a property of an estimator of a causal effect: it captures the difference between the estimator’s expected value and the true value of the causal effect being estimated (11). The phrase “hidden bias” (also called “unobserved heterogeneity”) is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data (reviewed in (12)). The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability (“noise”) is different from hidden bias; sampling variability is not a source of bias.
+ 
+### Errors versus Residuals:
+The error term is part of the true data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
+ 
+### “Selection on Observables” Assumption:
+Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see (1).
+ 
+### Fixed Effect:
+Our use of the term “fixed effect” is drawn from the econometrics literature, where it refers to a time-invariant attribute of the system (11); e.g., a plot-level fixed effect is an attribute of the plot that is assumed to not change over the study period, such as topography or historical patterns of land use.  This use of the term “fixed effect” differs from how the term is typically used in ecology, where the term often refers to the coefficient estimates of explanatory variables in mixed (multi-level) modeling. In ecology, the term “fixed effect” generally refers to the population-level coefficient estimates of an explanatory variable (both continuous and categorical) in a mixed effects model. In our study, the fixed effects are per-unit categorial variables (or dummy variables) that are estimated directly estimated (i.e., it is assumed to be fixed and estimable, rather than assumed to have a distribution). These fixed effect are not part of the error term, as a random effect would be in mixed (multi-level) modeling context. Another key difference between our use of “fixed effects” and the typical application of “random effects” in the ecological literature is that our fixed effects are not constrained to be drawn from any predefined distribution; they are assumed to be fixed and estimable rather than assumed to have a distribution. Operationally, these are simply regression parameters describing categorical or dummy variables per unit (e.g., in experiments, a categorical fixed effect parameter per plot is often fit to control for differences among plots that are not associated with the experimental treatment). Although this fixed-effect approach comes at the cost of reduced statistical power), it avoids the potential bias that can arise when controlling for variables using random effects. To read more, see (3). In contrast, use of random effects to deal with confounding variables, requires the assumption that the random effect is uncorrelated with all of the covariates in the model for an unbiased estimate (11). That is a very strong assumption in any observational dataset with any sort of environmental gradient, for example. Further confusing matters, the “random effects” components of a mixed effects model, which describe categorical variables that are assumed to be drawn from a normal distribution with zero mean, are often used to accomplish the same goal as the “fixed effects” that we apply here (e.g. to remove spurious plot-level effects). To achieve that goal, random effects require strong assumption that fixed effects do not.
+ 
+### Mechanism:
+A mechanism is a variable that lies on the causal path between two other variables and mediates the causal effect of one of those variables on the other (12), as shown as “M” in Figure 1 B (right panel). A mechanism can be viewed as an intermediate outcome of a causal variable; e.g., an increase in plot productivity causes a decrease in plot biodiversity by increasing the amount of shading in the plot – shading is the mechanism through which a change in productivity causes a change in biodiversity. 
+
+### Moderator:
+FIXME
+A moderator is a variable that lies off the causal path between two other variables but moderates the magnitude of a causal effect. A moderator can be viewed as a source of heterogenous causal effects (REF); for instance, the degree to which biodiversity affects productivity may depend on weather (e.g., precipitation or temperature) – weather can moderate the causal effect of biodiversity on productivity, but the change in biodiversity does not change weather conditions.
+
+### Heterogeneous Treatment:
+This concept goes by many names in the causal inference literature, including “multiple versions of the treatment”, “treatment variation,” “hidden versions”, and “hidden treatments” (a phrase used differently from how ecologists have used it in the past (13)). In a way, this issue can be thought about as a challenge with construct validity: if you say that richness goes from 4 species to 8 species in plot A, and I say that richness goes from 4 species to 8 species in plot B, we need to assess if we are talking about the same change in the treatment variable. In this case, a richness change from 4 to 8 species can involve changes in many different permutations in species identity, even in experiments manipulating a subset of all species in an ecosystem (e.g., are 2 of those additional species rare, and 2 non-native, are all of those species non-rare and native?). The underlying idea is that, for a unit of observation (e.g., a plot), there ought to be one potential outcome for every treatment value (e.g., one potential productivity value for every richness value at a particular moment in time).  If there is not, we have multiple versions of the same treatment, or “heterogeneous treatments.” Note that this concept is different from “heterogeneous treatment effects,” which simply means that not every unit responds the same way to a variation in the treatment variable (i.e., treatment effects are moderated by variables that differ across units in the study population). In this way, species composition is not a confounding variable, but a heterogenous treatment in the effect of richness on productivity. 
+
+### Instrumental Variable:
+This term is defined in in Figure 1B as variable Z, a variable that affects the treatment variable (in our study, “species richness”) but has no direct effect on the outcome variable (in our study, “aboveground biomass”) except through its effect on the treatment. In a randomized experiment, the instrumental variable is the randomization procedure. To read more, see (14–16).
+
+### Panel Data:
+Panel data are longitudinal data comprising repeated measures taken from a sample of cases (e.g., plots, sites, regions). Such data are also sometimes referred to as longitudinal multilevel data. See section S3 for more detail on our panel data.
+
+### Cross-sectional Data:
+Data without repeated measures taken from a sample. Instead, one measure is taken from each unit of analysis (e.g., plot). For example, analyses of the effect of biodiversity on productivity in cross-sectional data have only one observation per plot. 
+
+
+
+## **DAGs and their Utility**
+
+### Directed Acyclic Causal Graph (Figure 1 B)
+<center>
+<br />
+<img src="https://imgur.com/nNFnoL2.png" width="65%" />
+<br />
+</center>   
+
+Figure 1B (right panel) is known as a directed acyclic causal graph (DAG) and is a visualization of qualitative causal assumptions (Pearl 2009, 2011; Fieberg & Ditmer 2012; Schoolmaster et al. 2013, 2020). A DAG encodes knowledge and beliefs about how a system works. The graphical relations depicted in the DAG encode causal claims – not just representations of associations. A directed edge (e.g., R  P) depicts a claim about the results of many hypothetical experiments, whereby if every other variable represented in the graph is held fixed, R and P will covary if R if manipulated, but not if P is manipulated (note, a DAG assumes that one can isolate the effect of R on P, but does not imply that P can never affect R; another DAG may represent the reverse direction, P  R). 
+One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of bias (Morgan & Winship 2015). 
+
+
+### DAGs and how it differs from SEM
+
+*Comparison of DAGs to Structural Equation Models* - A DAG is like a “path diagram,” which may be more familiar to ecologists and are often used in structural equation modeling (Shipley 2004; Grace & Irvine 2020). A DAG can be interpreted as a non-parametric structural equation model (Pearl 2014). In practice, however, SEMs, when used for causal claims, rely on conditioning on observable confounding characteristics to eliminate non-causal dependencies between two variables (‘the selection on observables assumption’ – see S.1 Glossary). In contrast, our design can eliminate unobserved confounders (Section S4). Nevertheless, SEMs, as typically implemented in ecology, have advantages over our design in cases where a researcher **believes that all important confounders can be observed and controlled within the SEM:** in those cases, SEMs can be more efficient (i.e., higher statistical power) and they expand the scope of analyses that can be performed with a single data set and estimation strategy (more details in Section S7).
+
+
+
+##  **Load Packages, Functions and Data**
+
+### Dataset Description
+
+### *NutNet_Causality_MainModels_public.R*
+
+
+
+##  **The Main Design**
+
+### Danalysis_main.R
+
+### Bivariate Cooreation and Associated DAGs and Assumptions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
