@@ -448,19 +448,16 @@ cover[, sr_non.nat_sub.Freq2 := length(unique(Taxon[Freq_group2 == "Subordinate"
 ######################################################################################################### #############
 ## Compute for Average Relative Abundance: sub-ordinate and rare -- CUT OFF 2: breaks=c(0.0,0.4,0.8,1.0)
 ######################################################################################################### #############
-#summary(cover$rel_abundance_year0)
-hist(cover$rel_abundance_year0)
-
 cover[, RelAbund_group2 :=cut(rel_abundance_year0, breaks=c(0.0,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 
-#richness in each group #*MAKE SURE ONLY TO DO FOR LIVE 
+#richness in each group 
 cover[, relabund_sr_domspp2 := length(unique(Taxon[RelAbund_group2 == "Dominant"])), by = .(plot, site_code, year)]
 cover[, relabund_sr_rarespp2 := length(unique(Taxon[RelAbund_group2 == "Rare"])), by = .(plot, site_code, year)]
 cover[, relabund_sr_subordspp2 := length(unique(Taxon[RelAbund_group2 == "Subordinate"])), by = .(plot, site_code, year)]
 
 summary(cover$relabund_sr_domspp2) # max 2 
 summary(cover$relabund_sr_rarespp2) # max 43
-summary(cover$relabund_sr_subordspp2) #max 3, min 0 ?? mean 2 
+summary(cover$relabund_sr_subordspp2) #max 3, min 0  mean 2 
 
 # create a non-rare variable for relative abundance
 cover[, non_rare_spp.RelA2 := RelAbund_group2 %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
@@ -489,6 +486,7 @@ cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordin
 ## Compute for variables for DI = NA species 
 ######################################################################################################### #############
 
+table(cover$DI == "NA")
 table(cover$DIgroup == "NA", cover$local_provenance)
 
 table(cover$DI, cover$local_provenance)
@@ -520,7 +518,6 @@ cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013
 
 # write as csv datafile to use for R
 write.csv(cover, "NutNetCoverData_ProcessedAug2019.csv")
-
 
 #############################################################################
 ### References ############################################################
