@@ -1,16 +1,15 @@
-################################################################
-# Make some figures to get at importance of panel data methods
-# and sources of variation in NutNet
-#############
+################################################################################################################
+# Make some figures to get at importance of panel data methods################################################ 
+# and sources of variation in NutNet #############################################################################
+#############################################################################################################
+graphics.off()
+rm(list=ls())
 #load libraries
 require(ggplot2)
 library(data.table)
 library(viridis)
 
 ##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-28-Apr-2017.csv'
-#setwd("~/Google Drive/NutNet Causality for Steve/")
-#comb <- fread("NutNetControlPlotDataToUseApril2017.csv",na.strings='NA')
-
 setwd("~/Documents/GitHub/NutNetCausalInf/data/processed/")
 comb <- fread("NutNetControlPlotData_v201804.csv",na.strings='NA')
 
@@ -44,13 +43,7 @@ ggplot(comb[!is.na(rich) & !is.na(live_mass),],
   theme_bw() +
   geom_point()
 
-#run bivariate lm
-adler <- lm(live_mass ~ rich, data = comb)
-summary(adler)
-adler.log <- lm(log(live_mass) ~ log(rich), data = comb)
-summary(adler.log)
-
-# Raw changes
+# Raw changes in richness vs changes in live mass 
 ggplot(comb[!is.na(changerich) & !is.na(changelive_mass),], 
        aes(x=changerich, 
            y=changelive_mass)) + 
@@ -91,6 +84,7 @@ ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),],
 ######
 comb[,singledm.log.live_mass:=log.live_mass-mean(log.live_mass, na.rm=T), by=.(site, plot)]
 comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
+
 ggplot(comb[(site=="sedg.us" & plot %in% c("1","17")) | (site=="sevi.us" & plot %in% c("8","12")),],
        aes(x=year, y=log.live_mass, group=plot, linetype=plot)) + 
   geom_line() + 
@@ -148,7 +142,9 @@ dev.off()
 
 
 
-#plot trends removing variables like in Grace et al - site_live_mass, shading (ground_PAR), soil fertility
+#plot trends in residuals - removing variables like in Grace et al - site_live_mass, shading (ground_PAR), soil fertility
+# ** THIS IS INCOMPLETE AND LIKELY NOT NEEDED FOR TUTORIAL
+
 plot(comb$live_mass, comb$site_live_mass)
 comb[, site_live_mass := sum(live_mass, na.rm = T), by = site]
 plot_prod.Grace = lm(log(live_mass) ~ log(site_live_mass) + log(rich)  , data = comb)
@@ -169,7 +165,6 @@ screenreg(plot_prod.Grace.soilfertcomposite)
 #rich mod:   Ground_PAR, site_rich, soil suitability
 plot_rich.Grace = lm(log(rich) ~ log(site_year_rich) +  Ground_PAR   , data = comb)
 summary(plot_rich.Grace)
-
 
 
 
