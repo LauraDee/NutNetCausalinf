@@ -1539,11 +1539,18 @@ div.tocify {
 
 <h1 class="title toc-ignore">Panel Data and Fixed Effects Methods for Ecology</h1>
 <h4 class="author">The online tutorial for the analyses run in: Dee et al.</h4>
-<h4 class="date">Last updated: 2021-04-02</h4>
+<h4 class="date">Last updated: 2021-04-08</h4>
 
 </div>
 
 
+<div id="internal-notes-for-how-to-use-markdown" class="section level2">
+<h2>internal notes for how to use markdown</h2>
+<p>points 1 and 2 are quite easy to deal using bookdown instead of markdown. To do so you juste have to replace the “output: html_document” with “output: bookdown::html_document2” in the yaml section.</p>
+-Then, you can make references to sections using @ref(name-of-section) where name-of-section is the section title in downcase letters and with spaces replaced by ‘-‘. -You can make references to figures using @ref(fig:block) where block is the name of the r block that has produces the figure. Table will also work using @ref(table:tablename). - For equations, you have to label the equations using (#eqname) inside the <span class="math display">\[\begin{equation} \end{equation}\]</span> block and then use @ref(eq:eqname) in the text - For colours, I don’t know an easy solution but you can use html code directly: &lt;div style=&quot;color: red; »&gt; This is an R Markdown document.
+</div>
+<p>will print the sentence in red.</p>
+</div>
 <div id="outline-of-the-tutorial" class="section level2">
 <h2>Outline of the Tutorial</h2>
 <p>TO DO</p>
@@ -1560,7 +1567,7 @@ comb &lt;- fread(paste(cdir,&quot;/cleaned_comb_data.csv&quot;,sep=&quot;&quot;)
 </div>
 <div id="working-through-different-approaches" class="section level2">
 <h2>Working through different approaches</h2>
-<p>For causal inference, we need to answer &quot; if X changes, how much will Y change, on average,” with confidence that we have truly isolated a causal effect. Causal inference involves ruling out rival explanations for an estimated relationship, to interpret a correlation as a cause. This aim and requirement differs from other research aims (i.e., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differs from ways to evaluate analyses focused on prediction or forecasting, which instead use model fits, R-squared values, or mean square error (see Ferraro et al. 2018). Instead, causal inference is evaluated by assessing the credibility and validity of the assumptions made by an analysis design for each dataset, system, and research question (reviewed in Ferraro et al 2018), as we will illustrate next. h Therefore, being explicit about these assumptions and evaluating their likelihood of being met is important for causal inference. Doing so can improve estimates about relationships in nature, insights about the strength of causal relationships, and transparency in interpreting results.</p>
+<p>For causal inference, we need to answer &quot; if X changes, how much will Y change, on average,” with confidence that we have truly isolated a causal effect. Causal inference involves ruling out <strong>rival explanations</strong> for an estimated relationship, to interpret a correlation as a cause. This aim and requirement differs from other research aims (i.e., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differs from ways to evaluate analyses focused on prediction or forecasting, which instead use model fits, R-squared values, or mean square error (see Ferraro et al. 2018). Instead, causal inference is evaluated by assessing the credibility and validity of the assumptions made by an analysis design for each dataset, system, and research question (reviewed in Ferraro et al 2018), as we will illustrate next. h Therefore, being explicit about these assumptions and evaluating their likelihood of being met is important for causal inference. Doing so can improve estimates about relationships in nature, insights about the strength of causal relationships, and transparency in interpreting results or in comparing across study designs.</p>
 <div id="simple-correlations-in-single-years" class="section level3">
 <h3>Simple correlations in single years</h3>
 <p>A first place to start is looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log of productivity (measured as live aboveground biomass) as the outcome and log species richness as the explanatory variable. We’ve found that the log-log specification captures the nature of the relationship in our data well (see the paper for details), also following prior studies (REFs). That is, we estimate and report <span class="math inline">\(\beta\)</span> in: <span class="math display">\[
