@@ -162,8 +162,10 @@ cover[, DI := (rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)
 # this yields a per species and per site DI variable. NA implies that the species was not found at the site in the 
 #pre-treatment year 
 #** figure this out -- length(unique(cover$Taxon[DI == "NA"]))
-cover[, countDINAs := length(unique(cover$Taxon[DI == "NA"])), by =.(plot, site_code, year)]
+cover[, countDINAs := length(unique(Taxon[DI == "NA"])), by =.(plot, site_code, year)]
 table(cover$site_code, cover$countDINAs)
+hist(cover$countDINAs)
+
 
 ## filter to only the live (the dead cover will be 0, which inflates the 0, bc of how we computed stuff above)
 hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance indicator metric")
