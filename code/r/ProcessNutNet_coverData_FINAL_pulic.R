@@ -146,20 +146,25 @@ year0.sp$present_year0<-1
 require(dplyr)
 cover <- dplyr::left_join(cover,year0.sp) # joining the two dataframes together. NA values now where species was not present year 0
 
+# if the species isnt present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
+cover$ave_rel_abundance_year0[is.na(cover$ave_rel_abundance_year0)] = 0
+#check that it worked
+summary(cover$ave_rel_abundance_year0)
 
 hist(cover$ave_rel_abundance_over_time.live)
 summary(cover$ave_rel_abundance_over_time.live) 
+
 # delete the next three lines
-cover[, ave_rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon, site_code)]
-temp = cover
-temp[which(temp$year_trt ==0),]
+
+#cover[, ave_rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon, site_code)]
 
 # We compute relative abundance per species and site in pre-treatment year (year_trt == 0) and for LIVE cover
 # we use the pre-treatment year because we calculate the metrics at the site level and want to avoid classifying species post treatment
 # in case of spillover effects from the treated plots from nitrogen addition
+
 # delete the next two lines
-cover[, rel_abundance_year0 := relative_sp_cover.yr.live[year_trt == 0], by = .(Taxon,  site_code)]
-cover[, rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon,  site_code)]
+#cover[, rel_abundance_year0 := relative_sp_cover.yr.live[year_trt == 0], by = .(Taxon,  site_code)]
+#cover[, rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon,  site_code)]
 
 
 # see and plot the summary of these metrics 
@@ -176,7 +181,9 @@ plot(cover$rel_freq.space,cover$rel_abundance_year0)
 #######################################################################################################################
 ## Compute the DI per species per sie defined as:  DI = (average relative abundance + relative frequency)/2 #########
 ## considering live cover and pre-treatment year  ################################################################
-cover[, DI := (rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
+cover[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
+
+
 # this yields a per species and per site DI variable. NA implies that the species was not found at the site in the 
 #pre-treatment year 
 #** figure this out -- length(unique(cover$Taxon[DI == "NA"]))
