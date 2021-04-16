@@ -169,6 +169,29 @@ plot(cover$rel_freq.space,cover$rel_abundance_year0)
 speciespool = cover[, unique(Taxon), by = site_code]
 
 #is the specis present in year_trt == 0 or not? need a column that indicates that.
+year0 = cover[which(cover$year_trt ==0),]
+speciespool.year0 = year0[, unique(Taxon), by = site_code]
+all.otheryears = cover[which(cover$year_trt !=0),]
+speciespool.otheryears = all.otheryears[, unique(Taxon), by = site_code]
+
+speciespool.year0[, present.year0 := 1]
+
+combinedspplist = merge(speciespool.year0, speciespool.otheryears, all = TRUE)
+sum(combinedspplist$present.year0 , na.rm = T) #3815
+nrow(combinedspplist) #5496
+# the difference is 1681 
+
+#check to make sure characters
+ str(cover$Taxon)
+str(speciespool.year0$V1)
+
+##if then statement.... if present in year 0 then use ave relative abundance and if not then give the species a 0 in year_trt ==0
+require(dplyr)
+
+for(i in 1:length(cover)) {
+  if(cover[i, Taxon] %in% speciespool.year0$V1  ) 
+  
+}
 
 
 #######################################################################################################################
