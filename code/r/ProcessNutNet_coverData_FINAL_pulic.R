@@ -27,7 +27,7 @@ library(data.table)
 library(foreign)
 library(rmarkdown)
 
-setwd("~/Dropbox/IV in ecology/NutNet")
+setwd("~/Documents/Research")
 cover <- fread('full-cover-09-April-2018.csv',na.strings= 'NA')
 
 ## need to make max_cover NOT a character
@@ -137,18 +137,28 @@ cover[, rel_freq.space :=  tot.num.plots.with.spp/tot.num.plots, by = .( site_co
 #Relative abundance = abundance of a species a in sampling unit / total abundance of all species in a sampling unit
 # we compute the above per plot and then take the average for each species at the site and year:
 cover[, ave_rel_abundance_over_time.live := ave(relative_sp_cover.yr.live), by = .(Taxon, site_code, year)]
+
+###### Kaitlin's Additions
+year0.sp <- cover[cover$year_trt == 0,c(3,10,34)] # gets the species present in year 0
+names(year0.sp)[3] <- "ave_rel_abundance_year0" # renaming last column for merge
+year0.sp <- unique(year0.sp) # getting unique values - so one value per species per site
+year0.sp$present_year0<-1
+require(dplyr)
+cover <- dplyr::left_join(cover,year0.sp) # joining the two dataframes together. NA values now where species was not present year 0
+
+
 hist(cover$ave_rel_abundance_over_time.live)
 summary(cover$ave_rel_abundance_over_time.live) 
+# delete the next three lines
 cover[, ave_rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon, site_code)]
-
 temp = cover
 temp[which(temp$year_trt ==0),]
 
 # We compute relative abundance per species and site in pre-treatment year (year_trt == 0) and for LIVE cover
 # we use the pre-treatment year because we calculate the metrics at the site level and want to avoid classifying species post treatment
 # in case of spillover effects from the treated plots from nitrogen addition
+# delete the next two lines
 cover[, rel_abundance_year0 := relative_sp_cover.yr.live[year_trt == 0], by = .(Taxon,  site_code)]
-
 cover[, rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon,  site_code)]
 
 
@@ -157,42 +167,11 @@ summary(cover$rel_freq.space)
 #check to make sure we took out duplicates, max should be 1
 hist(cover$rel_freq.space, xlab = "Frequency at the site in pre-treatment year", main = "Frequency of occurrence")
 table(cover$rel_freq.space)
-summary( cover$rel_abundance_year0 )
-hist(cover$rel_abundance_year0, xlab = "Average relative abundance at a site", main ="")
+summary(cover$ave_rel_abundance_year0 )
+hist(cover$ave_rel_abundance_year0, xlab = "Average relative abundance at a site", main ="")
 
 #plot correlation between relative abundance and frequency metrics
 plot(cover$rel_freq.space,cover$rel_abundance_year0)
-
-########################################################################################################################################
-## get list of all species at each site over whole time period ########################################################################
-#########################################################################################################################################
-speciespool = cover[, unique(Taxon), by = site_code]
-
-#is the specis present in year_trt == 0 or not? need a column that indicates that.
-year0 = cover[which(cover$year_trt ==0),]
-speciespool.year0 = year0[, unique(Taxon), by = site_code]
-all.otheryears = cover[which(cover$year_trt !=0),]
-speciespool.otheryears = all.otheryears[, unique(Taxon), by = site_code]
-
-speciespool.year0[, present.year0 := 1]
-
-combinedspplist = merge(speciespool.year0, speciespool.otheryears, all = TRUE)
-sum(combinedspplist$present.year0 , na.rm = T) #3815
-nrow(combinedspplist) #5496
-# the difference is 1681 
-
-#check to make sure characters
- str(cover$Taxon)
-str(speciespool.year0$V1)
-
-##if then statement.... if present in year 0 then use ave relative abundance and if not then give the species a 0 in year_trt ==0
-require(dplyr)
-
-for(i in 1:length(cover)) {
-  if(cover[i, Taxon] %in% speciespool.year0$V1  ) 
-  
-}
-
 
 #######################################################################################################################
 ## Compute the DI per species per sie defined as:  DI = (average relative abundance + relative frequency)/2 #########
