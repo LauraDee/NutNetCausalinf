@@ -163,6 +163,14 @@ hist(cover$rel_abundance_year0, xlab = "Average relative abundance at a site", m
 #plot correlation between relative abundance and frequency metrics
 plot(cover$rel_freq.space,cover$rel_abundance_year0)
 
+########################################################################################################################################
+## get list of all species at each site over whole time period ########################################################################
+#########################################################################################################################################
+speciespool = cover[, unique(Taxon), by = site_code]
+
+#is the specis present in year_trt == 0 or not? need a column that indicates that.
+
+
 #######################################################################################################################
 ## Compute the DI per species per sie defined as:  DI = (average relative abundance + relative frequency)/2 #########
 ## considering live cover and pre-treatment year  ################################################################
