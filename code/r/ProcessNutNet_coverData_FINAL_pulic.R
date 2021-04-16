@@ -97,6 +97,7 @@ cover[,totplotcover.yr.live := sum(max_cover[live=="1"], na.rm=T), by=.(plot, si
 #Make a relative cover for each species in each plot, site, year
 # based on TOTAL cover (including dead cover)
 cover[,relative_sp_cover.yr := max_cover/totplotcover.yr]
+
 # same for live species only
 cover[,relative_sp_cover.yr.live := (max_cover*(live=="1"))/totplotcover.yr.live]
 # in some cases, no live species in plot and year, so getting NA since totplotcover.yr.live is zero. Set these to zero.
@@ -135,14 +136,21 @@ cover[, rel_freq.space :=  tot.num.plots.with.spp/tot.num.plots, by = .( site_co
 ### Compute relative abundance in terms of live cover ###
 #Relative abundance = abundance of a species a in sampling unit / total abundance of all species in a sampling unit
 # we compute the above per plot and then take the average for each species at the site and year:
-cover[, ave_rel_abundance_over_time.live := ave(relative_sp_cover.yr.live), by = .(Taxon, site_code)]
+cover[, ave_rel_abundance_over_time.live := ave(relative_sp_cover.yr.live), by = .(Taxon, site_code, year)]
 hist(cover$ave_rel_abundance_over_time.live)
 summary(cover$ave_rel_abundance_over_time.live) 
+cover[, ave_rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon, site_code)]
+
+temp = cover
+temp[which(temp$year_trt ==0),]
 
 # We compute relative abundance per species and site in pre-treatment year (year_trt == 0) and for LIVE cover
 # we use the pre-treatment year because we calculate the metrics at the site level and want to avoid classifying species post treatment
 # in case of spillover effects from the treated plots from nitrogen addition
 cover[, rel_abundance_year0 := relative_sp_cover.yr.live[year_trt == 0], by = .(Taxon,  site_code)]
+
+cover[, rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 0], by = .(Taxon,  site_code)]
+
 
 # see and plot the summary of these metrics 
 summary(cover$rel_freq.space)
