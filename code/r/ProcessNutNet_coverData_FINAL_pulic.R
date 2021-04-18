@@ -182,7 +182,7 @@ hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance i
 ###########################################################################################################
 # then given each species a ranking into different categories,
 # to look at changes in the number of those types of species and the impact on productivity. 
-cover[, DIgroup:=cut(DI, breaks=c(0.0,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
+cover[, DIgroup:=cut(DI, breaks=c(-0.001,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 
 #Calculate Species Richness in each group 
 cover[, sr_domspp := length(unique(Taxon[DIgroup == "Dominant"])), by = .(plot, site_code, year)]
