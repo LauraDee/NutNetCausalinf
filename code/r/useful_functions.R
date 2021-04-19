@@ -1,4 +1,4 @@
-# When log(0) need to use inverse hyperbolic sine transformation (REF NEEDED)
+# When log(0) need to use inverse hyperbolic sine transformation 
 #https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Inverse_hyperbolic_sine
 ihs = function(x) {
   return(log(x + sqrt(x^2+1)))
