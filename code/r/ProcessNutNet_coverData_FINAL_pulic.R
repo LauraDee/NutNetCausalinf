@@ -42,27 +42,28 @@ table(cover$live==1)
 a <- table(cover$Taxon, cover$live==0)
 head(a)
 
-
 cover = cover[which(cover$live == 1),]
 ######################################################################################################
 ### Native vs Non-Native Variables ###################################################################
 #######################################################################################################
+View(cover[which(cover$local_provenance == "Naturalised"),]) 
+# one species at one site is categorized as "Naturalised" so combined this with "INT"
 
 # covert Naturalised to INT (This use of Naturalised as a category is from one site)
 cover[local_provenance=="Naturalised", local_provenance:="INT"]
-# convert blank entries to NULL
+# convert blank an NA entries to NULL
 cover[local_provenance=="", local_provenance:="NULL"]
 cover[local_provenance=="NA", local_provenance:="NULL"]
-#convert NULL to UNK 
+#convert NULL to UNK to combine 
 cover[local_provenance=="NULL", local_provenance:="UNK"]
 
+# all are all of the unknowns are a single site or across sites? Check with this line:
+View(cover[which(cover$local_provenance == "UNK"),]) # they are across sites.
 
 # Compute native and non-native richness by plot, site, year
 cover[, sr_INT := length(unique(Taxon[local_provenance=="INT"])), by = .(plot, site_code, year)]
 cover[, sr_NAT := length(unique(Taxon[local_provenance=="NAT"])), by = .(plot, site_code, year)]
 cover[, sr_UNK := length(unique(Taxon[local_provenance=="UNK"])), by = .(plot, site_code, year)]
-
-
 
 ## do first differences (for the marginal efcomb[order(year), changeGround_PAR := Ground_PAR -shift(Ground_PAR), by =.(plot, site_code)]
 cover[order(year), change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
@@ -228,27 +229,49 @@ summary(cover$change_sr_rare)
 cover[, status.NN.RareDom := paste(DIgroup,local_provenance, sep = "_")]
 table(cover$status.NN.RareDom)
 
+# create a non-rare variable
+cover[, non_rare_spp := DIgroup %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
+
 ###########################################
 ### SR variables by combined groupings ####
 ###########################################
+##### for the unknown species are will the data processing three ways. #################
+# We will run each scenario as sensitivity analysis.  #################################
+
+## 1. Excluding them (as above) #### 
 #do SR for non-native, rare:
 cover[, sr_non.nat_rare := length(unique(Taxon[DIgroup == "Rare" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 #do SR for native, rare:
 cover[, sr_nat_rare := length(unique(Taxon[DIgroup == "Rare" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+
+## 2. Including the unknown spp origin all as native: ####
+cover[, sr_nat_unk_rare := length(unique(Taxon[DIgroup == "Rare" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+# 3.Including them all as non-native: 
+cover[, sr_non.nat_unk_rare := length(unique(Taxon[DIgroup == "Rare" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
 
 ## look a the data 
   hist(cover$sr_non.nat_rare)
   table(cover$sr_non.nat_rare)
   hist(cover$sr_nat_rare)
   table(cover$sr_nat_rare)
-
-# create a non-rare variable
-cover[, non_rare_spp := DIgroup %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
-
-# non-rare native and non-native
+  hist(cover$sr_non.nat_unk_rare)
+  table(cover$sr_non.nat_unk_rare)
+  hist(cover$sr_nat_unk_rare)
+  table(cover$sr_nat_unk_rare)
+  
+## do the same for the non-rare variables: 
+# 1. Create SR non-rare native and non-native excluding unknown species origin species
 cover[, sr_non.rare_non.nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 cover[, sr_non.rare_nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 
+## 2. Include the unknown spp origin all as native: ####
+cover[, sr_non.rare_nat_unk := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+## 3. Include the unknown spp origin all as nonnative: ####
+cover[, sr_non.rare_non.nat_unk := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+### Make extra for sensitivity analyses:
 #do SR for native and non-native for dom
 cover[, sr_nat_dom := length(unique(Taxon[DIgroup == "Dominant" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_dom := length(unique(Taxon[DIgroup == "Dominant" & local_provenance == "INT"])), by = .(plot, site_code, year)]
