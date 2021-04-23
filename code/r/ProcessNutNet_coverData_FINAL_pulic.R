@@ -27,7 +27,8 @@ library(data.table)
 library(foreign)
 library(rmarkdown)
 
-setwd("~/Documents/Research")
+# setwd("~/Documents/Research")  # kaitlin
+setwd("~/Dropbox/IV in ecology/NutNet/")  # laura
 cover <- fread('full-cover-09-April-2018.csv',na.strings= 'NA')
 
 ## need to make max_cover NOT a character
@@ -51,17 +52,21 @@ cover = cover[which(cover$live == 1),]
 cover[local_provenance=="Naturalised", local_provenance:="INT"]
 # convert blank entries to NULL
 cover[local_provenance=="", local_provenance:="NULL"]
+cover[local_provenance=="NA", local_provenance:="NULL"]
+#convert NULL to UNK 
+cover[local_provenance=="NULL", local_provenance:="UNK"]
+
 
 # Compute native and non-native richness by plot, site, year
 cover[, sr_INT := length(unique(Taxon[local_provenance=="INT"])), by = .(plot, site_code, year)]
 cover[, sr_NAT := length(unique(Taxon[local_provenance=="NAT"])), by = .(plot, site_code, year)]
-cover[, sr_NULL := length(unique(Taxon[local_provenance=="NULL"])), by = .(plot, site_code, year)]
 cover[, sr_UNK := length(unique(Taxon[local_provenance=="UNK"])), by = .(plot, site_code, year)]
+
+
 
 ## do first differences (for the marginal efcomb[order(year), changeGround_PAR := Ground_PAR -shift(Ground_PAR), by =.(plot, site_code)]
 cover[order(year), change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
 cover[order(year), change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
-cover[order(year), change_sr_NULL := sr_NULL-shift(sr_NULL), by =.(plot, site_code)]
 cover[order(year), change_sr_UNK := sr_NULL-shift(sr_UNK), by =.(plot, site_code)]
 
 ##** I dont use the following maybe cut to simplify the code ***
@@ -69,7 +74,6 @@ cover[order(year), change_sr_UNK := sr_NULL-shift(sr_UNK), by =.(plot, site_code
 hist(cover$change_sr_INT)
 hist(cover$change_sr_NAT)
 hist(cover$change_sr_UNK)
-hist(cover$change_sr_NULL)
 
 ## Percent cover of introduced species (non-native to the site) per plot and year  ## 
 ## compute total cover of non-natives # local_provenance == INT
@@ -198,7 +202,6 @@ summary(cover$sr_domspp) # max is 2 species that are dominant
 summary(cover$sr_subordspp) 
 summary(cover$sr_rarespp) 
 summary(cover$sr_non_rare_spp)
-
 
 # compute change in richness in each group 
 cover[order(year), change_sr_domspp := sr_domspp -shift(sr_domspp), by =.(plot, site_code)]
