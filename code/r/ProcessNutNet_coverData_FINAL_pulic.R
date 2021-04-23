@@ -70,28 +70,6 @@ cover[order(year), change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)
 cover[order(year), change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
 cover[order(year), change_sr_UNK := sr_NULL-shift(sr_UNK), by =.(plot, site_code)]
 
-##** I dont use the following maybe cut to simplify the code ***
-# plot them
-hist(cover$change_sr_INT)
-hist(cover$change_sr_NAT)
-hist(cover$change_sr_UNK)
-
-## Percent cover of introduced species (non-native to the site) per plot and year  ## 
-## compute total cover of non-natives # local_provenance == INT
-cover[, NonNative_cover.yr := sum(relative_sp_cover.yr[local_provenance=="INT"]), by = .(plot, site_code, year)]
-
-#spot check with example
-arch.nonnativecover = cover[site_code == "arch.us", .(year, plot, NonNative_cover.yr),]
-# sites we know have a lot of invasives    
-cover[site_code == "ping.au", .(year, plot, NonNative_cover.yr),]
-cover[site_code == "pinj.au", .(year, plot, NonNative_cover.yr),]
-cover[site_code == "smith.us", .(year, plot, NonNative_cover.yr),]
-
-## Compute Native species cover 
-cover[, Native_cover.yr := sum(relative_sp_cover.yr[local_provenance=="NAT"]), by = .(plot, site_code, year)]
-
-##** I dont use the above maybe cut to simplify the code ***
-
 ##########################################################################################################
 ##### Compute TOTAL & TOTAL LIVE RELATIVE COVER PER PLOT MEASURES ########################################
 ##########################################################################################################
@@ -145,7 +123,6 @@ cover[, rel_freq.space :=  tot.num.plots.with.spp/tot.num.plots, by = .( site_co
 # we compute the above per plot and then take the average for each species at the site and year:
 cover[, ave_rel_abundance_over_time.live := ave(relative_sp_cover.yr.live), by = .(Taxon, site_code, year)]
 
-###### Kaitlin's Additions
 year0.sp <- cover[cover$year_trt == 0,c(3,10,34)] # gets the species present in year 0
 names(year0.sp)[3] <- "ave_rel_abundance_year0" # renaming last column for merge
 year0.sp <- unique(year0.sp) # getting unique values - so one value per species per site
@@ -156,9 +133,9 @@ cover <- dplyr::left_join(cover,year0.sp) # joining the two dataframes together.
 # if the species isnt present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
 cover$ave_rel_abundance_year0[is.na(cover$ave_rel_abundance_year0)] = 0
 cover$rel_freq.space[is.na(cover$rel_freq.space)] = 0
+
 #check that it worked
 summary(cover$ave_rel_abundance_year0)
-
 hist(cover$ave_rel_abundance_over_time.live)
 summary(cover$ave_rel_abundance_over_time.live) 
 
@@ -216,7 +193,6 @@ summary(cover$change_sr_domspp)
 summary(cover$change_sr_subordspp) 
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
 # -13.0000   0.0000   0.0000  -0.0327   0.0000  10.0000     3005 
-
 summary(cover$change_sr_rare) 
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
 # -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
@@ -286,38 +262,6 @@ cover[, sr_non.nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_p
 # cover[, sr_non.nat_non.rare := length(unique(Taxon[DIgroup %in%  c("Subordinate", "Dominant") & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
 
-##########################################################################
-### cover variables by each group and the combined groupings ############## **MAYBE CUT SINCE WE DONT USE **
-############################################################################
-#using relative_sp_cover.yr.live based on year 0 groups
-
-#Compute overall sum of relative cover by groups over time variables
-cover[, cover_tot_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" ]), by = .(plot, site_code, year)]
-cover[, cover_tot_rare := sum(relative_sp_cover.yr.live[non_rare_spp == "FALSE" ]), by = .(plot, site_code, year)]
-cover[, cover_tot_dom := sum(relative_sp_cover.yr.live[DIgroup == "Dominant" ]), by = .(plot, site_code, year)]
-cover[, cover_tot_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate"]), by = .(plot, site_code, year)]
-cover[, cover_tot_NAT := sum(relative_sp_cover.yr.live[local_provenance == "NAT"]), by = .(plot, site_code, year)]
-cover[, cover_tot_INT := sum(relative_sp_cover.yr.live[local_provenance == "INT"]), by = .(plot, site_code, year)]
-
-#for NON rare (grouping dominant and subordinate)
-cover[, cover_non.nat_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" & local_provenance == "INT"]), by = .(plot, site_code, year)]
-cover[, cover_nat_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
-
-#for rare
-cover[, cover_nat_rare := sum(relative_sp_cover.yr.live[non_rare_spp == "FALSE" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
-cover[, cover_non.nat_rare := sum(relative_sp_cover.yr.live[non_rare_spp == "FALSE" & local_provenance == "INT"]), by = .(plot, site_code, year)]
-
-# for dominant
-cover[, cover_non.nat_dom := sum(relative_sp_cover.yr.live[DIgroup == "Dominant" & local_provenance == "INT"]), by = .(plot, site_code, year)]
-cover[, cover_nat_dom := sum(relative_sp_cover.yr.live[DIgroup == "Dominant" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
-
-# for subordinate
-cover[, cover_non.nat_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate" & local_provenance == "INT"]), by = .(plot, site_code, year)]
-cover[, cover_nat_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate"& local_provenance == "NAT"]), by = .(plot, site_code, year)]
-
-#cover[, cover_nat_non.rare := sum(relative_sp_cover.yr.live[non_rare_spp == "TRUE" & local_provenance == "NAT"]), by = .(plot, site_code, year)]
-
-
 ######################################################################################################################
 ## Dominance and Rarity Variables based on relative abundance and frequency groups separately (versus DI above) #######
 ######################################################################################################################
@@ -325,7 +269,6 @@ cover[, cover_nat_sub := sum(relative_sp_cover.yr.live[DIgroup == "Subordinate"&
 ######################################################################################################################
 ## Compute for Frequency: sub-ordinate and rare - Cut Off 1 based on breaks=c(0.0,0.2,0.8,1.0)   #####################
 ######################################################################################################################
-
 cover[, Freq_group:=cut(rel_freq.space, breaks=c(0.0,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 
 #richness in each group  #*MAKE SURE ONLY TO DO FOR LIVE 
