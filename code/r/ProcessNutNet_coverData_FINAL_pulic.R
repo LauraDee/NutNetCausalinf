@@ -7,15 +7,6 @@
 #Updates on Dec 28 2019 to include other cut offs for rare groups
 ##########################################
 
-#June 22 2020 - Fix the DIgroup2, prior versions didnt have the cut off 2 for the DIgroup that matched the others. 
-# check w/: DI group 1 vs 2
-# table(cover$DIgroup2)
-# 
-# > table(cover$DIgroup)
-# 
-# Dominant        Rare Subordinate 
-# 432        4521       16993 
-
 #Close graphics and clear local memory
 graphics.off()
 rm(list=ls())
@@ -256,12 +247,6 @@ cover[, sr_non.nat_dom := length(unique(Taxon[DIgroup == "Dominant" & local_prov
 cover[, sr_nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-#do for native, non-rare:
-#cover[, sr_nat_non.rare := length(unique(Taxon[DIgroup %in% c("Subordinate", "Dominant") & local_provenance == "NAT"])), by = .(plot, site_code, year)]
-# do for non-native, non-rare:
-# cover[, sr_non.nat_non.rare := length(unique(Taxon[DIgroup %in%  c("Subordinate", "Dominant") & local_provenance == "INT"])), by = .(plot, site_code, year)]
-
-
 ######################################################################################################################
 ## Dominance and Rarity Variables based on relative abundance and frequency groups separately (versus DI above) #######
 ######################################################################################################################
@@ -454,32 +439,6 @@ cover[, sr_non.nat_dom.RelA2 := length(unique(Taxon[RelAbund_group2 == "Dominant
 cover[, sr_nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-
-######################################################################################################### #############
-## Compute for variables for DI = NA species 
-######################################################################################################### #############
-
-table(cover$DI == "NA")
-table(cover$DIgroup == "NA", cover$local_provenance)
-
-table(cover$DI, cover$local_provenance)
-
-cover[, NA_DI_NAT := length(unique(Taxon[DI == "NA" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
-cover[, NA_DI_INT := length(unique(Taxon[DI == "NA" & local_provenance == "INT"])), by = .(plot, site_code, year)]
-cover[, NA_DI_UNK := length(unique(Taxon[DI == "NA" & local_provenance == "UNK"])), by = .(plot, site_code, year)]
-
-
-summary(cover$NA_DI_INT)
-table(cover$NA_DI_INT)
-table(cover$NA_DI_UNK)
-
-table(cover$NA_DI_NAT)
-
-NAspp = table(cover$DI, cover$Taxon)
-write.csv(NAspp, "NAspp.csv")
-na = cover[DI == "NA",]
-NAspp2 = table(na$DI, na$Taxon)
-write.csv(NAspp2, "NAspp2.csv")
 
 ########################################################################################################
 ### Check for duplicates and write out file #############################################################
