@@ -293,7 +293,7 @@ cover[, sr_non.nat_sub.Freq := length(unique(Taxon[Freq_group == "Subordinate" &
 #summary(cover$rel_abundance_year0)
 hist(cover$ave_rel_abundance_year0)
 
-cover[, RelAbund_group:=cut(ave_rel_abundance_year0, breaks=c(0.0,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
+cover[, RelAbund_group:=cut(ave_rel_abundance_year0, breaks=c(-0.00001,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 
 #richness in each group #*MAKE SURE ONLY TO DO FOR LIVE 
 cover[, relabund_sr_domspp := length(unique(Taxon[RelAbund_group == "Dominant"])), by = .(plot, site_code, year)]
@@ -331,7 +331,7 @@ cover[, sr_non.nat_sub.RelA := length(unique(Taxon[RelAbund_group == "Subordinat
 ############################################################################################################################
 
 ## Do a different cut off for dominance, subordinate and rare:
-cover[, DIgroup2:=cut(DI, breaks=c(0.0,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
+cover[, DIgroup2:=cut(DI, breaks=c(-0.00001,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 #richness in each group with different cutoff
 cover[, sr_domspp2 := length(unique(Taxon[DIgroup2 == "Dominant"])), by = .(plot, site_code, year)]
 cover[, sr_rarespp2 := length(unique(Taxon[DIgroup2 == "Rare"])), by = .(plot, site_code, year)]
@@ -372,7 +372,7 @@ cover[, sr_non.nat_sub2 := length(unique(Taxon[DIgroup2 == "Subordinate" & local
 ######################################################################################################################
 ## Compute for Frequency: sub-ordinate and rare - Cut Off 2 based on breaks=c(0.0,0.4,0.8,1.0).
 ######################################################################################################################
-cover[, Freq_group2:=cut(rel_freq.space, breaks=c(0.0,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
+cover[, Freq_group2:=cut(rel_freq.space, breaks=c(-0.00001,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 
 #richness in each group  #*MAKE SURE ONLY TO DO FOR LIVE 
 cover[, freq2_sr_domspp := length(unique(Taxon[Freq_group2 == "Dominant"])), by = .(plot, site_code, year)]
@@ -407,7 +407,7 @@ cover[, sr_non.nat_sub.Freq2 := length(unique(Taxon[Freq_group2 == "Subordinate"
 ######################################################################################################### #############
 ## Compute for Average Relative Abundance: sub-ordinate and rare -- CUT OFF 2: breaks=c(0.0,0.4,0.8,1.0)
 ######################################################################################################### #############
-cover[, RelAbund_group2 :=cut(ave_rel_abundance_year0, breaks=c(0.0,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
+cover[, RelAbund_group2 :=cut(ave_rel_abundance_year0, breaks=c(-0.00001,0.4,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
 
 #richness in each group 
 cover[, relabund_sr_domspp2 := length(unique(Taxon[RelAbund_group2 == "Dominant"])), by = .(plot, site_code, year)]
