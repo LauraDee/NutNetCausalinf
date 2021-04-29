@@ -7,11 +7,12 @@ rm(list = ls())
 
 # Define project directory
 cdir <- "C:/GitHub/NutNetCausalinf/"
+setwd(cdir)
+
+setwd("~/Documents/GitHub/NutNetCausalinf/")  
 
 ######################################################
 ## BELOW THIS POINT, code should just run ##
-
-setwd(cdir)
 
 # load packages; version numbers are noted for each package used.
 require(ggplot2) # 3.3.3
