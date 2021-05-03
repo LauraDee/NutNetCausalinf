@@ -15,7 +15,7 @@
 ###########
 ### Figure 5 - Main text. Grouped based on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0),
 ##########
-#. We first present the analyses shown in the main text figure 5, which include 4 groups of species, which are: 
+# We first present the analyses shown in the main text figure 5, which include 4 groups of species, which are: 
 # 1) rare, native: sr_nat_rare
 #2) rare non-native: sr_non.nat_rare
 #3) non-rare, native: sr_non.rare_nat
@@ -238,6 +238,18 @@ esttex(MechMod_All2, MechRelA2, MechFreq2,
        coefstat = "confint", replace = TRUE,
        file = "./output/TableS9through11_ComparisonCutoff2_R_CI.tex")
 
+
+######################################################################################################################################################
+#### Sensitivity Analyses: Run Models that categorize species coming into plots after year 0 as native or non-native in different ways #################
+######################################################################################################################################################
+# we test the sensitivity of our results to data processing decisions. 
+## 1. Excluding them (analyses above and in Table X) #### 
+## 2. Including the unknown spp origin all as native: ####
+sr_nat_unk_rare 
+sr_non.rare_nat_unk 
+# 3. Including them all as non-native: 
+sr_non.nat_unk_rare 
+sr_non.rare_non.nat_unk 
 
 ############################################################################################################################
 #### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
