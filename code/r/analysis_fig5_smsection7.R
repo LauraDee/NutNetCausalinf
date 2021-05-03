@@ -250,28 +250,34 @@ sr_nat_unk_rare
 sr_non.rare_nat_unk  ## how is it possible that species coming in after year 0 are subordinate?
 
 #** need to modify***
-## replace:      with    
-MechMod_Sensitivity.v2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
+## replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
+# replace: ihs(sr_nat_rare)  with ihs(sr_nat_unk_rare)
+
+MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
                     | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
-vcov_MechMod <- vcov(MechMod_Sensitivity.v2, cluster = "newplotid")
+vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
 
 
-# 3. Including them all as non-native: 
-sr_non.nat_unk_rare 
-sr_non.rare_non.nat_unk 
+# 3. Including the species with unknown origin all as non-native, using these variables:
+# sr_non.nat_unk_rare 
+# sr_non.rare_non.nat_unk 
 
 #*** need to modify***
-## replace:      with    
-MechMod_Sensitivity.v3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
+## replace: ihs(sr_non.rare_non.nat)     with  ihs(sr_non.rare_non.nat_unk)
+## replace:  ihs(sr_non.nat_rare)    with    ihs(sr_non.nat_unk_rare )
+MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) 
 | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
-vcov_MechMod <- vcov(MechMod_Sensitivity.v3, cluster = "newplotid")
+vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
 
 ################################################
 ## Table S12  ##################################
 ################################################
 
+esttex(MechMod_All, MechMod_S2, MechMod_S3,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS12_SensitivityAnal_R_se.tex")
 
 
 
