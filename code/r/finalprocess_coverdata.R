@@ -39,7 +39,6 @@ cover = cover[site_code != "barta.us",]
 # create a variable for one of the analyes for Fig 5
 cover[, non_rare_spp.DI2 := sr_non.rare_non.nat2 + sr_non.rare_nat2]
 
-
 ##########################################################################################
 ### Process comb data to prep to use it in the models & merge #############################
 ############################################################################################
@@ -50,7 +49,7 @@ cover$year <- as.character(cover$year)
 # same with plot
 comb$plot <- as.character(comb$plot)
 cover$plot <- as.character(cover$plot)
-cover$V1 = NULL
+# cover$V1 = NULL
 
 #check that the DIgroups 1 & 2 look OK #
 table(cover$DIgroup)
@@ -65,27 +64,25 @@ table(cover$DIgroup2)
 
 #to subset columns and also remove duplicate rows from the cover file so that there is one observation per plot and year 
 # and the data isn't artificially replicated 
-coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, LegumePercentcover.yr, cover_nat_dom, cover_nat_sub,
-                                  sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare, sr_INT, sr_NAT, sr_domspp, sr_rarespp, sr_subordspp, sr_non_rare_spp, 
-                                  sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, relabund_sr_domspp,
-                                  sr_non_rare_spp.RelA, 
+coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, 
+                                 sr_INT, sr_NAT, sr_domspp, sr_rarespp, sr_subordspp, sr_non_rare_spp, 
+                                  sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, 
+                                #  sr_non_rare_spp.RelA, 
                                   sr_non_rare_spp.Freq, sr_non.rare_nat.Freq, sr_non.rare_non.nat.Freq,
-                                  #rare_spp.DI2,
                                   sr_rare_non.nat.Freq, sr_rare_nat.Freq,
                                   sr_domspp2, sr_rarespp2 , sr_subordspp2, non_rare_spp.DI2,
-                                  relabund_sr_rarespp, relabund_sr_subordspp,  sr_nat_dom.Freq, sr_non.nat_dom.Freq,
                                   sr_nat_sub.Freq, sr_non.nat_sub.Freq, 
                                   sr_non.rare_nat.RelA, sr_non.rare_non.nat.RelA, sr_rare_non.nat.RelA, sr_rare_nat.RelA,
-                                  # sr_non.rare_nat.Freq,  sr_rare_non.nat.Freq, sr_rare_nat.Freq,
                                   sr_non.rare_nat.Freq2, sr_non.rare_non.nat.Freq2, sr_rare_non.nat.Freq2, sr_rare_nat.Freq2,
                                   sr_non.rare_nat.RelA2, sr_non.rare_non.nat.RelA2, sr_rare_non.nat.RelA2, sr_rare_nat.RelA2, # non_rare_spp2,
-                                  sr_non.rare_nat2, sr_non.rare_non.nat2, sr_non.nat_rare2, sr_nat_rare2, sr_Nfixer, 
+                                  sr_non.rare_nat2, sr_non.rare_non.nat2, sr_non.nat_rare2, sr_nat_rare2, 
                                   # sr_rarespp2, 
-                                  #rare_spp.DI2,  
-                                  sr_non.Nfixer, N_fixer_cover.yr,
-                                  NonNative_cover.yr , Native_cover.yr , 
-                                  Dom_cover.yr, 
-                                  freq_sr_domspp, freq_sr_rarespp, freq_sr_subordspp
+                                  #rare_spp.DI2,
+                                  freq_sr_domspp, freq_sr_rarespp, freq_sr_subordspp, 
+                                  sr_nat_unk_rare, ## 2. Including the unknown spp origin all as native: ####
+                                  sr_non.nat_unk_rare, # 3.Including them all as non-native: 
+                                  sr_non.rare_nat_unk, ## 2. Include the unknown spp origin all as native: ####
+                                  sr_non.rare_non.nat_unk # 3.Including them all as non-native: 
 )])
 #make sure number of rows isnt inflated 
 nrow(coversummaries)

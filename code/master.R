@@ -2,7 +2,6 @@
 ## NutNet Main Text Models ###########################################
 ## #######################################################################
 ##########################################################################
-
 rm(list = ls())
 
 # Define project directory
@@ -46,18 +45,19 @@ source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2,
 source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
 
 
-##########################################
-## Analysis using large coverage data ####
+###########################################################################################################################
+## Analysis using large cover dataset from Nutrient Network, processed from version 'full-cover-09-April-2018.csv'    ####
+############################################################################################################################
 ## cover data is in separate location due its size!!!!!
 
 rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
 combonly <- FALSE
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
-
-cover <- fread("~/Dropbox/IV in ecology/NutNet/NutNetCoverData_ProcessedAug2019.csv")  
-
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
-source("./code/r/finalprocess_coverdata.R") #need to run to prep the data for running the models
+
+#cover <- fread("data/processed/NutNetCoverData_ProcessedAug2019-2.csv")  
+cover <- fread("./data/NutNetCoverData_ProcessedAug2019-2.csv")  
+source("./code/r/finalprocess_coverdata.R") # *need to run this line to prep the data for running the models*
 
 source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables and supplemental results for section S7 of the supplemental materials
 

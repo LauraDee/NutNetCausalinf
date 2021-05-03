@@ -18,8 +18,11 @@ library(data.table)
 library(foreign)
 library(rmarkdown)
 
-setwd("~/Documents/Research")  # kaitlin
+#setwd("~/Documents/Research")  # kaitlin
 #setwd("~/Dropbox/IV in ecology/NutNet/")  # laura
+#cover <- fread('full-cover-09-April-2018.csv',na.strings= 'NA')
+
+setwd("~/Documents/GitHub/NutNetCausalinf/data/")  
 cover <- fread('full-cover-09-April-2018.csv',na.strings= 'NA')
 
 ## need to make max_cover NOT a character
@@ -265,7 +268,6 @@ summary(cover$freq_sr_domspp)  #max 23
 summary(cover$freq_sr_rarespp) #max 13
 summary(cover$freq_sr_subordspp) #max 24
 
-
 # create a non-rare variable for frequency
 cover[, non_rare_spp.Freq := Freq_group %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
 cover[, sr_non_rare_spp.Freq := length(unique(Taxon[non_rare_spp.Freq == "TRUE"])), by = .(plot, site_code, year)]
@@ -440,7 +442,6 @@ cover[, sr_non.nat_dom.RelA2 := length(unique(Taxon[RelAbund_group2 == "Dominant
 cover[, sr_nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-
 ########################################################################################################
 ### Check for duplicates and write out file #############################################################
 ##########################################################################################################
@@ -450,7 +451,7 @@ cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordin
 cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
 
 # write as csv datafile to use for R
-# write.csv(cover, "NutNetCoverData_ProcessedAug2019.csv")
+ write.csv(cover, "NutNetCoverData_ProcessedAug2019-2.csv")
 
 #############################################################################
 ### References ############################################################
