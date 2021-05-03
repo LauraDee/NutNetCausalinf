@@ -205,8 +205,8 @@ MechFreq2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq2) + ihs(sr_non.rare_
 vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
 
 ################################################
-## Table S11
-#######################################
+## Table S11  #################################
+############################################
 esttex(MechFreq1, MechFreq2,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS11_R_se.tex")
@@ -244,12 +244,36 @@ esttex(MechMod_All2, MechRelA2, MechFreq2,
 ######################################################################################################################################################
 # we test the sensitivity of our results to data processing decisions. 
 ## 1. Excluding them (analyses above and in Table X) #### 
-## 2. Including the unknown spp origin all as native: ####
+
+## 2. Including the unknown spp origin all as *native* : ####
 sr_nat_unk_rare 
-sr_non.rare_nat_unk 
+sr_non.rare_nat_unk  ## how is it possible that species coming in after year 0 are subordinate?
+
+#** need to modify***
+## replace:      with    
+MechMod_Sensitivity.v2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
+                    | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+
+vcov_MechMod <- vcov(MechMod_Sensitivity.v2, cluster = "newplotid")
+
+
 # 3. Including them all as non-native: 
 sr_non.nat_unk_rare 
 sr_non.rare_non.nat_unk 
+
+#*** need to modify***
+## replace:      with    
+MechMod_Sensitivity.v3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
+| newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+
+vcov_MechMod <- vcov(MechMod_Sensitivity.v3, cluster = "newplotid")
+
+################################################
+## Table S12  ##################################
+################################################
+
+
+
 
 ############################################################################################################################
 #### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
