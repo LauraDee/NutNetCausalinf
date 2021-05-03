@@ -206,7 +206,7 @@ vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
 
 ################################################
 ## Table S11  #################################
-############################################
+##############################################
 esttex(MechFreq1, MechFreq2,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS11_R_se.tex")
@@ -279,7 +279,9 @@ esttex(MechMod_All, MechMod_S2, MechMod_S3,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS12_SensitivityAnal_R_se.tex")
 
-
+esttex(MechMod_All, MechMod_S2, MechMod_S3,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS12_SensitivityAnal_R_CI.tex")
 
 ############################################################################################################################
 #### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
