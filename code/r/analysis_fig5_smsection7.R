@@ -242,16 +242,13 @@ esttex(MechMod_All2, MechRelA2, MechFreq2,
 ######################################################################################################################################################
 #### Sensitivity Analyses: Run Models that categorize species coming into plots after year 0 as native or non-native in different ways #################
 ######################################################################################################################################################
-# we test the sensitivity of our results to data processing decisions. 
-## 1. Excluding them (analyses above and in Table X) #### 
+# We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
+# was native or introduced).
+## 1. Excluding them, as done in MechMod_All analyses above for results in Figure 5 and in Table S9 (Cut-off1) #### 
 
 ## 2. Including the unknown spp origin all as *native* : ####
-sr_nat_unk_rare 
-sr_non.rare_nat_unk  ## how is it possible that species coming in after year 0 are subordinate?
-
-#** need to modify***
-## replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
-# replace: ihs(sr_nat_rare)  with ihs(sr_nat_unk_rare)
+## to do so, we replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
+## and replace ihs(sr_nat_rare)  with ihs(sr_nat_unk_rare)
 
 MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
                     | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
