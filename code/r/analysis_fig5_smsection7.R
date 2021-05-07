@@ -15,8 +15,8 @@
 ###########
 ### Figure 5 - Main text. Grouped based on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0),
 ##########
-# We first present the analyses shown in the main text figure 5, which include 4 groups of species, which are: 
-# 1) rare, native: sr_nat_rare
+# We first present the analyses shown in the main text Figure 5, which include 4 groups of species, which are: 
+#1) rare, native: sr_nat_rare
 #2) rare non-native: sr_non.nat_rare
 #3) non-rare, native: sr_non.rare_nat
 #4) non-rare, non-native: 
@@ -28,6 +28,54 @@ MechMod_All <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.
                     | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
 vcov_MechMod <- vcov(MechMod_All, cluster = "newplotid")
+
+
+mech.data[order(year), change_sr_nonrare.nonative_spp := sr_non.rare_non.nat -shift(sr_non.rare_non.nat), by =.(plot, site_code)]
+mech.data[order(year), change_sr_nonrare.native_spp := sr_non.rare_nat -shift(sr_non.rare_nat), by =.(plot, site_code)]
+mech.data[order(year), change_sr_rare.native_spp := sr_nat_rare -shift(sr_nat_rare), by =.(plot, site_code)]
+mech.data[order(year), change_sr_rare.nonnative_spp := sr_non.nat_rare -shift(sr_non.nat_rare), by =.(plot, site_code)]
+
+
+# change nonrare nonnative 
+FigSX <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in non-native non-rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+#native nonrare
+FigSX <- ggplot(data = mech.data, aes(x =  change_sr_nonrare.native_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in native non-rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+#native rare
+FigSX <- ggplot(data = mech.data, aes(x =  change_sr_rare.native_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in native rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
+#non native rare - change_sr_rare.nonnative_spp 
+FigSX <- ggplot(data = mech.data, aes(x =  change_sr_rare.nonnative_spp )) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Plot-level change in non-native rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigSX
+
 
 # Hypotheses Tests for the groups: are their effects on productivity significantly differently?
 #Note: fevcov returns a square matrix with the bias corrected covariances. An attribute 'bias' contains
@@ -57,9 +105,8 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-
-##################
-## Export Table
+###################
+## Export Table ## 
 
 esttex(MechMod_All, 
        coefstat = "se", replace = TRUE,
@@ -107,7 +154,7 @@ Fig5.plot <- Fig5.data %>%
   scale_y_continuous(limits=c(-0.7, 0.7)) +
   ylim(-0.7,0.8) %>%
   labs(title = element_blank(),
-       caption = "", x = "Type of Species", y = "Estimate for log(species richness) effect size"
+       caption = "", x = "Species Type", y = "Estimate for log(species richness) effect size"
   )
 
 Fig5.plot
@@ -255,6 +302,13 @@ MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_n
 
 vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
 
+#**update 
+#testing if the groups are not all the same: rejecting the null that they are the same
+linearHypothesis(MechMod_S3, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
+                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
 
 # 3. Including the species with unknown origin all as non-native, using these variables:
 # sr_non.nat_unk_rare 
@@ -267,6 +321,13 @@ MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.n
 | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
 vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
+
+#**update 
+#testing if the groups are not all the same: rejecting the null that they are the same
+linearHypothesis(MechMod_S3, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
+                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
 ################################################
 ## Table S12  ##################################

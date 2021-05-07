@@ -199,8 +199,10 @@ summary(cover$change_sr_rare)
 cover[, status.NN.RareDom := paste(DIgroup,local_provenance, sep = "_")]
 table(cover$status.NN.RareDom)
 
+# 3.Including them all as non-native: 
 # create a non-rare variable
 cover[, non_rare_spp := DIgroup %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
+
 
 ###########################################
 ### SR variables by combined groupings ####
@@ -249,6 +251,14 @@ cover[, sr_non.nat_dom := length(unique(Taxon[DIgroup == "Dominant" & local_prov
 #do SR for native and non-native for subordinate
 cover[, sr_nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+
+
+### Create a variable for the unknown SR
+cover[, sr_unk_rare := length(unique(Taxon[DIgroup == "Rare" &  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+cover[, rare_known := sum(sr_nat_rare + sr_non.nat_rare), by = site_code ]
+cover[, frac_unk_rare := sr_unk_rare/rare_known, by = site_code ]
+
 
 ######################################################################################################################
 ## Dominance and Rarity Variables based on relative abundance and frequency groups separately (versus DI above) #######
