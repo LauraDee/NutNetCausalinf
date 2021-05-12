@@ -56,7 +56,10 @@ comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='N
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 
 #cover <- fread("data/processed/NutNetCoverData_ProcessedAug2019-2.csv")  
-cover <- fread("./data/NutNetCoverData_ProcessedAug2019-2.csv")  
+#cover <- fread("./data/NutNetCoverData_ProcessedAug2019-2.csv")  
+
+cover <- fread("./data/NutNetCoverData_ProcessedAug2019-PresentYear0only.csv")  #version of the data without labels on species that are NA in year_0
+
 source("./code/r/finalprocess_coverdata.R") # *need to run this line to prep the data for running the models*
 
 source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables and supplemental results for section S7 of the supplemental materials

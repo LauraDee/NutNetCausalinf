@@ -3,11 +3,7 @@
 #### Models for the role of rare and non-native species  ##########################################################################################################
 ####################################################################################################################################
 
-# This section is organized as follows, and accompanies section S7 in the SM. 
-# Analysis for reproducing Figure 5 in the main text. 
-# SM analyses for Section 7, where we do separate analyses for:
-#....... *** to fill in ****
-
+# This code includes analysis for reproducing Figure 5 in the main text and SM analyses for Section 7.
 
 ######################################################################################################################
 ###  Figure 5 - Main text. Rare vs Non-Rare and Native vs Invasive  #######################################################################
@@ -62,7 +58,7 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
 
 esttex(MechMod_All, 
        coefstat = "se", replace = TRUE,
-       file = "./output/Table_forFig5_R_se.tex")
+       file = "./output/Table_forFig5_R_se-OLD.tex")
 
 esttex(MechMod_All,
        coefstat = "confint", replace = TRUE,
@@ -137,7 +133,7 @@ linearHypothesis(MechMod_All2,
 #test if the groups are not all the same: rejecting the null that they are the same
 linearHypothesis(MechMod_All2, 
                  hypothesis.matrix = c("ihs(sr_non.rare_nat2) = ihs(sr_non.rare_non.nat2)", "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)",
-                                       "ihs(sr_non.nat_rare2) = ihs(sr_non.rare_non.nat2)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                                       "ihs(sr_non.nat_rare2) = ihs(sr_nat_rare)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
                  test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
 ################################################
@@ -358,4 +354,13 @@ FigSX <- ggplot(data = mech.data, aes(x =  change_sr_rare.nonnative_spp )) + geo
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
 FigSX
+
+
+## do first differences of the above species richness variables: 
+
+#** this is wrong and shpuld be changed to the mech.data with the unique entry per plot and site and year
+setorder(cover, year)
+cover[, change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
+cover[, change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
+cover[, change_sr_UNK := sr_UNK-shift(sr_UNK), by =.(plot, site_code)]
 
