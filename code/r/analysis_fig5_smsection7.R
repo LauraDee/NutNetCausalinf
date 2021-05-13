@@ -364,3 +364,20 @@ cover[, change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
 cover[, change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
 cover[, change_sr_UNK := sr_UNK-shift(sr_UNK), by =.(plot, site_code)]
 
+# compute change in richness in each group 
+cover[order(year), change_sr_domspp := sr_domspp -shift(sr_domspp), by =.(plot, site_code)]
+cover[order(year), change_sr_rarespp := sr_rarespp -shift(sr_rarespp), by =.(plot, site_code)]
+cover[order(year), change_sr_subordspp := sr_subordspp -shift(sr_subordspp), by =.(plot, site_code)]
+cover[order(year), change_sr_non_rare_spp := sr_non_rare_spp -shift(sr_non_rare_spp), by =.(plot, site_code)]
+
+summary(cover$change_sr_domspp) 
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+# -1.0000  0.0000  0.0000  0.0012  0.0000  1.0000    3005 
+summary(cover$change_sr_subordspp) 
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+# -13.0000   0.0000   0.0000  -0.0327   0.0000  10.0000     3005 
+summary(cover$change_sr_rare) 
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+# -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
+
+
