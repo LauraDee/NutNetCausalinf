@@ -165,25 +165,19 @@ Nasp <- ggplot(data = cover, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~sit
 Nasp
 #*** ultimlately cut btwn these lines to clean code*****
 #*
-##############################################################################################################################
-## Filter data to only species present in year 0 and save dataset  ############################################################################
-##############################################################################################################################
+#################################################################################################################################
+## Run this Code (and all following code)  if you want to Filter data to only species present in year 0 and save that dataset  #####
+#################################################################################################################################
 cover_present_year0 = cover[present_year0 == TRUE,]
 write.csv(cover_present_year0, "cover_present_year0May142021.csv")
 # cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
+cover = cover_present_year0 
 
-#*** ultimately cut btwn these lines to clean code*****
-# year0.sp <- cover[cover$year_trt == 0,c(3,10,31)] # gets the species present in year 0
-# names(year0.sp)[3] <- "ave_rel_abundance_year0" # renaming last column for merge
-# year0.sp <- unique(year0.sp) # getting unique values - so one value per species per site
-# year0.sp$present_year0<-1
-# require(dplyr)
-# cover <- dplyr::left_join(cover,year0.sp) # joining the two dataframes together. NA values now where species was not present year 0
-# cover$rel_freq.space[is.na(cover$rel_freq.space)] = 0
+cover[, sr_NA.test := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
+#**test that this worked summary(cover$sr_NA.test)
+#################################################################################################################################
 
-#*** ultimlately cut btwn these lines to clean code*****
-#*
-
+######
 ### Compute relative abundance in terms of live cover ###
 #Relative abundance = abundance of a species a in sampling unit / total abundance of all species in a sampling unit
 # we compute the above per plot and then take the average for each species at the site and year:
@@ -511,11 +505,14 @@ cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordin
 cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
 
 # write as csv datafile to use for R
-write.csv(cover, "NutNetCoverData_ProcessedAug2019-AllSpecies.csv")
+#with ALL species including ones not present in year 0, which are then considered 0s and thus rare
+# in all of the subsequent count and variable calculations
+# write.csv(cover, "NutNetCoverData_ProcessedAug2019-AllSpecies.csv")
 
 #create a version of the data running the above code with cover = cover_present_year0  
 #to process all variables of SR counts and groupings on only species present in year 0 then printing as:
  write.csv(cover, "NutNetCoverData_ProcessedAug2019-PresentYear0only.csv")
+ 
  # write.csv(cover, "NutNetCoverData_ProcessedAug2019-2.csv")
  
  
