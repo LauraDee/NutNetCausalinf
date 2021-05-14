@@ -216,6 +216,16 @@ cover[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_c
 ## filter to only the live (the dead cover will be 0, which inflates the 0, bc of how we computed stuff above)
 hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance indicator metric")
 
+#plot the DI values by site
+DIsp <- ggplot(data = cover, aes(x = DI)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "DI") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+DIsp
+
 #######################################################################################################################
 ####### Make Categorical Variables of Dominance too  - based on the DI metric #########################################
 #######################################################################################################################
@@ -223,6 +233,9 @@ hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance i
 # to look at changes in the number of those types of species and the impact on productivity. 
 cover[, DIgroup:=cut(DI, breaks=c(-0.001,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant")), by = site_code]
 
+#* take a site level distribution and then 25% of sample 
+#* 
+#* 
 #check the data
 table(cover$DIgroup)
 table(cover$DIgroup, cover$site_code)
