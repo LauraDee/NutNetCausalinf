@@ -1,11 +1,7 @@
 ##########################################
 ### Process NutNet Cover Data ############
 ## Laura Dee  
-# May 2021  Sept 14, 2018  ###############  
-# some updates on April 23, 2019 to visualize different abundance metrics #
-# updates on Aug 28 2019 to include other ways of processing the rare, dom, etc variables (based on frequency and relative cover)
-# also other groups: rare & non-rare, and rare-non-native, rare-native, non-native/non-rare
-#Updates on Dec 28 2019 to include other cut offs for rare groups
+# May 2021  
 ##########################################
 
 #Code written by Laura Dee, Revised and Checked by Kaitlin Kimmel, Checked by Steve Miller and Carlos A.
@@ -35,11 +31,10 @@ cover$max_cover <- as.numeric(cover$max_cover)
 #Note that Several sites sample multiple subplots within plots: elkh.us , ucsc.us, anti.ec -- and not every plot at a site.
 #Elkhorn, Antisana, and  University of California - Santa Cruz. However, 
 # these sites do not meet our criteria for inclusion in the analysis, which is at least 5 years of data and a pre-treatment year 
-# as of XXXX. 
-# IF these end up being included, there needs to be an agreed-upon way of aggregating max cover to the plot level from the subplot
+# as of the April-2018 data version. 
+# IF these end up being included in other analyses using this code, there needs to be an agreed-upon way of aggregating max cover to the plot level from the subplot
 # level that is consistent. Examples might include 1) using a representative subplot that is in all years of data, or 
 # 2) averaging max cover across subplots within a plot since subplots are of equal size.
-
 
 ########################################################################################################
 ## Compare Taxon in Live (live==1) or non-live (live == 0) #############################################
@@ -72,13 +67,13 @@ cover[local_provenance=="NULL", local_provenance:="UNK"]
 # all are all of the unknowns are a single site or across sites? Check with this line:
 View(cover[which(cover$local_provenance == "UNK"),]) # the species of unknown origins are across different sites.
 
+############################################################################################################
+### Prep data and species list  #########################################################################
+#############################################################################################################
+## First, only the species PRESENT in a plot are recorded in the cover data, so species that are present at a site but not a plot 
+# are *not* listed (i.e.  with max_cover = 0). We need to fix that before computing average relative abundance at a site.
 
-
-
-
-#### Next, First, only the species PRESENT in a plot are recorded, so species that are present at a site but not a plot are not listed, with cover = 0.
-# we need to fix that before computing average relative abundance at a site.
-
+# First, we compute list of all species at a site over the time period in the data:
 sp.at.site = unique(cover[,.(site_code, Taxon)])
 # Want to create and merge one record per (Taxon, site_code, plot, year), using merge to flag records that weren't present 
 # in original data.
@@ -92,10 +87,7 @@ cover[,year_trt:=min(year_trt[!is.na(year_trt)], na.rm=T), by=.(plot, site_code,
 cover[,trt:=min(trt[!is.na(trt)], na.rm=T), by=.(plot, site_code, year)]
 cover[,local_provenance:=min(local_provenance[!is.na(local_provenance)]),by=.(site_code, Taxon)]
 
-# now compute #s we care about: 
-# max_cover, 
-# sr_INT, sr_NAT, sr_UNK,
-# totplotcover.yr.live, relative_sp_cover.yr.live, 
+# now compute #s we care about, including max_cover,sr_INT, sr_NAT, sr_UNK, totplotcover.yr.live, relative_sp_cover.yr.live, 
 # tot.num.plots, tot.num.plots.with.spp, rel_freq.space
 cover[is.na(max_cover), max_cover:=0] # if NA, species wasn't there in that plot and year, so cover should be zero
 
@@ -108,24 +100,18 @@ cover[, sr_UNK := length(unique(Taxon[local_provenance=="UNK" & max_cover>0])), 
 ##########################################################################################################
 ##### Compute TOTAL & TOTAL LIVE RELATIVE COVER PER PLOT MEASURES ########################################
 ##########################################################################################################
-# make a total cover in a plot, site, year. This includes live and dead cover.
+# make a total cover in a plot, site, year. This includes live cover only.
 cover[,totplotcover.yr.live := sum(max_cover, na.rm= T), by=.(plot, site_code, year)]
-#***to check
-#sum(cover$totplotcover.yr.live==0)
 
 #Make a relative cover for each species in each plot, site, year
 # based on TOTAL cover (including only live cover as we already filtered to the data table to live above).
 cover[,relative_sp_cover.yr.live := max_cover/totplotcover.yr.live]
 #***to checK, run: sum(is.na(cover$relative_sp_cover.yr.live))
 
-#**CUT? in some cases, no live species in plot and year, so getting NA since totplotcover.yr.live is zero. Set these to zero.
-#*** CUT cover[is.na(relative_sp_cover.yr.live),relative_sp_cover.yr.live:=0]
-
-
-####################################################################################################################
+#################################################################################################################################################
 ### Dominance Variables using Dominance Indicator (DI) ############################################################################################
-####################################################################################################################
-## We use the Dominance Indicator (DI) metric from Avolio et al (2019), which separates dominance indication from its impact.
+#################################################################################################################################################
+## We use a Dominance Indicator, the DC metric, from Avolio et al (2019), which separates dominance indication from its impact.
 
 ### Dominance indicator calculation ###
 # DI = (average relative abundance + relative frequency)/2
@@ -137,8 +123,9 @@ cover[,relative_sp_cover.yr.live := max_cover/totplotcover.yr.live]
 # There is not a cutoff for "which range from 0-1 = dominant species versus subordinate or rare, in the Avolio et al paper # 
 # so if we want to group species in these groups, we will need to make one (then also should test robustness to that decision)
 
-## Compute Relative Frequency per spp AT THE SITE (defining dominance in space, not time/across years)
-# "Relative frequency = number of sampling units a species occurred / total number of sampling units" 
+#####
+#### Compute Relative Frequency per spp AT THE SITE (defining dominance in space, not time/across years) ###
+# "Relative frequency = number of sampling units a species occurred / total number of sampling units"   
 # this should be # of plots within a site that the species occurred in / total # of plots within a site, for pre-treatment year 
 
 #total # of plots within a site, for pre-treatment year:
@@ -151,22 +138,22 @@ cover[, tot.num.plots.with.spp := length(unique(plot[year_trt == 0 & max_cover>0
   azi.cn.test = cover[site_code == "azi.cn" , ]
   #****azi.cn.test[Taxon=="AGROSTIS STOLONIFERA",]
 
-##Compute Relative Frequency: 
+##Compute Relative Frequency in year 0.
 ## Relative frequency = number of plots at a site in year 0 a species occurred / total number of plots at a site in year 0" 
 # If a site has no records for plots in a pre-treatment year (year_trt==0), rel_freq.space will be NA.
 # That's fine -- these sites will be filtered out later
 cover[, rel_freq.space :=  tot.num.plots.with.spp/tot.num.plots]
 
-# Compute a convenience column that says whether a species was present in a plot in a site in the pre-treatment year
+#####
+#### # Compute a convenience column that says whether a species was present in a plot in a site in the pre-treatment year
 cover[,present_year0:=max_cover[year_trt==0]>0, by=.(Taxon,site_code,plot)]
 
-#compute the SR of species that were not present in year 0 for each plot and year 
-# but are present in a given year in that plot
+#compute the SR of species that were not present in year 0 for each plot and year but are present in a given year in that plot
 cover[, sr_NA := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
 
+#*** ultimlately cut btwn these lines to clean code*****
 printNA <- table(cover$sr_NA, cover$site_code)
 write.csv(printNA, "printNAbysite.csv")
-
 
 Nasp <- ggplot(data = cover, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
   geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
@@ -176,14 +163,16 @@ Nasp <- ggplot(data = cover, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~sit
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
 Nasp
-
+#*** ultimlately cut btwn these lines to clean code*****
+#*
 ##############################################################################################################################
-## Filter data to only species present in year 0 and save  ############################################################################
+## Filter data to only species present in year 0 and save dataset  ############################################################################
 ##############################################################################################################################
 cover_present_year0 = cover[present_year0 == TRUE,]
+write.csv(cover_present_year0, "cover_present_year0May142021.csv")
 # cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
 
-
+#*** ultimately cut btwn these lines to clean code*****
 # year0.sp <- cover[cover$year_trt == 0,c(3,10,31)] # gets the species present in year 0
 # names(year0.sp)[3] <- "ave_rel_abundance_year0" # renaming last column for merge
 # year0.sp <- unique(year0.sp) # getting unique values - so one value per species per site
@@ -191,6 +180,9 @@ cover_present_year0 = cover[present_year0 == TRUE,]
 # require(dplyr)
 # cover <- dplyr::left_join(cover,year0.sp) # joining the two dataframes together. NA values now where species was not present year 0
 # cover$rel_freq.space[is.na(cover$rel_freq.space)] = 0
+
+#*** ultimlately cut btwn these lines to clean code*****
+#*
 
 ### Compute relative abundance in terms of live cover ###
 #Relative abundance = abundance of a species a in sampling unit / total abundance of all species in a sampling unit
@@ -202,7 +194,7 @@ cover[, ave_rel_abundance_year0 := ave_rel_abundance_over_time.live[year_trt == 
 # if the species isn't present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
 cover[is.na(ave_rel_abundance_year0),ave_rel_abundance_year0 := 0]
 
-#check that it worked
+#*******check that it worked ******
 summary(cover$ave_rel_abundance_year0)
 hist(cover$ave_rel_abundance_over_time.live)
 summary(cover$ave_rel_abundance_over_time.live) 
@@ -215,7 +207,7 @@ summary(cover$rel_freq.space)
 hist(cover$rel_freq.space, xlab = "Frequency at the site in pre-treatment year", main = "Frequency of occurrence")
 table(cover$rel_freq.space)
 summary(cover$ave_rel_abundance_year0 )
-hist(cover$ave_rel_abundance_year0, xlab = "Average relative abundance at a site", main ="")
+hist(cover$ave_rel_abundance_year0, xlab = "Average relative abundance at a site in pre-treatment year", main ="Average relative abundance")
 
 #plot correlation between relative abundance and frequency metrics
 plot(cover$rel_freq.space,cover$rel_abundance_year0)
@@ -514,11 +506,15 @@ cover[, sr_non.nat_sub.RelA2 := length(unique(Taxon[RelAbund_group2 == "Subordin
 ### Check for duplicates and write out file #############################################################
 ##########################################################################################################
 # remove mistake/duplicate records from comp.pt as above . 
-#**** NOTE: If using the full dataset, likely need to check for others since there could be more in the full dataset!!!! 
-### but here is OK because this will be merge with the comb data for control plots that I fixed 
+#**** NOTE FOR DATA-REUSE: If using the full dataset, likely need to check for others since there could be more in the full dataset!!!! 
+### but here is OK because this will be merge with the comb data for control plots that I fixed****** 
 cover = cover[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
 
 # write as csv datafile to use for R
+write.csv(cover, "NutNetCoverData_ProcessedAug2019-AllSpecies.csv")
+
+#create a version of the data running the above code with cover = cover_present_year0  
+#to process all variables of SR counts and groupings on only species present in year 0 then printing as:
  write.csv(cover, "NutNetCoverData_ProcessedAug2019-PresentYear0only.csv")
  # write.csv(cover, "NutNetCoverData_ProcessedAug2019-2.csv")
  
