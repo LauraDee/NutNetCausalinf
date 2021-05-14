@@ -173,8 +173,9 @@ write.csv(cover_present_year0, "cover_present_year0May142021.csv")
 # cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
 cover = cover_present_year0 
 
+#**test that this worked 
 cover[, sr_NA.test := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
-#**test that this worked summary(cover$sr_NA.test)
+summary(cover$sr_NA.test)
 #################################################################################################################################
 
 ######
@@ -207,20 +208,24 @@ hist(cover$ave_rel_abundance_year0, xlab = "Average relative abundance at a site
 plot(cover$rel_freq.space,cover$rel_abundance_year0)
 
 #######################################################################################################################
-## Compute the DI per species per sie defined as:  DI = (average relative abundance + relative frequency)/2 #########
-## considering live cover and pre-treatment year  ################################################################
-##############################################################################################################################
+## Compute the DI per species per sie defined as:  DI = (average relative abundance + relative frequency)/2 ###########
+## considering live cover and pre-treatment year  #####################################################################
+#######################################################################################################################
 cover[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
 
 ## filter to only the live (the dead cover will be 0, which inflates the 0, bc of how we computed stuff above)
 hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance indicator metric")
 
-###########################################################################################################
-####### Make Categorical Variables of Dominance too  - based on the DI metric #############################
-###########################################################################################################
-# then given each species a ranking into different categories,
+#######################################################################################################################
+####### Make Categorical Variables of Dominance too  - based on the DI metric #########################################
+#######################################################################################################################
+# Then given each species a ranking into different categories,
 # to look at changes in the number of those types of species and the impact on productivity. 
-cover[, DIgroup:=cut(DI, breaks=c(-0.001,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant"))]
+cover[, DIgroup:=cut(DI, breaks=c(-0.001,0.2,0.8,1.0), labels=c("Rare","Subordinate","Dominant")), by = site_code]
+
+#check the data
+table(cover$DIgroup)
+table(cover$DIgroup, cover$site_code)
 
 #Calculate Species Richness in each group 
 cover[, sr_domspp := length(unique(Taxon[DIgroup == "Dominant"])), by = .(plot, site_code, year)]
