@@ -160,15 +160,29 @@ cover[, rel_freq.space :=  tot.num.plots.with.spp/tot.num.plots]
 # Compute a convenience column that says whether a species was present in a plot in a site in the pre-treatment year
 cover[,present_year0:=max_cover[year_trt==0]>0, by=.(Taxon,site_code,plot)]
 
+#compute the SR of species that were not present in year 0 for each plot and year 
+# but are present in a given year in that plot
+cover[, sr_NA := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
+
+printNA <- table(cover$sr_NA, cover$site_code)
+write.csv(printNA, "printNAbysite.csv")
+
+
+Nasp <- ggplot(data = cover, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Species that would be NA per plot and year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+Nasp
+
 ##############################################################################################################################
 ## Filter data to only species present in year 0 and save  ############################################################################
 ##############################################################################################################################
-# #count the unique Taxon per plot... that are not present in year 0 versus the number that are present
-# cover[,count.present.year0 := length(unique(Taxon[present_year0 == TRUE])), by = site_code]
-# cover[,count.NOTpresent.year0 := length(unique(Taxon[present_year0 == FALSE])), by = site_code] #this does not seem right.
-
 cover_present_year0 = cover[present_year0 == TRUE,]
-cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
+# cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
+
 
 # year0.sp <- cover[cover$year_trt == 0,c(3,10,31)] # gets the species present in year 0
 # names(year0.sp)[3] <- "ave_rel_abundance_year0" # renaming last column for merge
