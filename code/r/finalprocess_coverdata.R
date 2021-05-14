@@ -64,7 +64,7 @@ table(cover$DIgroup2)
 
 #to subset columns and also remove duplicate rows from the cover file so that there is one observation per plot and year 
 # and the data isn't artificially replicated 
-coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, 
+coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, sr_NA,
                                  sr_INT, sr_NAT, sr_domspp, sr_rarespp, sr_subordspp, sr_non_rare_spp, 
                                   sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, 
                                 #  sr_non_rare_spp.RelA, 
@@ -84,7 +84,7 @@ coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt 
                                   sr_non.rare_nat_unk, ## 2. Include the unknown spp origin all as native: ####
                                   sr_non.rare_non.nat_unk # 3.Including them all as non-native: 
 )])
-#make sure number of rows isnt inflated 
+#make sure number of rows isn't inflated 
 nrow(coversummaries)
 
 
@@ -126,4 +126,3 @@ list(unique(mech.data$site_code))
 #make a factor that is site by year
 mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
-mech.data[, even_year0 := even[year_trt.x == "0" ], by = .(plot, site_code)]

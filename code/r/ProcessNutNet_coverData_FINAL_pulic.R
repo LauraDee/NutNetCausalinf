@@ -297,7 +297,6 @@ cover[, sr_non.nat_dom := length(unique(Taxon[DIgroup == "Dominant" & local_prov
 cover[, sr_nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub := length(unique(Taxon[DIgroup == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-
 ### Create a variable for the unknown SR
 cover[, sr_unk_rare := length(unique(Taxon[DIgroup == "Rare" &  local_provenance == "UNK"])), by = .(plot, site_code, year)]
 
