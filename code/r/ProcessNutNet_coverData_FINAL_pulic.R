@@ -1,9 +1,7 @@
 ##########################################
 ### Process NutNet Cover Data ############
-## Laura Dee  
-# May 2021  
+## Laura Dee  # May 2021      ############
 ##########################################
-
 #Code written by Laura Dee, Revised and Checked by Kaitlin Kimmel, Checked by Steve Miller and Carlos A.
 
 #Close graphics and clear local memory
@@ -97,21 +95,99 @@ cover[, sr_INT := length(unique(Taxon[local_provenance=="INT" & max_cover>0])), 
 cover[, sr_NAT := length(unique(Taxon[local_provenance=="NAT" & max_cover>0])), by = .(plot, site_code, year)]
 cover[, sr_UNK := length(unique(Taxon[local_provenance=="UNK" & max_cover>0])), by = .(plot, site_code, year)]
 
+#####
+##### Compute a convenience column that says whether a species was present in a plot in a site in the pre-treatment year
+cover[,present_year0:=max_cover[year_trt==0]>0, by=.(Taxon,site_code,plot)]
+
+#compute the SR of species that were not present in year 0 for each plot and year but are present in a given year in that plot
+cover[, sr_NA := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
+
+#*** ultimately cut btwn these lines to clean code*****
+printNA <- table(cover$sr_NA, cover$site_code)
+write.csv(printNA, "printNAbysite.csv")
+
+cover.NA.unique = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt,  sr_NA)])
+
+Nasp <- ggplot(data =cover.NA.unique, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Count of Number of Species that would be NA per plot and year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+Nasp
+#*** ultimlately cut btwn these lines to clean code*****
+#*
+
 ##########################################################################################################
 ##### Compute TOTAL & TOTAL LIVE RELATIVE COVER PER PLOT MEASURES ########################################
 ##########################################################################################################
 # make a total cover in a plot, site, year. This includes live cover only.
 cover[,totplotcover.yr.live := sum(max_cover, na.rm= T), by=.(plot, site_code, year)]
 
-#Make a relative cover for each species in each plot, site, year
+#Make anrelative cover for each species in each plot and year
 # based on TOTAL cover (including only live cover as we already filtered to the data table to live above).
 cover[,relative_sp_cover.yr.live := max_cover/totplotcover.yr.live]
 #***to checK, run: sum(is.na(cover$relative_sp_cover.yr.live))
 
+# make a site-level relative abundance for each species and year. This requires
+#first summing the total cover per site and year and the total cover of each species in all plots at site 
+cover[, totsitecover.yr := sum(totplotcover.yr.live, na.rm= T), by=.(site_code, year)]
+cover[, tot_maxcover_site.yr  := sum(max_cover, na.rm= T), by=.(Taxon, site_code, year)]
+
+#**need to set to 0 if cover$tot_maxcover_site.yr or totsitecover.yris NA....
+cover[is.na(tot_maxcover_site.yr),tot_maxcover_site.yr := 0]
+cover[is.na(totsitecover.yr),totsitecover.yr  := 0] #not necessary
+
+#then divide these two numbers: 
+cover[, relative_abundance_spp_site.yr  :=  tot_maxcover_site.yr/totsitecover.yr, by=.(Taxon, site_code, year)]
+
+#create a variable for just year 0 
+cover[, relative_abundance_spp_site.yr0 := min(relative_abundance_spp_site.yr[year_trt==0]), by=.(Taxon, site_code)]
+cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.yr0 := NA]
+
+# if the species isn't present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
+
+#***WHERE ARE THERE SO MANY NAs?? Cut year??
+
+#################################################################################################################################
+## Run this Code (and all following code)  if you want to Filter data to only species present in year 0 and save that dataset  #####
+#################################################################################################################################
+ cover_present_year0 = cover[present_year0 == TRUE,]
+# write.csv(cover_present_year0, "cover_present_year0May142021.csv")
+# # cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
+# cover = cover_present_year0 
+# 
+## **test that this worked 
+# cover[, sr_NA.test := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
+# summary(cover$sr_NA.test)
+
+
+###################################################################################################################################################
+####### Make Categorical Variables to Label Spp as Dominant, Subordinant, and Rare   - based on the relative abundance Quantiles per Site #########################################
+#############################################################################################################################################
+
+unique.ras = unique(cover_present_year0[, .(site_code, Taxon, relative_abundance_spp_site.yr0)])
+
+unique.ras[,RAquant0.4:=quantile(relative_abundance_spp_site.yr0, probs=0.4), by=site_code]
+unique.ras[,RAquant0.8:=quantile(relative_abundance_spp_site.yr0, probs=0.8), by=site_code]
+unique.ras[,RAsite_group:=ifelse(relative_abundance_spp_site.yr0<RAquant0.4,"Rare",
+                                     ifelse(relative_abundance_spp_site.yr0<RAquant0.8, "Subordinate","Dominant"))]
+#re-merge the quantiles and classifications into the cover_present_year0 dataset
+unique.ras[,relative_abundance_spp_site.yr0:=NULL] # drop before re-merge
+cover_present_year0 = merge(cover_present_year0, unique.ras, by=c("site_code", "Taxon"))
+
+#whats the breakdown of species classified in each group overall 
+table(unique.ras$RAsite_group)
+#whats the breakdown of species classified in each group by site
+table(unique.ras$site_code, unique.ras$RAsite_group)
+
+##Where did the saline.us site go?
+
 #################################################################################################################################################
 ### Dominance Variables using Dominance Indicator (DI) ############################################################################################
 #################################################################################################################################################
-## We use a Dominance Indicator, the DC metric, from Avolio et al (2019), which separates dominance indication from its impact.
+## We use a Dominance Indicator, the DC_i metric, from Avolio et al (2019), which separates dominance indication from its impact.
 
 ### Dominance indicator calculation ###
 # DI = (average relative abundance + relative frequency)/2
@@ -144,42 +220,9 @@ cover[, tot.num.plots.with.spp := length(unique(plot[year_trt == 0 & max_cover>0
 # That's fine -- these sites will be filtered out later
 cover[, rel_freq.space :=  tot.num.plots.with.spp/tot.num.plots]
 
-#####
-#### # Compute a convenience column that says whether a species was present in a plot in a site in the pre-treatment year
-cover[,present_year0:=max_cover[year_trt==0]>0, by=.(Taxon,site_code,plot)]
-
-#compute the SR of species that were not present in year 0 for each plot and year but are present in a given year in that plot
-cover[, sr_NA := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
-
-#*** ultimlately cut btwn these lines to clean code*****
-printNA <- table(cover$sr_NA, cover$site_code)
-write.csv(printNA, "printNAbysite.csv")
-
-Nasp <- ggplot(data = cover, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Species that would be NA per plot and year") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-Nasp
-#*** ultimlately cut btwn these lines to clean code*****
-#*
 #################################################################################################################################
-## Run this Code (and all following code)  if you want to Filter data to only species present in year 0 and save that dataset  #####
-#################################################################################################################################
-cover_present_year0 = cover[present_year0 == TRUE,]
-write.csv(cover_present_year0, "cover_present_year0May142021.csv")
-# cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
-cover = cover_present_year0 
+### Compute average plot-level relative abundance in terms of live cover per the Avolio et al paper: #################################
 
-#**test that this worked 
-cover[, sr_NA.test := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
-summary(cover$sr_NA.test)
-#################################################################################################################################
-
-######
-### Compute relative abundance in terms of live cover ###
 #Relative abundance = abundance of a species a in sampling unit / total abundance of all species in a sampling unit
 # we compute the above per plot and then take the average for each species at the site and year:
 cover[, ave_rel_abundance_over_time.live := mean(relative_sp_cover.yr.live), by = .(Taxon, site_code, year)]
@@ -225,6 +268,7 @@ DIsp <- ggplot(data = cover, aes(x = DI)) + geom_histogram()+ facet_wrap(~site_c
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
 DIsp
+
 
 #######################################################################################################################
 ####### Make Categorical Variables of Dominance too  - based on the DI metric #########################################

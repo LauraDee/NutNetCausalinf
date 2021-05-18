@@ -99,7 +99,7 @@ hist(cover[live == 1,DI], xlab = "Dominance indicator (DI)", main = "Dominance i
 
 
 ##############################################################################
-## Plot rare SR  vs overall SR
+## Plot rare SR  vs overall SR ##########################################
 
 plot( mech.data$rich, mech.data$sr_nat_rare, xlab = "overall species richness", ylab = "native rare species richness", main = "Overall vs native rare species richness")
 plot( mech.data$rich, mech.data$sr_rarespp, xlab = "overall species richness", ylab = "all rare species richness", main = "Overall vs all rare species richness")
