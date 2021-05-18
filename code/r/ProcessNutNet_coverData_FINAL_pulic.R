@@ -51,7 +51,8 @@ cover = cover[live==1,]
 ### Native vs Non-Native Variables #########################################################################
 #############################################################################################################
 # Running this next line, we see that one species at *one* site is categorized as "Naturalised," so we combined this category with "INT"
-View(cover[which(cover$local_provenance == "Naturalised"),]) 
+ # View(cover[which(cover$local_provenance == "Naturalised"),]) 
+
 # covert Naturalised to INT (This use of Naturalised as a category is only from one site, marc.ar)
 cover[local_provenance =="Naturalised", local_provenance:="INT"]
 
@@ -63,7 +64,7 @@ cover[local_provenance=="NA", local_provenance:="NULL"] #these NAs are stored as
 cover[local_provenance=="NULL", local_provenance:="UNK"] 
 
 # all are all of the unknowns are a single site or across sites? Check with this line:
-View(cover[which(cover$local_provenance == "UNK"),]) # the species of unknown origins are across different sites.
+ # View(cover[which(cover$local_provenance == "UNK"),]) # the species of unknown origins are across different sites.
 
 ############################################################################################################
 ### Prep data and species list  #########################################################################
@@ -162,15 +163,21 @@ cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.y
 # cover[, sr_NA.test := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
 # summary(cover$sr_NA.test)
 
-
 ###################################################################################################################################################
 ####### Make Categorical Variables to Label Spp as Dominant, Subordinant, and Rare   - based on the relative abundance Quantiles per Site #########################################
 #############################################################################################################################################
 
+#**Note to self ****
+#0 quartile = 0 quantile = 0 percentile
+# 1 quartile = 0.25 quantile = 25 percentile
+# 2 quartile = .5 quantile = 50 percentile (median)
+# 3 quartile = .75 quantile = 75 percentile
+# 4 quartile = 1 quantile = 100 percentile
+
 unique.ras = unique(cover_present_year0[, .(site_code, Taxon, relative_abundance_spp_site.yr0)])
 
-unique.ras[,RAquant0.4:=quantile(relative_abundance_spp_site.yr0, probs=0.4), by=site_code]
-unique.ras[,RAquant0.8:=quantile(relative_abundance_spp_site.yr0, probs=0.8), by=site_code]
+unique.ras[,RAquant0.4:=quantile(relative_abundance_spp_site.yr0, probs=0.5), by=site_code]
+unique.ras[,RAquant0.8:=quantile(relative_abundance_spp_site.yr0, probs=0.9), by=site_code]
 unique.ras[,RAsite_group:=ifelse(relative_abundance_spp_site.yr0<RAquant0.4,"Rare",
                                      ifelse(relative_abundance_spp_site.yr0<RAquant0.8, "Subordinate","Dominant"))]
 #re-merge the quantiles and classifications into the cover_present_year0 dataset
@@ -183,6 +190,105 @@ table(unique.ras$RAsite_group)
 table(unique.ras$site_code, unique.ras$RAsite_group)
 
 ##Where did the saline.us site go?
+
+########################################################################################################################
+### Create variables that are combined groups of: #######################################################################
+# non-native richness (dominant and rare) + native rare + native non-rare.  ################################################
+##############################################################################################################################
+# create combinations of all - as factor in a column
+cover_present_year0[, status.NN.RareDom := paste(RAsite_group,local_provenance, sep = "_")]
+table(cover_present_year0$status.NN.RareDom)
+
+# 3.Including them all as non-native: 
+# create a non-rare variable
+cover_present_year0[, non_rare_spp := RAsite_group %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
+
+
+# From here on out, we don't need/want the extra records that were created in order
+# to properly calculate rarity, relative abundance, etc if a species showed up
+# in a plot after the first year or existed in some plots within a site.
+#
+# Filter back down to (original) records with max_cover > 0 
+cover_present_year0 = cover_present_year0[max_cover>0,]
+cover = cover[max_cover>0,]
+
+###########################################
+### SR variables by combined groupings ####
+###########################################
+##### for the unknown species are will the data processing three ways. #################
+# We will run each scenario as sensitivity analysis.  #################################
+
+## 1. Excluding them (as above) #### 
+#do SR for non-native, rare:
+cover_present_year0[, sr_non.nat_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+#do SR for native, rare:
+cover_present_year0[, sr_nat_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+
+## 2. Including the unknown spp origin all as native: ####
+cover_present_year0[, sr_nat_unk_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+# 3.Including them all as non-native: 
+cover_present_year0[, sr_non.nat_unk_rare := length(unique(Taxon[RAsite_group== "Rare" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+## look a the data 
+#***ultimately cut between these lines
+cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare)]
+hist(cover_present_year0$sr_non.nat_rare)
+table(cover_present_year0$sr_non.nat_rare, cover_present_year0$year)
+hist(cover_present_year0$sr_nat_rare)
+table(cover_present_year0$sr_nat_rare)
+hist(cover_present_year0$sr_non.nat_unk_rare)
+table(cover_present_year0$sr_non.nat_unk_rare)
+hist(cover_present_year0$sr_nat_unk_rare)
+table(cover_present_year0$sr_nat_unk_rare)
+#***
+#*
+
+## do the same for the non-rare variables: 
+# 1. Create SR non-rare native and non-native excluding unknown species origin species
+cover_present_year0[, sr_non.rare_non.nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+cover_present_year0[, sr_non.rare_nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+#**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+#*
+## 2. Include the unknown spp origin all as native: ####
+cover_present_year0[, sr_non.rare_nat_unk := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+## 3. Include the unknown spp origin all as nonnative: ####
+cover_present_year0[, sr_non.rare_non.nat_unk := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+### Make extra variables for sensitivity analyses:
+#do SR for native and non-native for dom
+cover_present_year0[, sr_nat_dom := length(unique(Taxon[RAsite_group == "Dominant" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+cover_present_year0[, sr_non.nat_dom := length(unique(Taxon[RAsite_group == "Dominant" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+
+#do SR for native and non-native for subordinate
+cover_present_year0[, sr_nat_sub := length(unique(Taxon[RAsite_group== "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+cover_present_year0[, sr_non.nat_sub := length(unique(Taxon[RAsite_group == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+
+### Create a variable for the unknown SR
+cover_present_year0[, sr_unk_rare := length(unique(Taxon[RAsite_group== "Rare" &  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+#######################################################################################################
+### Check for duplicates and write out file #############################################################
+##########################################################################################################
+# remove mistake/duplicate records from comp.pt as above . 
+#**** NOTE FOR DATA-REUSE: If using the full dataset, likely need to check for others since there could be more in the full dataset!!!! 
+### but here is OK because this will be merge with the comb data for control plots that I fixed****** 
+cover_present_year0 = cover_present_year0[!(site_code == "comp.pt" & plot %in% c(5,19,34) & year %in% c(2013,2014,2015,2016) & year_trt==0),]
+
+#create a version of the data running the above code with cover = cover_present_year0  
+#to process all variables of SR counts and groupings on only species present in year 0 then printing as:
+write.csv(cover_present_year0, "NutNetCoverData_ProcessedAug2019-PresentYear0only_RelAbundanceOnly.csv")
+
+
+
+
+
+
+
+
+
+
 
 #################################################################################################################################################
 ### Dominance Variables using Dominance Indicator (DI) ############################################################################################
@@ -404,9 +510,9 @@ cover[, sr_non.nat_dom.Freq := length(unique(Taxon[Freq_group == "Dominant" & lo
 cover[, sr_nat_sub.Freq := length(unique(Taxon[Freq_group == "Subordinate" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 cover[, sr_non.nat_sub.Freq := length(unique(Taxon[Freq_group == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
-######################################################################################################### #############
-## Compute for Average Relative Abundance: sub-ordinate and rare - Cut off 1
-######################################################################################################### #############
+######################################################################################################################
+## Compute for Average Relative Abundance: sub-ordinate and rare - Cut off 1  #######################################
+######################################################################################################################
 summary(cover$rel_abundance_year0)
 hist(cover$ave_rel_abundance_year0)
 

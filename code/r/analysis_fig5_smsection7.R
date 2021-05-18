@@ -20,7 +20,8 @@
 # on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0), where non-rare are
 #both subordinate and dominant species (e.g., species with DI greater than the .2 cutoff). 
 
-MechMod_All <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
+# 1. Create SR non-rare native and non-native excluding unknown species origin species
+MechMod_All <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) + ihs(sr_NA)
                     | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
 vcov_MechMod <- vcov(MechMod_All, cluster = "newplotid")
@@ -108,9 +109,11 @@ Fig5.plot <- Fig5.data %>%
 Fig5.plot
 ggsave("./output/Fig5.pdf", Fig5.plot)
 
-###################################################################################################################################
+
+
+###################################################################################################################################################
 ### SM Analyses for Section S7  ######################################################################################################################
-#####################################################################################################################################
+#####################################################################################################################################################
 
 #####################################################################################################################
 #### Run Models Comparing with DI metrics for Rare vs Non-rare with different grouping cutoffs of using breaks=c(0.0,0.4,0.8,1.0).
@@ -244,18 +247,24 @@ esttex(MechMod_All2, MechRelA2, MechFreq2,
 ## 2. Including the unknown spp origin all as *native* : ####
 ## to do so, we replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
 ## and replace ihs(sr_nat_rare)  with ihs(sr_nat_unk_rare)
-
-MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
-                    | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
+MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare) + ihs(sr_NA)
+                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
+summary(MechMod_S2)
 
-#**update 
+#**need to update 
 #testing if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechMod_S3, 
+linearHypothesis(MechMod_S2, 
                  hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
                                        "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
+
+#with controlling for NA species:
+MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
+                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
+
 
 
 # 3. Including the species with unknown origin all as non-native, using these variables:
@@ -265,10 +274,16 @@ linearHypothesis(MechMod_S3,
 #*** need to modify***
 ## replace: ihs(sr_non.rare_non.nat)     with  ihs(sr_non.rare_non.nat_unk)
 ## replace:  ihs(sr_non.nat_rare)    with    ihs(sr_non.nat_unk_rare )
+MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) + ihs(sr_NA)
+                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
+summary(MechMod_S3)
+
+#with counts of NA species
 MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) 
 | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
 vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
+summary(MechMod_S3)
 
 #**update 
 #testing if the groups are not all the same: rejecting the null that they are the same

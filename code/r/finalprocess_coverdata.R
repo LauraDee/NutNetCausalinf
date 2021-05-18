@@ -36,8 +36,11 @@ cover = cover[has.5.yrs.data==T,]
 cover = cover[site_code != "azi.cn",]
 cover = cover[site_code != "barta.us",]
 
+#**** CUT IN BTWN HERE****
 # create a variable for one of the analyes for Fig 5
 cover[, non_rare_spp.DI2 := sr_non.rare_non.nat2 + sr_non.rare_nat2]
+#**** CUT IN BTWN HERE****
+#*
 
 ##########################################################################################
 ### Process comb data to prep to use it in the models & merge #############################
@@ -51,9 +54,11 @@ comb$plot <- as.character(comb$plot)
 cover$plot <- as.character(cover$plot)
 # cover$V1 = NULL
 
+#***maybe cut *****
 #check that the DIgroups 1 & 2 look OK #
-table(cover$DIgroup)
-table(cover$DIgroup2)
+# table(cover$DIgroup)
+# table(cover$DIgroup2)
+#***maybe cut *****
 
 #################################################################################################
 ## Grab the summary columns from cover to merge  #######################################################
@@ -85,6 +90,18 @@ coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt 
                                   sr_non.rare_non.nat_unk # 3.Including them all as non-native: 
 )])
 #make sure number of rows isn't inflated 
+nrow(coversummaries)
+
+
+#do for the new analyses with relative abundance only in "NutNetCoverData_ProcessedAug2019-PresentYear0only_RelAbundanceOnly.csv"
+coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, sr_NA,
+                                  sr_INT, sr_NAT,
+                                  sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, 
+                                  sr_nat_unk_rare, ## 2. Including the unknown spp origin all as native: ####
+                                  sr_non.nat_unk_rare, # 3.Including them all as non-native: 
+                                  sr_non.rare_nat_unk, ## 2. Include the unknown spp origin all as native: ####
+                                  sr_non.rare_non.nat_unk # 3.Including them all as non-native: 
+)])
 nrow(coversummaries)
 
 
@@ -126,3 +143,15 @@ list(unique(mech.data$site_code))
 #make a factor that is site by year
 mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
+
+#### Extra **CUT BELOW****
+
+#How many species not present in year 0 at each site for each plot and year?
+Nasp <- ggplot(data =mech.data, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Count of Number of Species that would be NA per plot and year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+Nasp
