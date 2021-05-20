@@ -292,7 +292,6 @@ vcov_MechModS2.noNA <- vcov(MechMod_S2, cluster = "newplotid")
 # sr_non.nat_unk_rare 
 # sr_non.rare_non.nat_unk 
 
-#*** need to modify***
 ## replace: ihs(sr_non.rare_non.nat)     with  ihs(sr_non.rare_non.nat_unk)
 ## replace:  ihs(sr_non.nat_rare)    with    ihs(sr_non.nat_unk_rare )
 MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) + ihs(sr_NA)
