@@ -176,13 +176,19 @@ cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.y
 
 unique.ras = unique(cover_present_year0[, .(site_code, Taxon, relative_abundance_spp_site.yr0)])
 
-unique.ras[,RAquant0.4:=quantile(relative_abundance_spp_site.yr0, probs=0.5), by=site_code]
-unique.ras[,RAquant0.8:=quantile(relative_abundance_spp_site.yr0, probs=0.9), by=site_code]
-unique.ras[,RAsite_group:=ifelse(relative_abundance_spp_site.yr0<RAquant0.4,"Rare",
-                                     ifelse(relative_abundance_spp_site.yr0<RAquant0.8, "Subordinate","Dominant"))]
+unique.ras[,RAquant0.6:=quantile(relative_abundance_spp_site.yr0, probs=0.6), by=site_code]
+unique.ras[,RAquant0.95:=quantile(relative_abundance_spp_site.yr0, probs=0.95), by=site_code]
+unique.ras[,RAsite_group:=ifelse(relative_abundance_spp_site.yr0<RAquant0.6,"Rare",
+                                     ifelse(relative_abundance_spp_site.yr0<RAquant0.95, "Subordinate","Dominant"))]
 #re-merge the quantiles and classifications into the cover_present_year0 dataset
 unique.ras[,relative_abundance_spp_site.yr0:=NULL] # drop before re-merge
 cover_present_year0 = merge(cover_present_year0, unique.ras, by=c("site_code", "Taxon"))
+
+#sanity check
+cdcr = cover_present_year0[site_code =="cdcr.us",]
+table(cdcr$Taxon, cdcr$RAsite_group.y)
+konz  =  cover_present_year0[site_code =="konz.us",]
+table(konz$Taxon, konz$RAsite_group.y)
 
 #whats the breakdown of species classified in each group overall 
 table(unique.ras$RAsite_group)
