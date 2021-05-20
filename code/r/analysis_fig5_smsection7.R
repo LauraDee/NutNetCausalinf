@@ -26,6 +26,12 @@ MechMod_All <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.
 
 vcov_MechMod <- vcov(MechMod_All, cluster = "newplotid")
 
+
+MechMod_All_noNAs <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_rare) 
+                          | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechMod_noNAs <- vcov(MechMod_All_noNAs, cluster = "newplotid")
+
+
 # Hypotheses Tests for the groups: are their effects on productivity significantly differently?
 #Note: fevcov returns a square matrix with the bias corrected covariances. An attribute 'bias' contains
 # the biases. The bias corrections have been subtracted from the bias estimates. I.e. vc = vc’ - b,
@@ -36,6 +42,12 @@ linearHypothesis(MechMod_All,
                  hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
                                        "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
+
+linearHypothesis(MechMod_All_noNAs, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
+                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod_noNAs,  singular.ok = T)
 
 
 # not rare: native vs non-native - are their effects on productivity significantly differently?
@@ -59,11 +71,21 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
 
 esttex(MechMod_All, 
        coefstat = "se", replace = TRUE,
-       file = "./output/Table_forFig5_R_se-OLD.tex")
+       file = "./output/Table_forFig5_R_se-May202021.tex")
 
 esttex(MechMod_All,
        coefstat = "confint", replace = TRUE,
-       file = "./output/Table_forFig5_R_ci.tex")
+       file = "./output/Table_forFig5_R_ci-May202021.tex")
+
+
+esttex(MechMod_All, MechMod_All_noNAs,
+       coefstat = "se", replace = TRUE,
+       file = "./output/Table_forFig5_R_se-no-NAs-May202021.tex")
+
+
+esttex(MechMod_All, MechMod_All_noNAs,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/Table_forFig5_R_ci-no-NAs-May202021.tex")
 
 ###################################################################################################################################
 ### Plot Figure 5 ######################################################################################################################
@@ -260,11 +282,10 @@ linearHypothesis(MechMod_S2,
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
 
-#with controlling for NA species:
-MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
+#without controlling for NA species:
+MechMod_S2.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
                    | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
-
+vcov_MechModS2.noNA <- vcov(MechMod_S2, cluster = "newplotid")
 
 
 # 3. Including the species with unknown origin all as non-native, using these variables:
@@ -279,11 +300,11 @@ MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.n
 vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
 summary(MechMod_S3)
 
-#with counts of NA species
-MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) 
+#without controlling for counts of NA species
+MechMod_S3.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) 
 | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
-summary(MechMod_S3)
+vcov_MechModS3.noNA <- vcov(MechMod_S3, cluster = "newplotid")
+summary(MechMod_S3.noNA)
 
 #**update 
 #testing if the groups are not all the same: rejecting the null that they are the same
@@ -303,6 +324,15 @@ esttex(MechMod_All, MechMod_S2, MechMod_S3,
 esttex(MechMod_All, MechMod_S2, MechMod_S3,
        coefstat = "confint", replace = TRUE,
        file = "./output/TableS12_SensitivityAnal_R_CI.tex")
+
+esttex(MechMod_All, MechMod_S2, MechMod_S2.noNA,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
+
+esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS13_SensitivityAnal_R_seMay202021.tex")
+
 
 ############################################################################################################################
 #### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################

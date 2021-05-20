@@ -5,8 +5,8 @@
 rm(list = ls())
 
 # Define project directory
-cdir <- "C:/GitHub/NutNetCausalinf/"
-setwd(cdir)
+# cdir <- "C:/GitHub/NutNetCausalinf/"
+# setwd(cdir)
 
 setwd("~/Documents/GitHub/NutNetCausalinf/")  
 
@@ -44,7 +44,6 @@ source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3, and Figure S4 
 source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
 
-
 ###########################################################################################################################
 ## Analysis using large cover dataset from Nutrient Network, processed from version 'full-cover-09-April-2018.csv'    ####
 ############################################################################################################################
@@ -55,15 +54,28 @@ combonly <- FALSE
 comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 
+### Cover Data ##### Multiple versions used for sensitivity analyses (see SM section XX)
 #cover <- fread("data/processed/NutNetCoverData_ProcessedAug2019-2.csv")  
 #cover <- fread("./data/NutNetCoverData_ProcessedAug2019-2.csv")  
 
-cover <- fread("./data/NutNetCoverData_ProcessedAug2019-PresentYear0only.csv")  #version of the data without labels on species that are NA in year_0
+# # write as csv datafile to use for R
+#with ALL species including ones not present in year 0, which are then considered 0s and thus rare
+# in all of the subsequent count and variable calculations
+# write.csv(cover, "NutNetCoverData_ProcessedAug2019-AllSpecies.csv")
+
+#load version of the data running the above code with cover = cover_present_year0  
+#to process all variables of SR counts and groupings on only species present in year 0 then printing as:
+
+# cover <- fread("./data/NutNetCoverData_ProcessedAug2019-AllSpecies.csv")  #version of the data with on species that are NA in year_0
+
+cover <- fread("./data/NutNetCoverData_ProcessedAug2019-PresentYear0only_RelAbundanceOnly.csv")
 
 source("./code/r/finalprocess_coverdata.R") # *need to run this line to prep the data for running the models*
 
 source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables and supplemental results for section S7 of the supplemental materials
 
+#code to create other supplemental figures
+source("./code/r/analysis_fig5_smsection7.R")
 
 
 
