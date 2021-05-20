@@ -154,7 +154,7 @@ cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.y
 #################################################################################################################################
 ## Run this Code (and all following code)  if you want to Filter data to only species present in year 0 and save that dataset  #####
 #################################################################################################################################
- cover_present_year0 = cover[present_year0 == TRUE,]
+cover_present_year0 = cover[present_year0 == TRUE,]
 # write.csv(cover_present_year0, "cover_present_year0May142021.csv")
 # # cover_present_year0[, DI := (ave_rel_abundance_year0 + rel_freq.space)/2 , by =.(Taxon, site_code)]
 # cover = cover_present_year0 
