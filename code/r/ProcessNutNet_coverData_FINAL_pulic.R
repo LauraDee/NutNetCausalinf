@@ -218,6 +218,23 @@ cover_present_year0[, non_rare_spp := RAsite_group %in% c("Subordinate", "Domina
 cover_present_year0 = cover_present_year0[max_cover>0,]
 cover = cover[max_cover>0,]
 
+## to make a plot of number of introduced species over time --left off here
+cover[, sr_INT:= length(unique(Taxon[local_provenance == "INT"])), by = .(plot, site_code, year)]
+cover[, sr_INT.site:= length(unique(Taxon[local_provenance == "INT"])), by = .(site_code, year)]
+
+cover.int.unique = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt,  sr_INT.site, sr_INT)])
+
+INTsp <- ggplot(data = cover.int.unique , aes(x = sr_INT.site, y = year())) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "Count of Number of Species that would be NA per plot and year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+INTsp
+
+
+#do SR for native, rare:
 ###########################################
 ### SR variables by combined groupings ####
 ###########################################
