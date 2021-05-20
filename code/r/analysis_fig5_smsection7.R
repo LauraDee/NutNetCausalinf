@@ -374,10 +374,10 @@ FigSX
 ## do first differences of the above species richness variables: 
 
 #** this is wrong and shpuld be changed to the mech.data with the unique entry per plot and site and year
-setorder(cover, year)
-cover[, change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
-cover[, change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
-cover[, change_sr_UNK := sr_UNK-shift(sr_UNK), by =.(plot, site_code)]
+setorder(mech.data, year)
+mech.data[, change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
+mech.data[, change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
+mech.data[, change_sr_UNK := sr_UNK-shift(sr_UNK), by =.(plot, site_code)]
 
 # compute change in richness in each group 
 cover[order(year), change_sr_domspp := sr_domspp -shift(sr_domspp), by =.(plot, site_code)]
@@ -396,3 +396,10 @@ summary(cover$change_sr_rare)
 # -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
 
 
+ggplot(data = mech.data, aes(x =  year, y = site_introduced_richness )) + geom_point()+ facet_wrap(~site_code) + theme_bw() +
+  +     geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  +     labs(x = "site introduced species richness") +  theme_bw() +
+  +     theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  +     theme(axis.text.y = element_text(size = 14)) + 
+  +     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  +     theme(axis.text.x = element_text(size=14)) 
