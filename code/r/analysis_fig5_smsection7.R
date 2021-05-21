@@ -502,11 +502,72 @@ summary(cover$change_sr_rare)
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
 # -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
 
+ggplot(data = mech.data, aes(x = change_sr_INT )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "change in plot introduced species richness from year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
 
-ggplot(data = mech.data, aes(x =  year, y = site_introduced_richness )) + geom_point()+ facet_wrap(~site_code) + theme_bw() +
-  +     geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  +     labs(x = "site introduced species richness") +  theme_bw() +
-  +     theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  +     theme(axis.text.y = element_text(size = 14)) + 
-  +     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  +     theme(axis.text.x = element_text(size=14)) 
+ggplot(data = mech.data, aes(x = change_sr_NAT )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "change in plot native species richness from year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+
+ggplot(data = mech.data, aes(x = change_sr_UNK )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "change in plot species richness of uknown origin from year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+
+
+ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site)) + facet_wrap(~site_code) + theme_bw() +
+  geom_point()
+
+ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT)) + facet_wrap(~site_code) + theme_bw() +
+  geom_point()
+
+
+ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT, color = site_code)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "loess")
+
+ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site, color = site_code)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "loess")
+
+ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site)) +
+  geom_point(aes(color = site_code), alpha = 0.5) + 
+  geom_smooth(method = "loess", colour = 'grey40')
+
+ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT)) +
+  geom_point(aes(color = site_code), alpha = 0.5) + 
+  geom_smooth(method = "loess", colour = 'grey40')
+
+
+
+
+# ggplot(data = mech.data, aes(x = site_introduced_richness )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
+#     geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+#     labs(x = "site introduced species richness") +  theme_bw() +
+#      theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+#     theme(axis.text.y = element_text(size = 14)) + 
+#      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+#      theme(axis.text.x = element_text(size=14)) 
+
+ggplot(data = mech.data, aes(x = site_introduced_richness )) + geom_histogram()  + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+  labs(x = "site introduced species richness") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+
+
+

@@ -241,7 +241,7 @@ cover = cover[max_cover>0,]
 
 ## to make a plot of number of introduced species over time --left off here
 cover[, sr_INT:= length(unique(Taxon[local_provenance == "INT"])), by = .(plot, site_code, year)]
-cover[, sr_INT.site:= length(unique(Taxon[local_provenance == "INT"])), by = .(site_code, year)]
+cover[, sr_INT.site := length(unique(Taxon[local_provenance == "INT"])), by = .(site_code, year)]
 
 #*** CUT IN BTWN *****
 cover.int.unique = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt,  sr_INT.site, sr_INT)])

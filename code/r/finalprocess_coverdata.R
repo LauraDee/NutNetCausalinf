@@ -95,7 +95,7 @@ nrow(coversummaries)
 
 #do for the new analyses with relative abundance only in "NutNetCoverData_ProcessedAug2019-PresentYear0only_RelAbundanceOnly.csv"
 coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, sr_NA,
-                                  sr_INT, sr_NAT,
+                                  sr_INT, sr_NAT, sr_UNK, sr_INT.site, 
                                   sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, 
                                   sr_nat_unk_rare, ## 2. Including the unknown spp origin all as native: ####
                                   sr_non.nat_unk_rare, # 3.Including them all as non-native: 
