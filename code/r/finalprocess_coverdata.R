@@ -100,7 +100,9 @@ coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt 
                                   sr_nat_unk_rare, ## 2. Including the unknown spp origin all as native: ####
                                   sr_non.nat_unk_rare, # 3.Including them all as non-native: 
                                   sr_non.rare_nat_unk, ## 2. Include the unknown spp origin all as native: ####
-                                  sr_non.rare_non.nat_unk # 3.Including them all as non-native: 
+                                  sr_non.rare_non.nat_unk , # 3.Including them all as non-native
+                                  sr_non_rare_spp.Freq, sr_non.rare_nat.Freq, sr_non.rare_non.nat.Freq,
+                                  sr_rare_non.nat.Freq, sr_rare_nat.Freq
 )])
 nrow(coversummaries)
 
@@ -155,3 +157,4 @@ Nasp <- ggplot(data =mech.data, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
 Nasp
+

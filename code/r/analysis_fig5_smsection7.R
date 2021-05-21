@@ -133,10 +133,45 @@ ggsave("./output/Fig5.pdf", Fig5.plot)
 
 
 
+
 ###################################################################################################################################################
 ### SM Analyses for Section S7  ######################################################################################################################
 #####################################################################################################################################################
 
+# As of May 21, 2021
+
+###########
+### C. Grouped based on Relative Frequency in year 0 and cutoffs of:.. 
+##########
+
+#with controlling for NAs
+MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) + ihs(sr_NA)
+                  | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
+
+
+#without controlling for NAs
+MechFreq.NoNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) 
+                  | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechFreq.NoNA <- vcov(MechFreq.NoNA, cluster = "newplotid")
+
+esttex(MechFreq1, MechFreq.NoNA, 
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableSX_R_RelFreq_se_May212021.tex")
+
+esttex(MechFreq1, MechFreq.NoNA,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableSX_R_RelFreq_ci_May212021.tex")
+
+
+
+
+
+
+
+
+
+# Prior to May 2021
 #####################################################################################################################
 #### Run Models Comparing with DI metrics for Rare vs Non-rare with different grouping cutoffs of using breaks=c(0.0,0.4,0.8,1.0).
 #####################################################################################################################
