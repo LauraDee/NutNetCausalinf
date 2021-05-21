@@ -278,26 +278,12 @@ cover_present_year0[, sr_nat_unk_rare := length(unique(Taxon[RAsite_group == "Ra
 # 3.Including them all as non-native: 
 cover_present_year0[, sr_non.nat_unk_rare := length(unique(Taxon[RAsite_group== "Rare" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
 
-## look a the data 
-#***ultimately cut between these lines
-cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare)]
-hist(cover_present_year0$sr_non.nat_rare)
-table(cover_present_year0$sr_non.nat_rare, cover_present_year0$year)
-hist(cover_present_year0$sr_nat_rare)
-table(cover_present_year0$sr_nat_rare)
-hist(cover_present_year0$sr_non.nat_unk_rare)
-table(cover_present_year0$sr_non.nat_unk_rare)
-hist(cover_present_year0$sr_nat_unk_rare)
-table(cover_present_year0$sr_nat_unk_rare)
-#***
-#*
-
 ## do the same for the non-rare variables: 
 # 1. Create SR non-rare native and non-native excluding unknown species origin species
 cover_present_year0[, sr_non.rare_non.nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 cover_present_year0[, sr_non.rare_nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 #**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
-#*
+
 ## 2. Include the unknown spp origin all as native: ####
 cover_present_year0[, sr_non.rare_nat_unk := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
 
@@ -315,6 +301,20 @@ cover_present_year0[, sr_non.nat_sub := length(unique(Taxon[RAsite_group == "Sub
 
 ### Create a variable for the unknown SR
 cover_present_year0[, sr_unk_rare := length(unique(Taxon[RAsite_group== "Rare" &  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+## look a the data 
+#***ultimately cut between these lines
+cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare)]
+hist(cover_present_year0$sr_non.nat_rare)
+table(cover_present_year0$sr_non.nat_rare, cover_present_year0$year)
+hist(cover_present_year0$sr_nat_rare)
+table(cover_present_year0$sr_nat_rare)
+hist(cover_present_year0$sr_non.nat_unk_rare)
+table(cover_present_year0$sr_non.nat_unk_rare)
+hist(cover_present_year0$sr_nat_unk_rare)
+table(cover_present_year0$sr_nat_unk_rare)
+#***
+#*
 
 
 
@@ -371,14 +371,24 @@ cover_present_year0[, sr_nat_sub.Freq := length(unique(Taxon[Freq_group == "Subo
 cover_present_year0[, sr_non.nat_sub.Freq := length(unique(Taxon[Freq_group == "Subordinate" & local_provenance == "INT"])), by = .(plot, site_code, year)]
 
 
+##### Now create variables that deal with species of unknown origin. ##### 
+cover_present_year0[, status.NN.FreqGroup := paste(Freq_group,local_provenance, sep = "_")]
+table(cover_present_year0$status.NN.FreqGroup)
+
+## 2. ## group all of the unknown species origins as native for both rare and non-rare groups:
+#rare
+cover_present_year0[, sr_rare_unk_nat.Freq := length(unique(Taxon[non_rare_spp.Freq== "FALSE" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+#non rare
+cover_present_year0[, sr_non.rare_nat_unk.Freq  := length(unique(Taxon[non_rare_spp.Freq == "TRUE" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+
+## 3. ## group all of the unknown species origins as non-native for both rare and non-rare groups: 
+# rare non native
+cover_present_year0[, sr_rare_non.nat_unk.Freq:= length(unique(Taxon[non_rare_spp.Freq== "FALSE" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
+#non-rare non native
+cover_present_year0[, sr_non.rare_non.nat_unk.Freq := length(unique(Taxon[non_rare_spp.Freq == "TRUE" & local_provenance == "INT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
 
 
-
-
-
-
-
-#######################################################################################################
+#####################################################################################################
 ### Check for duplicates and write out file #############################################################
 ##########################################################################################################
 # remove mistake/duplicate records from comp.pt as above . 

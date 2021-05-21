@@ -76,6 +76,6 @@ source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables a
 
 #code to create other supplemental figures
 source("./code/r/analysis_fig5_smsection7.R")
-
+source("./code/r/SM_Figures.R")
 
 

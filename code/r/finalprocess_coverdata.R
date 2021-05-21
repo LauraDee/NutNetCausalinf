@@ -102,7 +102,9 @@ coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt 
                                   sr_non.rare_nat_unk, ## 2. Include the unknown spp origin all as native: ####
                                   sr_non.rare_non.nat_unk , # 3.Including them all as non-native
                                   sr_non_rare_spp.Freq, sr_non.rare_nat.Freq, sr_non.rare_non.nat.Freq,
-                                  sr_rare_non.nat.Freq, sr_rare_nat.Freq
+                                  sr_rare_non.nat.Freq, sr_rare_nat.Freq,
+                                  sr_rare_unk_nat.Freq , sr_non.rare_nat_unk.Freq, ## 2. Including the unknown spp origin all as native: ####
+                                  sr_non.rare_non.nat_unk.Freq, sr_rare_non.nat_unk.Freq   # 3.Including them all as non-native
 )])
 nrow(coversummaries)
 

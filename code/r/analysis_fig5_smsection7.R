@@ -140,8 +140,82 @@ ggsave("./output/Fig5.pdf", Fig5.plot)
 
 # As of May 21, 2021
 
+######################################################################################################################################################
+#### Sensitivity Analyses: Run Models that categorize species coming into plots after year 0 as native or non-native in different ways #################
+######################################################################################################################################################
+# We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
+# was native or introduced).
+## 1. Excluding them, as done in MechMod_All analyses above for results in Figure 5 and in Table S9 (Cut-off1) #### 
+
+## 2. Including the unknown spp origin all as *native* : ####
+## to do so, we replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
+## and replace ihs(sr_nat_rare)  with ihs(sr_nat_unk_rare)
+MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare) + ihs(sr_NA)
+                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
+summary(MechMod_S2)
+
+#**need to update 
+#testing if the groups are not all the same: rejecting the null that they are the same
+linearHypothesis(MechMod_S2, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
+                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
+
+#without controlling for NA species:
+MechMod_S2.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
+                        | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechModS2.noNA <- vcov(MechMod_S2, cluster = "newplotid")
+
+
+# 3. Including the species with unknown origin all as non-native, using these variables:
+# sr_non.nat_unk_rare 
+# sr_non.rare_non.nat_unk 
+
+## replace: ihs(sr_non.rare_non.nat)     with  ihs(sr_non.rare_non.nat_unk)
+## replace:  ihs(sr_non.nat_rare)    with    ihs(sr_non.nat_unk_rare )
+MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) + ihs(sr_NA)
+                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
+summary(MechMod_S3)
+
+#without controlling for counts of NA species
+MechMod_S3.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) 
+                        | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechModS3.noNA <- vcov(MechMod_S3, cluster = "newplotid")
+summary(MechMod_S3.noNA)
+
+#**update 
+#testing if the groups are not all the same: rejecting the null that they are the same
+linearHypothesis(MechMod_S3, 
+                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
+                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
+################################################
+## Table S12  ##################################
+################################################
+
+esttex(MechMod_All, MechMod_S2, MechMod_S3,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS12_SensitivityAnal_R_se.tex")
+
+esttex(MechMod_All, MechMod_S2, MechMod_S3,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS12_SensitivityAnal_R_CI.tex")
+
+esttex(MechMod_All, MechMod_S2, MechMod_S2.noNA,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
+
+esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS13_SensitivityAnal_R_seMay202021.tex")
+
+
 ###########
-### C. Grouped based on Relative Frequency in year 0 and cutoffs of:.. 
+### Grouped based on Relative Frequency in year 0 and cutoffs of:.. 
 ##########
 
 #with controlling for NAs
@@ -164,6 +238,47 @@ esttex(MechFreq1, MechFreq.NoNA,
        file = "./output/TableSX_R_RelFreq_ci_May212021.tex")
 
 
+### Group as Native 
+# variables to use: sr_rare_unk_nat.Freq   
+                # sr_non.rare_nat_unk.Freq 
+
+#with controlling for NAs
+#without controlling for NAs
+MechFreq2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_unk_nat.Freq) + ihs(sr_NA)
+                       | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
+summary(MechFreq2)
+
+#without controlling for NAs
+MechFreq.NoNA2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_unk_nat.Freq) 
+                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechFreq.NoNA2 <- vcov(MechFreq.NoNA2, cluster = "newplotid")
+summary(MechFreq.NoNA2)
+
+
+### Group as Non Native ## group all of the unknown species origins as non-native for both rare and non-rare groups: 
+# variables to use:  sr_non.rare_non.nat_unk.Freq
+              #  sr_rare_non.nat_unk.Freq
+MechFreq3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat_unk.Freq)  + ihs(sr_rare_non.nat_unk.Freq) +  ihs(sr_rare_nat.Freq) + ihs(sr_NA)
+                       | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechFreq3 <- vcov(MechFreq3, cluster = "newplotid")
+summary(MechFreq3)
+
+
+MechFreq.NoNA3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat_unk.Freq)  + ihs(sr_rare_non.nat_unk.Freq) +  ihs(sr_rare_nat.Freq) 
+                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
+vcov_MechFreq.NoNA3 <- vcov(MechFreq.NoNA3, cluster = "newplotid")
+summary(MechFreq.NoNA3)
+
+
+#print out results
+esttex(MechFreq2, MechFreq.NoNA2,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableSX_R_RelFreq_ALLNATIVE_se_May212021.tex")
+
+esttex(MechFreq3, MechFreq.NoNA3,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableSX_R_RelFreq_ALLnonNATIVE_se_May212021.tex")
 
 
 
@@ -294,78 +409,6 @@ esttex(MechMod_All2, MechRelA2, MechFreq2,
        file = "./output/TableS9through11_ComparisonCutoff2_R_CI.tex")
 
 
-######################################################################################################################################################
-#### Sensitivity Analyses: Run Models that categorize species coming into plots after year 0 as native or non-native in different ways #################
-######################################################################################################################################################
-# We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
-# was native or introduced).
-## 1. Excluding them, as done in MechMod_All analyses above for results in Figure 5 and in Table S9 (Cut-off1) #### 
-
-## 2. Including the unknown spp origin all as *native* : ####
-## to do so, we replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
-## and replace ihs(sr_nat_rare)  with ihs(sr_nat_unk_rare)
-MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare) + ihs(sr_NA)
-                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
-summary(MechMod_S2)
-
-#**need to update 
-#testing if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechMod_S2, 
-                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
-                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
-                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
-
-
-#without controlling for NA species:
-MechMod_S2.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
-                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechModS2.noNA <- vcov(MechMod_S2, cluster = "newplotid")
-
-
-# 3. Including the species with unknown origin all as non-native, using these variables:
-# sr_non.nat_unk_rare 
-# sr_non.rare_non.nat_unk 
-
-## replace: ihs(sr_non.rare_non.nat)     with  ihs(sr_non.rare_non.nat_unk)
-## replace:  ihs(sr_non.nat_rare)    with    ihs(sr_non.nat_unk_rare )
-MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) + ihs(sr_NA)
-                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
-summary(MechMod_S3)
-
-#without controlling for counts of NA species
-MechMod_S3.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) 
-| newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechModS3.noNA <- vcov(MechMod_S3, cluster = "newplotid")
-summary(MechMod_S3.noNA)
-
-#**update 
-#testing if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechMod_S3, 
-                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
-                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
-                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
-
-################################################
-## Table S12  ##################################
-################################################
-
-esttex(MechMod_All, MechMod_S2, MechMod_S3,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_se.tex")
-
-esttex(MechMod_All, MechMod_S2, MechMod_S3,
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_CI.tex")
-
-esttex(MechMod_All, MechMod_S2, MechMod_S2.noNA,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
-
-esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS13_SensitivityAnal_R_seMay202021.tex")
 
 
 ############################################################################################################################
