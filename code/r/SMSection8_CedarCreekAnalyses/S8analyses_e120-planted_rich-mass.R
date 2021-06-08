@@ -9,11 +9,11 @@ rm(list=ls())
 graphics.off()
 
 library(ggplot2)
-library(lme4)
-library(lmerTest)
+library(fixest)  # v 0.8.2
 library(data.table)
 library(lfe)
 library(here)
+library(texreg)
 
 # When log(0) need to use inverse hyperbolic sine transformation (Bellemare & Wichman 2020 Oxford Bulletin of Economics and Statistics)
 #https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions#Inverse_hyperbolic_sine
@@ -23,7 +23,11 @@ ihs = function(x) {
 
 #######    READ IN DATA    #######
 # read in file that Kaitlin Kimmel processed using the R code e120-biomass-data-2020-12-04.R 
-d <-fread(here("CedarCreekAnalyses", "data", "e120-plantedbiomass-data-output.csv"), strip.white=T)  
+ # d <-fread(here("CedarCreekAnalyses", "data", "e120-plantedbiomass-data-output.csv"), strip.white=T)  
+
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
+d <- fread("e120-plantedbiomass-data-output.csv")
+
 ## meta-data and variables used: ##
   # numsp is the treatment -- Planted number of species: 1, 2, 4, 8, or 16 
   # rich is the observed richness ofthe  planted species
@@ -46,7 +50,6 @@ summary(d)
 # plot the data comparing the number of species planted in a treatment versus that are found
 plot(d$numsp, d$rich, xlab = "planted species", ylab = "realized richness", main = "BigBio species richness")
 
-
 ##########################################
 ## #### process data and prep for models ###   
 ##########################################
@@ -57,6 +60,9 @@ d$year <- as.factor(d$year)
 ####################################################################################################################
 ## Implement the two-way fixed effects design #####################################################################
 #####################################################################################################################
+mod_main <- feols(ihs(mass.live) ~ ihs(rich)  | year + plot,  d, cluster = "plot") 
+
+
 mod_main <- felm(ihs(mass.live ) ~ ihs(rich) | year + plot | 0 | plot, data =d)
 summary(mod_main, robust = T)
 
@@ -70,7 +76,10 @@ screenreg(mod_main,     # object with results
 # found to be more representative of nautral communities in some aspects 
    # (e.g., see Jochum, M., et al. (2020). The results of biodiversity–ecosystem functioning experiments are realistic. Nat. Ecol. Evol., 4, 1485–1494.)
 d16 = d[Treat.numsp == "16",]
-mod16 <- felm(ihs(mass.live) ~ ihs(rich) | year + plot | 0 | plot, data = d16) 
+
+mod16<- feols(ihs(mass.live) ~ ihs(rich)  | year + plot,  d16, cluster = "plot") 
+
+#mod16 <- felm(ihs(mass.live) ~ ihs(rich) | year + plot | 0 | plot, data = d16) 
 summary(mod16, robust = T)  # we find the results are still consistent with our conjecture.
 
 screenreg(mod16,  # object with results 
