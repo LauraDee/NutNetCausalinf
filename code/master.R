@@ -59,7 +59,6 @@ cover <- fread("./data/NutNetCoverData_ProcessedFinal.csv")
 
 source("./code/r/finalprocess_coverdata.R") # **need to run this line to prep the data for running the models**
 
-#to reproduce analyses and figures 
 source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables and supplemental results for section S7 of the supplemental materials
 
 #code to create other supplemental figures

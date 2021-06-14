@@ -91,8 +91,8 @@ coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt 
                                   sr_rare_unk_nat.Freq , sr_non.rare_nat_unk.Freq, ## 2. Including the unknown spp origin all as native: ####
                                   sr_non.rare_non.nat_unk.Freq, sr_rare_non.nat_unk.Freq,   # 3.Including them all as non-native
                                   sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2 , #include variables for cut-off 2 as sensitivity test for main model for Figure 5
-                                  sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3  #include variables for cut-off 2 as sensitvity test for main model for Figure 5
-)])
+                                  sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3 #include variables for cut-off 2 as sensitvity test for main model for Figure 5
+                                  )])
 nrow(coversummaries)
 
 
@@ -138,15 +138,12 @@ mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 ########################################################################################################################
 ##### Get some summary numbers on this final dataset for the counts of different groups of species ####################
 ########################################################################################################################
-#### Extra **CUT BELOW****??
 
-#How many species not present in year 0 at each site for each plot and year?
-Nasp <- ggplot(data =mech.data, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Count of Number of Species that would be NA per plot and year") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-Nasp
+#whats the breakdown of species classified in each group overall 
+table(unique.ras$RAsite_group2)
+#whats the breakdown of species classified in each group by site
+table(unique.ras$site_code, unique.ras$RAsite_group2)
+
+
+
 
