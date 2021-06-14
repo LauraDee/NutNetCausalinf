@@ -433,7 +433,7 @@ cover_present_year0[, sr_non.rare_non.nat2 := length(unique(Taxon[non_rare_spp2 
 cover_present_year0[, sr_non.rare_nat2 := length(unique(Taxon[non_rare_spp2 == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 #**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
 
-# include in the final code for data processing 
+# include in the final code for data processing "finalprocess_coverdata.R"
   # sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2
 
 
@@ -489,7 +489,7 @@ cover_present_year0[, sr_non.rare_non.nat3 := length(unique(Taxon[non_rare_spp3 
 cover_present_year0[, sr_non.rare_nat3 := length(unique(Taxon[non_rare_spp3 == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 #**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
 
-# include in the final code for data processing 
+# include in the final code for data processing in "finalprocess_coverdata.R"
 # sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3
 
 #####################################################################################################
