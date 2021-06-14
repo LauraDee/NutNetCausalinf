@@ -38,7 +38,7 @@ cover = cover[site_code != "barta.us",]
 
 #**** CUT IN BTWN HERE****
 # create a variable for one of the analyes for Fig 5
-cover[, non_rare_spp.DI2 := sr_non.rare_non.nat2 + sr_non.rare_nat2]
+# cover[, non_rare_spp.DI2 := sr_non.rare_non.nat2 + sr_non.rare_nat2]
 #**** CUT IN BTWN HERE****
 #*
 
