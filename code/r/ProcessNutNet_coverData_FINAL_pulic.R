@@ -1,6 +1,6 @@
 ##########################################
 ### Process NutNet Cover Data ############
-## Laura Dee  # May 2021      ############
+## Laura Dee  # June 14 2021      ############
 ##########################################
 #Code written by Laura Dee, Revised and Checked by Kaitlin Kimmel, Checked by Steve Miller and Carlos A.
 
@@ -502,7 +502,7 @@ cover_present_year0 = cover_present_year0[!(site_code == "comp.pt" & plot %in% c
 
 #create a version of the data running the above code with cover = cover_present_year0  
 #to process all variables of SR counts and groupings on only species present in year 0 then printing as:
-write.csv(cover_present_year0, "NutNetCoverData_ProcessedAug2019-PresentYear0only_RelAbundanceOnly.csv")
+write.csv(cover_present_year0, "NutNetCoverData_ProcessedFinal.csv")
 
 
 
