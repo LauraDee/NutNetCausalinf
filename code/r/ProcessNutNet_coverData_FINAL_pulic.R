@@ -409,18 +409,15 @@ table(unique.ras$site_code, unique.ras$RAsite_group2)
 ##########################################################################################################
 ### Create variables (factor) that are combined groups of:  ###################################################
 # non-native richness (dominant and rare) + native rare + native non-rare.  ################################################
-
 cover_present_year0[, status.NN.RareDom2 := paste(RAsite_group2,local_provenance, sep = "_")]
 table(cover_present_year0$status.NN.RareDom2)
 
-# 3.Including them all as non-native: 
 # create a non-rare variable
 cover_present_year0[, non_rare_spp2 := RAsite_group2 %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
 
 # From here on out, we don't need/want the extra records that were created in order
 # to properly calculate rarity, relative abundance, etc if a species showed up
 # in a plot after the first year or existed in some plots within a site.
-#
 # Filter back down to (original) records with max_cover > 0 
 cover_present_year0 = cover_present_year0[max_cover>0,]
 cover = cover[max_cover>0,]
@@ -432,12 +429,69 @@ cover_present_year0[, sr_non.nat_rare2 := length(unique(Taxon[RAsite_group2 == "
 cover_present_year0[, sr_nat_rare2 := length(unique(Taxon[RAsite_group2 == "Rare" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 
 # Create SR non-rare native and non-native excluding unknown species origin species
-cover_present_year0[, sr_non.rare_non.nat2 := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
-cover_present_year0[, sr_non.rare_nat2 := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+cover_present_year0[, sr_non.rare_non.nat2 := length(unique(Taxon[non_rare_spp2 == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+cover_present_year0[, sr_non.rare_nat2 := length(unique(Taxon[non_rare_spp2 == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 #**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
 
 # include in the final code for data processing 
   # sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2
+
+
+######################################################################################################################
+## Make a 3rd Cut-off for Relative Abundance Groupings For Sensitivity Analyses 
+###################################################################################################################################################
+## Make Categorical Variables to Label Spp as Dominant, Subordinant, and Rare   - based on the relative abundance Quantiles per Site ############
+unique.ras = unique(cover_present_year0[, .(site_code, Taxon, relative_abundance_spp_site.yr0)])
+
+unique.ras[,RAquant0.5:=quantile(relative_abundance_spp_site.yr0, probs=0.5), by=site_code]
+unique.ras[,RAquant0.95:=quantile(relative_abundance_spp_site.yr0, probs=0.95), by=site_code]
+unique.ras[,RAsite_group3 :=ifelse(relative_abundance_spp_site.yr0<RAquant0.5,"Rare",
+                                   ifelse(relative_abundance_spp_site.yr0<RAquant0.95, "Subordinate","Dominant"))]
+#re-merge the quantiles and classifications into the cover_present_year0 dataset
+unique.ras[,relative_abundance_spp_site.yr0:=NULL] # drop before re-merge
+cover_present_year0 = merge(cover_present_year0, unique.ras, by=c("site_code", "Taxon"))
+
+#sanity check
+cdcr = cover_present_year0[site_code =="cdcr.us",]
+table(cdcr$Taxon, cdcr$RAsite_group3)
+konz  =  cover_present_year0[site_code =="konz.us",]
+table(konz$Taxon, konz$RAsite_group3)
+
+#whats the breakdown of species classified in each group overall 
+table(unique.ras$RAsite_group3)
+#whats the breakdown of species classified in each group by site
+table(unique.ras$site_code, unique.ras$RAsite_group3)
+
+##########################################################################################################
+### Create variables (factor) that are combined groups of:  ###################################################
+# non-native richness (dominant and rare) + native rare + native non-rare.  ################################################
+cover_present_year0[, status.NN.RareDom3 := paste(RAsite_group3,local_provenance, sep = "_")]
+table(cover_present_year0$status.NN.RareDom3)
+
+# create a non-rare variable
+cover_present_year0[, non_rare_spp3 := RAsite_group3 %in% c("Subordinate", "Dominant"), by = .(plot, site_code, year)]
+
+# From here on out, we don't need/want the extra records that were created in order
+# to properly calculate rarity, relative abundance, etc if a species showed up
+# in a plot after the first year or existed in some plots within a site.
+# Filter back down to (original) records with max_cover > 0 
+cover_present_year0 = cover_present_year0[max_cover>0,]
+cover = cover[max_cover>0,]
+
+## 1. Excluding the species of unknown origin as in the main analysis #### 
+#do SR for non-native, rare:
+cover_present_year0[, sr_non.nat_rare3 := length(unique(Taxon[RAsite_group3 == "Rare" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+#do SR for native, rare:
+cover_present_year0[, sr_nat_rare3 := length(unique(Taxon[RAsite_group3 == "Rare" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+
+# Create SR non-rare native and non-native excluding unknown species origin species
+cover_present_year0[, sr_non.rare_non.nat3 := length(unique(Taxon[non_rare_spp3 == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+cover_present_year0[, sr_non.rare_nat3 := length(unique(Taxon[non_rare_spp3 == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+#**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+
+# include in the final code for data processing 
+# sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3
+
 
 #####################################################################################################
 ### Check for duplicates and write out file #############################################################
