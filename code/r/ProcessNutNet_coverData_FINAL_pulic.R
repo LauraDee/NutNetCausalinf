@@ -492,7 +492,6 @@ cover_present_year0[, sr_non.rare_nat3 := length(unique(Taxon[non_rare_spp3 == "
 # include in the final code for data processing 
 # sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3
 
-
 #####################################################################################################
 ### Check for duplicates and write out file #############################################################
 ##########################################################################################################
