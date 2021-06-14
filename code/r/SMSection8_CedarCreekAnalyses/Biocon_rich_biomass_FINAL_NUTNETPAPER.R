@@ -1,5 +1,5 @@
 #Realized richness analyses of BioCon
-# Laura update Dec 16 2020
+# Laura update Dec 16 2020; checked by Kaitlin Kimmel and Tim O.
 
 rm(list=ls())
 #Close graphics windows
@@ -10,6 +10,7 @@ library(tidyr)
 library(here)
 library(data.table)
 library(lfe)  # to run econometric fixed effect models 
+library(fixest)
 require(ggplot2)
 library(texreg)
 library(here)

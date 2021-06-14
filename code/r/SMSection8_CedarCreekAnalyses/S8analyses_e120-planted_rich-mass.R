@@ -1,8 +1,8 @@
-########################################################################
-# Two way fixed effect panel models applied to Big Bio Data #############
-# Laura Dee Dec 3 2020    ; cleaned Feb 12, 2021            ###############
-# Supplemental Materials: Section 8                         ################
-########################################################################
+######################################################################################################
+# Two way fixed effect panel models applied to Big Bio Data ###########################################
+# Laura Dee Dec 3 2020    ; cleaned Feb 12, 2021 . checked by Kaitlin Kimmel and Tim O. ###############
+# Supplemental Materials: Section 8                         ##############################################
+######################################################################################################
 #Clear all existing data
 rm(list=ls())
 #Close graphics windows
