@@ -73,7 +73,7 @@ screenreg(mod_main,     # object with results
           override.pval=summary(mod_main)$coef[,4])
 
 ### Implement on just plots with 16 species planted, because these plots are 
-# found to be more representative of nautral communities in some aspects 
+# found to be more representative of natural communities in some aspects 
    # (e.g., see Jochum, M., et al. (2020). The results of biodiversity–ecosystem functioning experiments are realistic. Nat. Ecol. Evol., 4, 1485–1494.)
 d16 = d[Treat.numsp == "16",]
 
