@@ -66,4 +66,5 @@ source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables a
 source("./code/r/analysis_fig5_smsection7.R")
 source("./code/r/SM_Figures.R")
 
+#code to create rank abudance curves for each site 
 
