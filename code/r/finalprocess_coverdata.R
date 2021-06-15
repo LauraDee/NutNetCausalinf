@@ -145,6 +145,7 @@ table(mech.data$site_code, mech.data$sr_nat_rare, useNA = "ifany")
 table(mech.data$site_code, mech.data$sr_non.rare_non.nat, useNA = "ifany") 
 table(mech.data$site_code, mech.data$ sr_non.rare_nat, useNA = "ifany") 
 
-#check sier.us which has 21 NAs
-mech.data
-
+#check  the sites other than saline.us which have NAs and why: 
+mech.data[site_code =="sier.us",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+mech.data[site_code =="kiny.au",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+mech.data[site_code =="mcla.us",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
