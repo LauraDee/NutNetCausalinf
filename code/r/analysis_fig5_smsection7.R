@@ -212,21 +212,13 @@ esttex(MechMod_S3,
        file = "./output/TableS12_R_ci.tex")
 
 # for supplemental analyses and comparing the analyses in one table, print:
-esttex(MechMod_All, MechMod_S2, MechMod_S3,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_se.tex")
-
-esttex(MechMod_All, MechMod_S2, MechMod_S3,
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_CI.tex")
-
 esttex(MechMod_All, MechMod_S2, MechMod_S2.noNA,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
+       file = "./output/TableS11_SensitivityAnal_R_seMay202021.tex")
 
 esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS13_SensitivityAnal_R_seMay202021.tex")
+       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
 
 
 ######################################################################################################################################################
@@ -294,11 +286,11 @@ summary(MechFreq.NoNA3)
 #print out results
 esttex(MechFreq2, MechFreq.NoNA2,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableSX_R_RelFreq_ALLNATIVE_se_May212021.tex")
+       file = "./output/TableS13SensitivityAnal_R_se.tex")
 
 esttex(MechFreq3, MechFreq.NoNA3,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableSX_R_RelFreq_ALLnonNATIVE_se_May212021.tex")
+       file = "./output/TableSS13SensitivityAnal2_R_se_May212021.tex")
 
 
 ################################################
