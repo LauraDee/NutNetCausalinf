@@ -4,20 +4,21 @@
 ####################################################################################################################################
 
 # This code includes analysis for reproducing Figure 5 in the main text and SM analyses for Section 7.
+# Code written by Laura Dee and Chris Severen
 
 ######################################################################################################################
 ###  Figure 5 - Main text. Rare vs Non-Rare and Native vs Invasive  #######################################################################
 ####################################################################################################################
 ###########
-### Figure 5 - Main text. Grouped based on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0),
+### Figure 5 - Main text and SM Tables SX and SX. 
 ##########
 # We first present the analyses shown in the main text Figure 5, which include 4 groups of species, which are: 
 #1) rare, native: sr_nat_rare
 #2) rare non-native: sr_non.nat_rare
 #3) non-rare, native: sr_non.rare_nat
-#4) non-rare, non-native: 
+#4) non-rare, non-native: sr_non.rare_non.nat
 # the analyses presented in the main text Figure 5 use classify rare versus non-rare groups based 
-# on the Dominance Indicator (DI) and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0), where non-rare are
+# on Relative Abundance and cut-offs of .....  where non-rare are
 #both subordinate and dominant species (e.g., species with DI greater than the .2 cutoff). 
 
 # 1. Create SR non-rare native and non-native excluding unknown species origin species
@@ -71,21 +72,21 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
 
 esttex(MechMod_All, 
        coefstat = "se", replace = TRUE,
-       file = "./output/Table_forFig5_R_se-May202021.tex")
+       file = "./output/Table_forFig5_R_se.tex")
 
 esttex(MechMod_All,
        coefstat = "confint", replace = TRUE,
-       file = "./output/Table_forFig5_R_ci-May202021.tex")
+       file = "./output/Table_forFig5_R_ci.tex")
 
 
 esttex(MechMod_All, MechMod_All_noNAs,
        coefstat = "se", replace = TRUE,
-       file = "./output/Table_forFig5_R_se-no-NAs-May202021.tex")
+       file = "./output/Table_forTableS10_R_se.tex")
 
 
 esttex(MechMod_All, MechMod_All_noNAs,
        coefstat = "confint", replace = TRUE,
-       file = "./output/Table_forFig5_R_ci-no-NAs-May202021.tex")
+       file = "./output/Table_forTableS10_R_ci.tex")
 
 ###################################################################################################################################
 ### Plot Figure 5 ######################################################################################################################
@@ -132,18 +133,16 @@ Fig5.plot
 ggsave("./output/Fig5.pdf", Fig5.plot)
 
 
-
-
 ###################################################################################################################################################
 ### SM Analyses for Section S7  ######################################################################################################################
 #####################################################################################################################################################
 
-# As of May 21, 2021
 
 ######################################################################################################################################################
-#### Sensitivity Analyses: Run Models that categorize species coming into plots after year 0 as native or non-native in different ways #################
+#### Section S9c. Sensitivity Analyses: Species with unknown origin  ###############################################################################
 ######################################################################################################################################################
-# We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
+# Sensitivity Analyses: Run Models that categorize species with unknown origin as all native or all non-native to bound results 
+#We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
 # was native or introduced).
 ## 1. Excluding them, as done in MechMod_All analyses above for results in Figure 5 and in Table S9 (Cut-off1) #### 
 
@@ -193,10 +192,26 @@ linearHypothesis(MechMod_S3,
                                        "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-################################################
-## Table S12  ##################################
-################################################
+###############################################################
+## Print Tables S11 and S12  ##################################
+###############################################################
+esttex(MechMod_S2, 
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS11_R_se.tex")
 
+esttex(MechMod_S2, 
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS11_R_ci.tex")
+
+esttex(MechMod_S3, 
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS12_R_se.tex")
+
+esttex(MechMod_S3, 
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS12_R_ci.tex")
+
+# for supplemental analyses and comparing the analyses in one table, print:
 esttex(MechMod_All, MechMod_S2, MechMod_S3,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS12_SensitivityAnal_R_se.tex")
@@ -214,9 +229,10 @@ esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
        file = "./output/TableS13_SensitivityAnal_R_seMay202021.tex")
 
 
-###########
-### Grouped based on Relative Frequency in year 0 and cutoffs of:.. 
-##########
+######################################################################################################################################################
+#### SM Section S9d. Sensitivity Analyses using relative frequency as the metric for rarity  #########################################################################
+######################################################################################################################################################
+# S9d: Sensitivity Analyses: Grouped based on Relative Frequency in year 0 
 
 #with controlling for NAs
 MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) + ihs(sr_NA)
@@ -229,15 +245,19 @@ MechFreq.NoNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.ra
                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq.NoNA <- vcov(MechFreq.NoNA, cluster = "newplotid")
 
+###############################################################
+## Print Table S13  ###########################################
+###############################################################
+
 esttex(MechFreq1, MechFreq.NoNA, 
        coefstat = "se", replace = TRUE,
-       file = "./output/TableSX_R_RelFreq_se_May212021.tex")
+       file = "./output/TableS13_R_se.tex")
 
 esttex(MechFreq1, MechFreq.NoNA,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableSX_R_RelFreq_ci_May212021.tex")
+       file = "./output/TableS13_R_ci.tex")
 
-
+#### Sensitivity Analyses for Results in Table S13: 
 ### Group as Native 
 # variables to use: sr_rare_unk_nat.Freq   
                 # sr_non.rare_nat_unk.Freq 
@@ -281,29 +301,33 @@ esttex(MechFreq3, MechFreq.NoNA3,
        file = "./output/TableSX_R_RelFreq_ALLnonNATIVE_se_May212021.tex")
 
 
+################################################
+## print sensitivity analyses for Table S13  ##
+###############################################
+esttex(MechFreq1, MechFreq2, MechFreq3,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS13Sensitivity_R_se.tex")
 
+esttex(MechFreq1, MechFreq2,MechFreq3 ,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/TableS13Sensitivity_R_CI.tex")
 
+###############################################################################################################################################
+#### Section S9f.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
+##################################################################################################################################################
+# For SM section S9f. Run Models with Relative Abundance Comparing different grouping cutoffs for Rare vs Non-rare species 
 
+##########################
+### Table S14 Models. ##
+#########################
 
-
-# Prior to May 2021
-#####################################################################################################################
-#### Run Models Comparing with DI metrics for Rare vs Non-rare with different grouping cutoffs of using breaks=c(0.0,0.4,0.8,1.0).
-#####################################################################################################################
-
-#####################
-### Table S16 Models.  Grouped based on the Dominance Indicator (DI) and cutoffs of: breaks=c(0.0,0.4,0.8,1.0), versus cut-offs from Figure 5
-####################
+## First Grouped based on  cutoffs of XXXXXX versus cut-offs from Figure 5
+# sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2 , #include variables for cut-off 2 as sensitivity test for main species group model for Figure 5
 
 MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
 vcov_MechMod2 <- vcov(MechMod_All2, cluster = "newplotid")
-
-#testing if rare native has different effect than non-rare native
-linearHypothesis(MechMod_All2, 
-                 hypothesis.matrix = "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)", 
-                 test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
 #test if the groups are not all the same: rejecting the null that they are the same
 linearHypothesis(MechMod_All2, 
@@ -311,102 +335,26 @@ linearHypothesis(MechMod_All2,
                                        "ihs(sr_non.nat_rare2) = ihs(sr_nat_rare)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
                  test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
-################################################
-## Table S9
-#######################################
-esttex(MechMod_All, MechMod_All2, 
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS16_R_se.tex")
+#####################
+### Run models frouped based on  cutoffs of XXXXXX versus cut-offs from Figure 5
+####################
+# sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3 #include variables for cut-off 2 as sensitvity test for main model for Figure 5
 
-esttex(MechMod_All, MechMod_All2, 
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS16_R_CI.tex")
+MechMod_All3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat3) +   ihs(sr_non.rare_non.nat3)  + ihs(sr_non.nat_rare3)  +  ihs(sr_nat_rare3)
+                     | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 
-#########################################################################################################################################################################
-## Table S10 and S11 Models. Compare estimates using other metrics for defining rare vs non-rare,  ##################################
-# based only on relative abundance and relative frequency for both cut-offs                       ##################################
-#########################################################################################################################################################################
-
-###########
-### B. Use a metric of rare or non-rare based on Relative Abundance in year 0 and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0)  (same cut-offs as in Figure 5)
-##########
-
-MechRelA1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.RelA) + ihs(sr_non.rare_non.nat.RelA)  + ihs(sr_rare_non.nat.RelA) 
-                  +  ihs(sr_rare_nat.RelA) | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechRelA1 <- vcov(MechRelA1, cluster = "newplotid")
-
-#testing if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechRelA1, 
-                 hypothesis.matrix = c("ihs(sr_non.rare_nat.RelA) = ihs(sr_non.rare_non.nat.RelA)", "ihs(sr_non.rare_nat.RelA) = ihs(sr_rare_nat.RelA)", 
-                                       " ihs(sr_rare_non.nat.RelA)  = ihs(sr_rare_nat.RelA)"), # by transitivity last group is dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
-                 test = "F", vcov =vcov_MechRelA1,  singular.ok = T)
-
-###########
-### C. Grouped based on Relative Frequency in year 0 and cutoffs of:  breaks=c(0.0,0.2,0.8,1.0)
-##########
-MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) 
-               | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
+vcov_MechMod3 <- vcov(MechMod_All3, cluster = "newplotid")
 
 ################################################
-## Table S10
-#######################################
-esttex(MechRelA1, MechRelA2,
+## Table S14   #################################
+#################################################
+esttex(MechMod_All, MechMod_All2, MechMod_All3,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS10_R_se.tex")
+       file = "./output/TableS14_R_se.tex")
 
-esttex(MechRelA1, MechRelA2,
+esttex(MechMod_All, MechMod_All2, MechMod_All3,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS10_R_CI.tex")
-
-###########
-### B. Grouped based on Relative Abundance in year 0 and cutoffs of:  breaks=c(0.0,0.4,0.8,1.0),
-##########
-
-MechRelA2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.RelA2) + ihs(sr_non.rare_non.nat.RelA2)  + ihs(sr_rare_non.nat.RelA2) 
-                  +  ihs(sr_rare_nat.RelA2) | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechRelA2 <- vcov(MechRelA2, cluster = "newplotid")
-
-###########
-### C. Grouped based on Relative Frequency in year 0 and cutoffs of:  breaks=c(0.0,0.4,0.8,1.0)
-##########
-MechFreq2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq2) + ihs(sr_non.rare_non.nat.Freq2)  + ihs(sr_rare_non.nat.Freq2) 
-                  +  ihs(sr_rare_nat.Freq2)| newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-vcov_MechFreq2 <- vcov(MechFreq2, cluster = "newplotid")
-
-################################################
-## Table S11  #################################
-##############################################
-esttex(MechFreq1, MechFreq2,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS11_R_se.tex")
-
-esttex(MechFreq1, MechFreq2,
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS11_R_CI.tex")
-
-
-################################################
-## Compare all metrics for each cut-off #########
-################################################
-#Cut off 1 
-esttex(MechMod_All, MechRelA1, MechFreq1,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS9through11_ComparisonCutoff1_R_se.tex")
-
-esttex(MechMod_All, MechRelA1, MechFreq1,
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS9through11_ComparisonCutoff1_R_CI.tex")
-
-
-#Cut off 2
-esttex(MechMod_All2, MechRelA2, MechFreq2,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS9through11_ComparisonCutoff2_R_se.tex")
-
-esttex(MechMod_All2, MechRelA2, MechFreq2,
-       coefstat = "confint", replace = TRUE,
-       file = "./output/TableS9through11_ComparisonCutoff2_R_CI.tex")
+       file = "./output/TableS14_R_CI.tex")
 
 
 
@@ -423,8 +371,6 @@ sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, non_rare_spp,
                             sr_non.nat_dom, sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare )]
 cor(sr.metrics)
 corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
-
-
 
 
 

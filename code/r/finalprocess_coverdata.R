@@ -134,6 +134,7 @@ list(unique(mech.data$site_code))
 #make a factor that is site by year
 mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
+write.csv(mech.data, "ProcessedMechanismAnalysisData.csv")
 
 ########################################################################################################################
 ##### Get some summary numbers on this final dataset for the counts of different groups of species ####################
@@ -150,8 +151,7 @@ table(mech.data$site_code, mech.data$ sr_non.rare_nat, useNA = "ifany")
 #check  the sites other than saline.us which have NAs and why: 
 #sier.us ecploration of Nas
 mech.data[site_code =="sier.us",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
-sier.cover = cover_present_year0[site_code =="sier.us" & trt == "Control", ]
-table(sier.cover$plot, sier.cover$year)
+
 sier.comb = comb[site_code =="sier.us" & trt == "Control", ]
 table(sier.comb$plot, sier.comb$year)
 

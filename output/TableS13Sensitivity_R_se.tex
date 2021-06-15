@@ -1,0 +1,33 @@
+\begin{tabular}{lccc}
+\tabularnewline\midrule\midrule
+Dependent Variable:&\multicolumn{3}{c}{log(live\_mass)}\\
+Model:&(1) & (2) & (3)\\
+\midrule \emph{Variables}&   &   &  \\
+ihs(sr\_non.rare\_nat.Freq)&0.0488 &    & 0.0391\\
+  &(0.0825) &    & (0.0830)\\
+ihs(sr\_non.rare\_non.nat.Freq)&-0.1856$^{***}$ & -0.1857$^{***}$ &   \\
+  &(0.0685) & (0.0682) &   \\
+ihs(sr\_rare\_non.nat.Freq)&-0.0188 & -0.0206 &   \\
+  &(0.0593) & (0.0594) &   \\
+ihs(sr\_rare\_nat.Freq)&-0.0904$^{*}$ &    & -0.0934$^{*}$\\
+  &(0.0502) &    & (0.0498)\\
+ihs(sr\_non.rare\_nat\_unk.Freq)&   & 0.0729 &   \\
+  &   & (0.0817) &   \\
+ihs(sr\_rare\_unk\_nat.Freq)&   & -0.0853$^{*}$ &   \\
+  &   & (0.0500) &   \\
+ihs(sr\_non.rare\_non.nat\_unk.Freq)&   &    & -0.1375$^{**}$\\
+  &   &    & (0.0681)\\
+ihs(sr\_rare\_non.nat\_unk.Freq)&   &    & 0.0312\\
+  &   &    & (0.0566)\\
+\midrule \emph{Fixed-effects}&   &   &  \\
+newplotid & Yes & Yes & Yes\\
+site.by.yeardummy & Yes & Yes & Yes\\
+\midrule \emph{Fit statistics}&  & & \\
+Observations & 1,175&1,175&1,175\\
+R$^2$ & 0.87314&0.87310&0.87271\\
+Within R$^2$ & 0.01304&0.01277&0.00972\\
+\midrule\midrule\multicolumn{4}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
+\multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+\end{tabular}
+
+
