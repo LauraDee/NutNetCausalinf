@@ -106,7 +106,7 @@ mech.data = merge(comb, coversummaries, by=c("site_code","plot","year"), all.x=T
 #what I had been doing: mech.data = merge(comb, cover, by=c("site_code","plot","year"), all.x=T)
 nrow(mech.data) #should be 1231
 dim(mech.data)
-nrow(comb)
+nrow(comb) #1231
 nrow(cover)
 
 ##########################################################################################
