@@ -82,8 +82,7 @@ Fig2B.3$conf.high <- .2348401
 MainMod_Rich #=Done above
 MainMod_LagLiveMass  <- feols(log(live_mass) ~ log(rich) + log(laggedlive_mass) | site.by.yeardummy, comb, cluster = "newplotid")
 MainMod_Oster <- "Done in Stata" 
-# MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(Ground_PAR) | newplotid + site.by.yeardummy, comb)
-MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(  proportion_par) | newplotid + site.by.yeardummy, comb)
+MainMod_MechBlocking <- feols(log(live_mass) ~ log(rich) + ihs(even) + log(proportion_par) | newplotid + site.by.yeardummy, comb)
 
 
 MainMod_IVRevCaus <- feols(log(live_mass) ~ 1 | newplotid + site.by.yeardummy | log(rich) ~ log(avg.trt.neigh.rich.within.block), comb)
@@ -152,6 +151,27 @@ esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, M
 esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, MainMod_IVRevCaus,
        coefstat = "confint", replace = TRUE,
        file = "./output/Table_forFig3_R_ci.tex")
+
+################################################
+## Table S9: Dynamic Panel Results 
+#######################################
+
+esttex( MainMod_LagLiveMass, 
+       coefstat = "se", replace = TRUE,
+       file = "./output/Table_S9_R_se.tex")
+
+esttex(MainMod_LagLiveMass,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/Table_Table_S9_R_ci.tex")
+
+# Print results for mechanism blocking analysis, reported in the SM:
+esttex(MainMod_MechBlocking,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/Table_MechBlocking_R_ci.tex")
+
+esttex(MainMod_MechBlocking,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/Table_MechBlocking_R_ci.tex")
 
 ##############################################
 ##############################################
