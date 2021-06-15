@@ -144,6 +144,7 @@ table(unique.ras$RAsite_group2)
 #whats the breakdown of species classified in each group by site
 table(unique.ras$site_code, unique.ras$RAsite_group2)
 
-
+# see which sites have NAs
+table(mech.data$site_code, mech.data$sr_nat_rare, useNA = "ifany") 
 
 
