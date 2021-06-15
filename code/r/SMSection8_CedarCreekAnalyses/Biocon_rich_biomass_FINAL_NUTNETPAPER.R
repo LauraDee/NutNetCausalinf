@@ -9,8 +9,7 @@ graphics.off()
 library(tidyr) 
 library(here)
 library(data.table)
-library(lfe)  # to run econometric fixed effect models 
-library(fixest)
+library(fixest)  # to run econometric fixed effect models 
 require(ggplot2)
 library(texreg)
 library(here)
@@ -25,6 +24,7 @@ ihs = function(x) {
 ### LOAD DATA ##########
 
 #processed by Kaitlin on Dec 16 2020; KK used the biomass files for richness and biomass to be consistent with BigBio.
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
 findat <-  fread(here::here("CedarCreekAnalyses","data", "biocon_plantedbiomass_output.csv"))
 # The TreatmentSR column = treatment level of spp
 # The ObservedSR = observed species based on what was planted in the plot
@@ -85,11 +85,16 @@ realrichovertime.T
 # or a saturating relationship, see: 
 #  Reich,  et al. (2012). Impacts of biodiversity loss escalate through time as redundancy fades. Science, 336, 589–92.
 #  Cardinale, B.J., et al. (2011). The functional role of producer diversity in ecosystems. Am. J. Bot., 98, 572–592.
-mod1 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat)
-summary(mod1)
+biocon.mod  <- feols(ihs(live.mass) ~ ihs(ObservedSR)  | Year + Plot,  findat, cluster = "Plot") 
+# 
+# mod1 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat)
+# summary(mod1)
 
-# Print the supplemental Table SX:
-screenreg(mod1,     # object with results 
-          custom.model.names= "Main Model for BioCon: Effect on Planted Biomass" ,
-          override.se=summary(mod1)$coef[,2],
-          override.pval=summary(mod1)$coef[,4])
+
+########################################### 
+#### Print Results for Table S16 ########
+########################################### 
+
+esttex(biocon.mod, 
+       coefstat = "se",  replace = TRUE,
+       file = "Table_S16_R_se.tex")
