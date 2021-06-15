@@ -161,7 +161,7 @@ esttex( MainMod_LagLiveMass,
 
 esttex(MainMod_LagLiveMass,
        coefstat = "confint", replace = TRUE,
-       file = "./output/Table_Table_S9_R_ci.tex")
+       file = "./output/Table_S9_R_ci.tex")
 
 # Print results for mechanism blocking analysis, reported in the SM:
 esttex(MainMod_MechBlocking, 
