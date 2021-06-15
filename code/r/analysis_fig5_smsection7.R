@@ -81,12 +81,12 @@ esttex(MechMod_All,
 
 esttex(MechMod_All, MechMod_All_noNAs,
        coefstat = "se", replace = TRUE,
-       file = "./output/Table_forTableS10_R_se.tex")
+       file = "./output/TableS10_R_se.tex")
 
 
 esttex(MechMod_All, MechMod_All_noNAs,
        coefstat = "confint", replace = TRUE,
-       file = "./output/Table_forTableS10_R_ci.tex")
+       file = "./output/TableS10_R_ci.tex")
 
 ###################################################################################################################################
 ### Plot Figure 5 ######################################################################################################################
@@ -241,6 +241,11 @@ vcov_MechFreq.NoNA <- vcov(MechFreq.NoNA, cluster = "newplotid")
 ## Print Table S13  ###########################################
 ###############################################################
 
+esttex(MechFreq1,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS13_R_se.tex")
+
+
 esttex(MechFreq1, MechFreq.NoNA, 
        coefstat = "se", replace = TRUE,
        file = "./output/TableS13_R_se.tex")
@@ -283,16 +288,6 @@ vcov_MechFreq.NoNA3 <- vcov(MechFreq.NoNA3, cluster = "newplotid")
 summary(MechFreq.NoNA3)
 
 
-#print out results
-esttex(MechFreq2, MechFreq.NoNA2,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS13SensitivityAnal_R_se.tex")
-
-esttex(MechFreq3, MechFreq.NoNA3,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableSS13SensitivityAnal2_R_se_May212021.tex")
-
-
 ################################################
 ## print sensitivity analyses for Table S13  ##
 ###############################################
@@ -303,6 +298,18 @@ esttex(MechFreq1, MechFreq2, MechFreq3,
 esttex(MechFreq1, MechFreq2,MechFreq3 ,
        coefstat = "confint", replace = TRUE,
        file = "./output/TableS13Sensitivity_R_CI.tex")
+
+#print out results
+esttex(MechFreq2, MechFreq.NoNA2,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableS13SensitivityAnal2_R_se.tex")
+
+esttex(MechFreq3, MechFreq.NoNA3,
+       coefstat = "se", replace = TRUE,
+       file = "./output/TableSS13SensitivityAnal2_R_se.tex")
+
+
+
 
 ###############################################################################################################################################
 #### Section S9f.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################

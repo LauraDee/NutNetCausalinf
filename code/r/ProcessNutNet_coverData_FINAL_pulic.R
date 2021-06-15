@@ -163,7 +163,6 @@ cover[, relative_abundance_spp_site.yr0 := min(relative_abundance_spp_site.yr[ye
 cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.yr0 := NA]
 
 # if the species isn't present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
-cover[is.na(relative_abundance_spp_site.yr0), relative_abundance_spp_site.yr0  := 0] #32520 NAs
 
 ### Next step --create a relative frequency in year 0 variable #####
 #total # of plots within a site, for pre-treatment year:
