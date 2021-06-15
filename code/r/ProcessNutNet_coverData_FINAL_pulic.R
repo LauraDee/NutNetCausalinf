@@ -163,7 +163,7 @@ cover[, relative_abundance_spp_site.yr0 := min(relative_abundance_spp_site.yr[ye
 cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.yr0 := NA]
 
 # if the species isn't present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
-# cover[is.na(relative_abundance_spp_site.yr0), relative_abundance_spp_site.yr0  := 0] #32520 NAs
+cover[is.na(relative_abundance_spp_site.yr0), relative_abundance_spp_site.yr0  := 0] #32520 NAs
 
 ### Next step --create a relative frequency in year 0 variable #####
 #total # of plots within a site, for pre-treatment year:
@@ -226,7 +226,7 @@ table(unique.ras$site_code, unique.ras$RAsite_group)
 table(unique.ras$site_code, unique.ras$RAsite_group, useNA = "ifany")
 table(cover_present_year0$site_code, cover_present_year0$RAsite_group, useNA = "ifany")
 
-##Where did the saline.us site go?
+## saline.us site does not have a pre-treatment year so its dropped
 
 ########################################################################################################################
 ### Create variables that are combined groups of: #######################################################################
@@ -258,7 +258,7 @@ cover = cover[max_cover>0,]
 ## 1. Excluding them (as above) #### 
 #do SR for non-native, rare:
 cover_present_year0[, sr_non.nat_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "INT"])), by = .(plot, site_code, year)]
-# table(cover_present_year0$site_code, cover_present_year0$sr_non.nat_rare, useNA = "ifany")
+ # table(cover_present_year0$site_code, cover_present_year0$sr_non.nat_rare, useNA = "ifany")
 
 #do SR for native, rare:
 cover_present_year0[, sr_nat_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "NAT"])), by = .(plot, site_code, year)]

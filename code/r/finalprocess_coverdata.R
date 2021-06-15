@@ -139,7 +139,12 @@ mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 ##### Get some summary numbers on this final dataset for the counts of different groups of species ####################
 ########################################################################################################################
 
-# see which sites have NAs
+# see which sites have NAs for these variables
+table(mech.data$site_code, mech.data$sr_non.nat_rare, useNA = "ifany") 
 table(mech.data$site_code, mech.data$sr_nat_rare, useNA = "ifany") 
+table(mech.data$site_code, mech.data$sr_non.rare_non.nat, useNA = "ifany") 
+table(mech.data$site_code, mech.data$ sr_non.rare_nat, useNA = "ifany") 
 
+#check sier.us which has 21 NAs
+mech.data
 
