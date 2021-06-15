@@ -1,7 +1,7 @@
 ######################################################################################################
 # Two way fixed effect panel models applied to Big Bio Data ###########################################
-# Laura Dee Dec 3 2020    ; cleaned Feb 12, 2021 . checked by Kaitlin Kimmel and Tim O. ###############
-# Supplemental Materials: Section 8                         ##############################################
+# Laura Dee Dec 3 2020 ; cleaned Feb 12, 2021 . checked by Kaitlin Kimmel and Tim O. ###############
+# Supplemental Materials: Section 10                         ##############################################
 ######################################################################################################
 #Clear all existing data
 rm(list=ls())
@@ -11,7 +11,6 @@ graphics.off()
 library(ggplot2)
 library(fixest)  # v 0.8.2
 library(data.table)
-library(lfe)
 library(here)
 library(texreg)
 
@@ -60,30 +59,25 @@ d$year <- as.factor(d$year)
 ####################################################################################################################
 ## Implement the two-way fixed effects design #####################################################################
 #####################################################################################################################
-mod_main <- feols(ihs(mass.live) ~ ihs(rich)  | year + plot,  d, cluster = "plot") 
+bigbio.mod_main <- feols(ihs(mass.live) ~ ihs(rich)  | year + plot,  d, cluster = "plot") 
 
-
-mod_main <- felm(ihs(mass.live ) ~ ihs(rich) | year + plot | 0 | plot, data =d)
-summary(mod_main, robust = T)
-
-#print results for SM Table, as in SM Section S8.
-screenreg(mod_main,     # object with results 
-          custom.model.names= "Main Model for BigBio: Effect on Planted Biomass" ,
-          override.se=summary(mod_main,)$coef[,2],
-          override.pval=summary(mod_main)$coef[,4])
 
 ### Implement on just plots with 16 species planted, because these plots are 
 # found to be more representative of natural communities in some aspects 
-   # (e.g., see Jochum, M., et al. (2020). The results of biodiversity–ecosystem functioning experiments are realistic. Nat. Ecol. Evol., 4, 1485–1494.)
+# (e.g., see Jochum, M., et al. (2020). The results of biodiversity–ecosystem functioning experiments are realistic. Nat. Ecol. Evol., 4, 1485–1494.)
 d16 = d[Treat.numsp == "16",]
+bigbio.mod16 <- feols(ihs(mass.live) ~ ihs(rich)  | year + plot,  d16, cluster = "plot") 
+# bigbio.mod16 <- feols(log(mass.live) ~ log(rich)  | year + plot,  d16, cluster = "plot") 
 
-mod16<- feols(ihs(mass.live) ~ ihs(rich)  | year + plot,  d16, cluster = "plot") 
+########################################### 
+#### Print Results for Table S15 ########
+########################################### 
+# esttex(bigbio.mod_main, 
+#        coefstat = "se", replace = TRUE,
+#        file = "Table_S15_R_se.tex")
 
-#mod16 <- felm(ihs(mass.live) ~ ihs(rich) | year + plot | 0 | plot, data = d16) 
-summary(mod16, robust = T)  # we find the results are still consistent with our conjecture.
+esttex(bigbio.mod_main, bigbio.mod16, 
+       coefstat = "se",  replace = TRUE,
+       file = "Table_S15_R_se.tex")
 
-screenreg(mod16,  # object with results 
-          custom.model.names= " 16 species only plots",
-          override.se=summary(mod16,)$coef[,2],
-          override.pval=summary(mod16)$coef[,4])
 

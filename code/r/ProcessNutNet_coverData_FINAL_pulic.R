@@ -1,6 +1,6 @@
 ##########################################
 ### Process NutNet Cover Data ############
-## Laura Dee  # June 14 2021      ############
+## Laura Dee  # June 14 2021   ############
 ##########################################
 #Code written by Laura Dee, Revised and Checked by Kaitlin Kimmel, Checked by Steve Miller and Carlos A.
 
@@ -206,6 +206,11 @@ unique.ras[,RAquant0.95:=quantile(relative_abundance_spp_site.yr0, probs=0.95), 
 unique.ras[,RAsite_group := ifelse(relative_abundance_spp_site.yr0<RAquant0.6,"Rare",
                                      ifelse(relative_abundance_spp_site.yr0<RAquant0.95, "Subordinate","Dominant"))]
 
+#whats the breakdown of species classified in each group overall 
+table(unique.ras$RAsite_group)
+#whats the breakdown of species classified in each group by site
+cut.off1 <- table(unique.ras$site_code, unique.ras$RAsite_group)
+write.csv(cut.off1, "cutoff1_species.csv") 
 
 #re-merge the quantiles and classifications into the cover_present_year0 dataset
 unique.ras[,relative_abundance_spp_site.yr0:=NULL] # drop before re-merge
@@ -217,10 +222,6 @@ table(cdcr$Taxon, cdcr$RAsite_group.y)
 konz  =  cover_present_year0[site_code =="konz.us",]
 table(konz$Taxon, konz$RAsite_group.y)
 
-#whats the breakdown of species classified in each group overall 
-table(unique.ras$RAsite_group)
-#whats the breakdown of species classified in each group by site
-table(unique.ras$site_code, unique.ras$RAsite_group)
 #check for NAs 
 table(unique.ras$site_code, unique.ras$RAsite_group, useNA = "ifany")
 table(cover_present_year0$site_code, cover_present_year0$RAsite_group, useNA = "ifany")
@@ -399,6 +400,13 @@ unique.ras[,RAquant0.7:=quantile(relative_abundance_spp_site.yr0, probs=0.7), by
 unique.ras[,RAquant0.95:=quantile(relative_abundance_spp_site.yr0, probs=0.95), by=site_code]
 unique.ras[,RAsite_group2 :=ifelse(relative_abundance_spp_site.yr0<RAquant0.7,"Rare",
                                  ifelse(relative_abundance_spp_site.yr0<RAquant0.95, "Subordinate","Dominant"))]
+
+#whats the breakdown of species classified in each group overall 
+table(unique.ras$RAsite_group2)
+#whats the breakdown of species classified in each group by site
+cut.off2 <- table(unique.ras$site_code, unique.ras$RAsite_group2)
+write.csv(cut.off2, "cutoff2_species.csv") 
+
 #re-merge the quantiles and classifications into the cover_present_year0 dataset
 unique.ras[,relative_abundance_spp_site.yr0:=NULL] # drop before re-merge
 cover_present_year0 = merge(cover_present_year0, unique.ras, by=c("site_code", "Taxon"))
@@ -408,11 +416,6 @@ cdcr = cover_present_year0[site_code =="cdcr.us",]
 table(cdcr$Taxon, cdcr$RAsite_group.y)
 konz  =  cover_present_year0[site_code =="konz.us",]
 table(konz$Taxon, konz$RAsite_group.y)
-
-#whats the breakdown of species classified in each group overall 
-table(unique.ras$RAsite_group2)
-#whats the breakdown of species classified in each group by site
-table(unique.ras$site_code, unique.ras$RAsite_group2)
 
 ##########################################################################################################
 ### Create variables (factor) that are combined groups of:  ###################################################

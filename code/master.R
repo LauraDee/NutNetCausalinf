@@ -21,7 +21,6 @@ library(AER) # v 1.2-9 ### Do we use this anymore???
 library(sandwich) #3.0-0
 library(foreign) # 0.8-80
 library(car)  #v  3.0-10
-library(lfe)  # 2.8-6
 library(fixest)  # v 0.8.2
 library(lme4)  # 1.1-26
 library(texreg) # 1.37. 5  #### Do we use this anymore??? 
