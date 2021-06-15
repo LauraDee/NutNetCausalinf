@@ -513,3 +513,17 @@ cover_present_year0 = cover_present_year0[!(site_code == "comp.pt" & plot %in% c
 #to process all variables of SR counts and groupings on only species present in year 0 then printing as:
 write.csv(cover_present_year0, "NutNetCoverData_ProcessedFinal.csv")
 
+
+################################################################################################################################
+## Examine missing cover data for sier.us, kiny.au, and mcla.us for Control plots by years #######################################
+##################################################################################################################################
+# to then compare with coverage of observations of plots/years with comb data
+sier.cover = cover_present_year0[site_code =="sier.us" & trt == "Control", ]
+table(sier.cover$plot, sier.cover$year)
+
+kiny.cover = cover_present_year0[site_code == "kiny.au" & trt == "Control", ]
+table(kiny.cover$plot, kiny.cover$year)
+
+mcla.cover = cover_present_year0[site_code == "mcla.us" & trt == "Control", ]
+table(mcla.cover$plot, mcla.cover$year)
+

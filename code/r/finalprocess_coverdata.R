@@ -148,6 +148,31 @@ table(mech.data$site_code, mech.data$sr_non.rare_non.nat, useNA = "ifany")
 table(mech.data$site_code, mech.data$ sr_non.rare_nat, useNA = "ifany") 
 
 #check  the sites other than saline.us which have NAs and why: 
+#sier.us ecploration of Nas
 mech.data[site_code =="sier.us",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+sier.cover = cover_present_year0[site_code =="sier.us" & trt == "Control", ]
+table(sier.cover$plot, sier.cover$year)
+sier.comb = comb[site_code =="sier.us" & trt == "Control", ]
+table(sier.comb$plot, sier.comb$year)
+
+#kiny.au exploration of NAs
 mech.data[site_code =="kiny.au",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+#compare what is available for overall richness and biomass versus cover of particular Taxon:
+kiny.comb = comb[site_code =="kiny.au" & trt == "Control", ]
+table(kiny.comb$plot , kiny.comb$year)
+kiny.cover = cover[site_code =="kiny.au" & trt == "Control", ]
+table(kiny.cover$plot, kiny.cover$year)
+
+
+#mcla.us exploration of NAs
 mech.data[site_code =="mcla.us",.(plot,  year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+mcla.comb = comb[site_code =="mcla.us" & trt == "Control", ]
+table(mcla.comb$plot , mcla.comb$year)
+
+mcla.cover = cover[site_code == "mcla.us" & trt == "Control", ]
+table(mcla.cover$plot, mcla.cover$year)
+
+
+
+
+
