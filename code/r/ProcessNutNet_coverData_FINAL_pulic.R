@@ -165,7 +165,7 @@ cover[, relative_abundance_spp_site.yr0 := min(relative_abundance_spp_site.yr[ye
 cover[is.infinite(relative_abundance_spp_site.yr0),relative_abundance_spp_site.yr0 := NA]
 
 # if the species isn't present at a site in year_trt == 0, give the species a relative abundance of 0 in that year:
-cover[is.na(relative_abundance_spp_site.yr0), relative_abundance_spp_site.yr0  := 0] #32520 NAs
+# cover[is.na(relative_abundance_spp_site.yr0), relative_abundance_spp_site.yr0  := 0] #32520 NAs
 
 ### Next step --create a relative frequency in year 0 variable #####
 #total # of plots within a site, for pre-treatment year:
@@ -206,8 +206,10 @@ unique.ras = unique(cover_present_year0[, .(site_code, Taxon, relative_abundance
 
 unique.ras[,RAquant0.6:=quantile(relative_abundance_spp_site.yr0, probs=0.6), by=site_code]
 unique.ras[,RAquant0.95:=quantile(relative_abundance_spp_site.yr0, probs=0.95), by=site_code]
-unique.ras[,RAsite_group:=ifelse(relative_abundance_spp_site.yr0<RAquant0.6,"Rare",
+unique.ras[,RAsite_group := ifelse(relative_abundance_spp_site.yr0<RAquant0.6,"Rare",
                                      ifelse(relative_abundance_spp_site.yr0<RAquant0.95, "Subordinate","Dominant"))]
+
+
 #re-merge the quantiles and classifications into the cover_present_year0 dataset
 unique.ras[,relative_abundance_spp_site.yr0:=NULL] # drop before re-merge
 cover_present_year0 = merge(cover_present_year0, unique.ras, by=c("site_code", "Taxon"))
@@ -222,6 +224,9 @@ table(konz$Taxon, konz$RAsite_group.y)
 table(unique.ras$RAsite_group)
 #whats the breakdown of species classified in each group by site
 table(unique.ras$site_code, unique.ras$RAsite_group)
+#check for NAs 
+table(unique.ras$site_code, unique.ras$RAsite_group, useNA = "ifany")
+table(cover_present_year0$site_code, cover_present_year0$RAsite_group, useNA = "ifany")
 
 ##Where did the saline.us site go?
 
@@ -255,8 +260,11 @@ cover = cover[max_cover>0,]
 ## 1. Excluding them (as above) #### 
 #do SR for non-native, rare:
 cover_present_year0[, sr_non.nat_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+# table(cover_present_year0$site_code, cover_present_year0$sr_non.nat_rare, useNA = "ifany")
+
 #do SR for native, rare:
 cover_present_year0[, sr_nat_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
+# table(cover_present_year0$site_code, cover_present_year0$sr_nat_rare, useNA = "ifany")
 
 ## 2. Including the unknown spp origin all as native: ####
 cover_present_year0[, sr_nat_unk_rare := length(unique(Taxon[RAsite_group == "Rare" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
@@ -267,8 +275,11 @@ cover_present_year0[, sr_non.nat_unk_rare := length(unique(Taxon[RAsite_group== 
 ## do the same for the non-rare variables: 
 # 1. Create SR non-rare native and non-native excluding unknown species origin species
 cover_present_year0[, sr_non.rare_non.nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "INT"])), by = .(plot, site_code, year)]
+# table(cover_present_year0$site_code, cover_present_year0$sr_non.rare_non.nat, useNA = "ifany")
+
 cover_present_year0[, sr_non.rare_nat := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT"])), by = .(plot, site_code, year)]
 #**check cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, subplot, Taxon, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare, sr_non.rare_non.nat, sr_non.rare_nat)]
+# table(cover_present_year0$site_code, cover_present_year0$sr_non.rare_nat, useNA = "ifany")
 
 ## 2. Include the unknown spp origin all as native: ####
 cover_present_year0[, sr_non.rare_nat_unk := length(unique(Taxon[non_rare_spp == "TRUE" & local_provenance == "NAT" |  local_provenance == "UNK"])), by = .(plot, site_code, year)]
