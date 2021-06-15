@@ -1,6 +1,6 @@
 ---
 title: 'Panel Data and Fixed Effects Methods for Ecology'
-author: "The online tutorial for the analyses run in: Dee et al."
+author: "Online tutorial for the analyses run in: Dee et al."
 date: 'Last updated: `r Sys.Date()`'
 output:
   html_document:
@@ -22,44 +22,40 @@ output:
 <!-- </div> -->
 <!-- will print the sentence in red.  -->
 
-## Outline of the Tutorial
-
-TO DO
-
 ## Setup and Load Data
 
+This data has been cleaned and processed and is ready to use. The data correspond to what we use in the paper for the main analysis, and consists of control plots from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have at least 5 years of data.
+
+We'll primarily use the `fixest' package for analysis; the other packages aid data wrangling and comparing research designs.
 ```{r setup, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(data.table)
 library(fixest)
 library(lme4)  # 1.1-26
-```
 
-This data has already been cleaned and processed, and is ready to use. This data corresponds to what we use in the paper for the main analysis, and consists of control plots for NutNet sites. We include data from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have at least 5 years of data.
-
-```{r}
 cdir <- getwd()
 comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
 ```
 
-## Working through standard approaches
 
-For causal inference, we need to answer " if X changes, how much will Y change, on average,” with confidence that we have truly isolated a causal effect. Causal inference involves ruling out **rival explanations** for an estimated relationship, to interpret a correlation as a cause. This aim and requirement differs from other research aims (i.e., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differs from ways to evaluate analyses focused on prediction or forecasting, which instead use model fits, R-squared values, or mean square error (see Ferraro et al. 2018). 
+## Standard Approaches
 
-Instead, causal inference is evaluated by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question (reviewed in Ferraro et al 2018), as we will illustrate next.  Being explicit about these assumptions and evaluating their likelihood of being met is important for causal inference. Doing so can improve estimates about relationships in nature, insights about the strength of causal relationships, and transparency in interpreting results or in comparing across study designs. 
+For causal inference, we need to answer, "how much does a change in $X$ lead to a change in $Y$". Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error (see Ferraro et al. 2018). 
+
+We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question (reviewed in Ferraro et al 2018), as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
 
 
 ### Simple correlations in single years
 
-A place to start is looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log of productivity (measured as live aboveground biomass) as the outcome and log species richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details), also following prior studies (REFs). That is, we estimate and report $\beta$ in:
+Let's begin by looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log of productivity (measured as live aboveground biomass) as the outcome and log species richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details), also following prior studies (REFs). That is, we estimate and report $\beta$ in:
 \begin{equation}
 \ln(\text{Live Mass}_{pst}) = \alpha + \beta \ln(\text{Richness}_{pst}) + e_{pst}
 \end{equation}
-where $p$ indexes plots, $s$ indexes sites, and $t$ indexes years. The unobserved error term is $e_{pst}$. We include a constant $\alpha$, but do not typically report it because we learn little from it.
+where $p$ indexes plots, $s$ indexes sites, and $t$ indexes years. The unobserved error term is $e_{pst}$. We include a constant $\alpha$, but do not report estimates of it tells us little.
 
 We report results below using all years of data first, and then report results using two individual years: 2012 and 2013. Here, as everywhere below, we cluster standard errors by plot to reflect serial correlation in errors terms within a plot across years (we don't to assume errors are iid). Note that when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 SimpleCorrAll <- feols(log(live_mass) ~ log(rich), comb, cluster = "newplotid") 
 
 SimpleCorr2012 <- comb %>%
@@ -78,9 +74,9 @@ etable(SimpleCorrAll, SimpleCorr2012, SimpleCorr2013,
 
 As you can see, using all years of data gives a non-significant positive relationship between productivity and richness. In just the 2012 data, the coefficient is larger in magnitude, but still insignificant. Finally, just using 2013 data, the coefficient switches signs and becomes significant. 
 
-So... which one to believe? Well, probably none of these, because they are all whack---we are not identifying the true causal relationship of richness on productivity. The variability of these results highlights that research designs that rely on non-experimental **cross-sectional** data often have reflect omitted variable bias.
+So... which one to believe? Well, probably none of these, because they likely do not identify the true causal effect of richness on productivity. Their variability highlights that these estimates, which rely on non-experimental **cross-sectional** data, are likely contaminated by omitted variable bias.
 
-When is $\beta$ identified? When there are no unobservables that are correlated with richness that also influence productivity. This assumption has a mathematical form: $\mathbb{E}[e_{pst} \times \ln(\text{Richness}_{pst})]=0$ (this is pretty similar to saying that $e_{pst}$ and $\ln(\text{Richness}_{pst})$ aren't correlated). In the above results, there's probably stuff in $e$ that is correlated with richness, like precipitation, disturbance, land-use history, soil characteristics, and other characteristics of sites and plots.
+When does $\hat{\beta}$ capture a causal relationship? When there are no unobservables that are correlated with richness that also influence productivity: $\mathbb{E}[e_{pst} \times \ln(\text{Richness}_{pst})]=0$ (i.e., $e_{pst}$ and $\ln(\text{Richness}_{pst})$ aren't correlated). In the above results, there's probably stuff in $e$ that is correlated with richness, like precipitation, disturbance, land-use history, soil characteristics, and other characteristics of sites and plots.
 
 A DAG can help us see the challenges of omitted, and potentially confounding, variables more clearly. In the above analyses from equation (1), $\beta$ is only identified if we assume that any variables that matter but that we omitted are uncorrelated with richness. 
 One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of **statistical bias** (Morgan & Winship 2015).
@@ -101,13 +97,13 @@ Figure 1B (main text -- right panel) is known as a directed acyclic causal graph
 
 Of course, in the above correlations, we include plots in sites from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
  
-A common strategy in ecological analyses to control for confounding variables is to measure them and include them directly in a regression.  In causal inference literature, this approach is known as **“conditioning on observables”** or Pearl’s **back-door criteria** (refs). Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (REF 1). We can visualize this assumption by modifying our DAG, and using some examples in R:
+A common response is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (REF 1). We can visualize this assumption by modifying our DAG, and using some examples in R:
 
 **INSERT DAG WITH THIS ASSUMPTION**
 
 To explore the consequences of adding in covariates, we show the results of five models below. The first column repeats the first column from above. The second column adds in soil chemistry covariates, the third column instead adds weather covariates, and the fourth instead adds management variables plus habitat. The last columns adds in everything. We only show coefficient estimates for richness, even though the other terms are included in the model.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 SoilCovars <- feols(log(live_mass) ~ log(rich) +
                       pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +
                       pH + PercentSand + PercentSilt + PercentClay, 
@@ -135,13 +131,12 @@ etable(SimpleCorrAll, SoilCovars, WeatherCovars, MgmtCovars, AllCovars,
           subtitles = c("Data All Years", "+ Soil", "+ Weather", "+ Management", "+ All")) 
 ```
 
-Look at how the coefficient jumps around depending on the covariates used! This is surely a sign of some sort of omitted variables bias. Even though we consecutively explain more and more of the variation in the data, we are not necessarily any closer to a causal relationship.
+Estimates jump around depending on which covariates are used! This is likely a sign of some sort of omitted variables bias. Even though we consecutively explain more and more of the variation in the data, we are not necessarily any closer to a causal relationship.
 
-There are a few other points to make about the above results that speak the practice of science. First, the number of observations changes based on which controls we use. Columns 2 and 5 might be on highly selected sample, and not representative of the overall populations under study. A careful analysis could do any of a number of approaches to control for that, but far too often we just say ``This is what I have (all the) data for, so this what I estimate.'' It would be nice if there were a way to move forward even if we were unable to collect data on all the variables we wanted.
-
-Second, and more perniciously, is specification hunting. What's to keep from only displaying results in columns 2 and 5 above, with no mention of the other results. P-hacking is something we should all be concerned about, but it's really easy to twiddle and play until one gets just the right set of results that agree with ones hypothesis.
-
-Lastly, we assumed that all the covariates entered linearly and did not interact. What if what really matters is the interaction of nitrogen and precipitation? How do we capture that? We could include interactions and quadratics, or splines, but at some point, the number of covariates will exceed our sample size and nothing is identified.
+There are a few other points to make about the above results that speak the practice of science. 
+1.First, the number of observations changes based on which controls we use. Columns 2 and 5 might be on highly selected sample, and not representative of the overall populations under study. A careful analysis could do any of a number of approaches to control for that, but far too often we just say ``This is what I have (all the) data for, so this what I estimate.'' It would be nice if there were a way to move forward even if we were unable to collect data on all the variables we wanted.
+2.Second, and more perniciously, is specification hunting. What's to keep from only displaying results in columns 2 and 5 above, with no mention of the other results. P-hacking is something we should all be concerned about, but it's really easy to twiddle and play until one gets just the right set of results that agree with ones hypothesis.
+3.Lastly, we assumed that all the covariates entered linearly and did not interact. What if what really matters is the interaction of nitrogen and precipitation? How do we capture that? We could include interactions and quadratics, or splines, but at some point, the number of covariates will exceed our sample size and nothing is identified.
 
 **TAKEAWAY: It is hard to assume the we observe and correctly control for all confounding variables when analyzing cross-sectional data**
 
@@ -159,17 +154,21 @@ where we've added the term $\lambda_p$. This represents a vector of plot-specifi
 
 What does adding this vector of plot dummy variables do? Two big things. First, it controls for any and all time-invariant features of the plot, whether we observe them OR NOT!!! To see this, imagine putting in a variable $x_p$ into the above equation linearly with the coefficient $\gamma$. We wouldn't actually be able to estimate $\gamma x_p$; it's already a component of $\lambda_p$. Don't know what functional for you should use for $x_p$ or whether it should be interacted with another variable? That's fine, that's already included in $\lambda_p$! We get a whole lot for the inclusion of this variable. 
 
-Second, and most importantly conceptually, is that we are no longer directly comparing different plots; we aren't using  cross-sectional variation any more. Instead, we are using variation in richness and productivity within the same plot *over time*. So, we're implictly comparing this plot in year $t$ with this same plot in year $t+k$ for some $k$. Another way to see this is that we could write a very similar equation in differences:
+Second, and most importantly conceptually, is that we are no longer directly comparing different plots; we aren't using  cross-sectional variation any more. Instead, we are using variation in richness and productivity within the same plot *over time*. So, we're implicitly comparing a plot in year $t$ with this same plot in year $t+k$ for some $k$. Another way to see this is that we could write a very similar equation in differences:
 \begin{equation}
 (\ln(\text{Live Mass}_{pt})-\ln(\text{Live Mass}_{pt-1}) = \beta ( \ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1})) + (e_{pt} - e_{pt-1})
 \end{equation}
-Where did $\lambda_p$ go? Well, $\lambda_p-\lambda_p=0$, so we don't need it. (There are subtle differences between the two estimates that depend on the nature of the error terms $e$, but they draw on the same source of variation). NOTE: COULD ALSO SHOW AVERAGE-TYPE ESTIMATOR.
+Where did $\lambda_p$ go? Well, $\lambda_p-\lambda_p=0$, so we don't need it. (NB: We could also subtract the mean of each variable over time within each plot and arrive at a similar estimator. There are subtle differences between the two approaches that depend on the nature of the error terms $e$, but they draw on the same source of variation).
 
-What is identification now? CHRIS GET METRICSY AND TALK ORTHOGONALITY IN THIS SETTING.
+What do we have to assume for a causal interpretation? There are a couple of different assumptions we could choose; I think it's easiest to frame it like this: $\mathbb{E}[ (e_{pst} - e_{pst-1}) \times (\ln(\text{Richness}_{pst}) - \ln(\text{Richness}_{pst-1}))]=0$. That is, changes in richness are uncorrelated with *changes in* unobserved determinants of richness. Because time-invariant unobservables do not change, they are no longer a concern! Instead, we're concerned if movements in some unobserved factor could both be driving our outcome variable and be correlated with richness.
 
 
 
-what's the cost? Well, we used to worry about computational issues. Adding a lot of covariates to linear regression can make it hard to calculate the inverse of a matrix. But, computers have gotten better and we've developed different techniques to get around this problem. Another tricky factor is that we need longitudinal (panel) data (or at least repeated cross sections in some special circumstances) to be able to estimate it. Luckily, we do, and given the growing prevalence of multi-year experiments LTERs.
+what's the cost? Well, there are a few to consider, but some really aren't much of a restriction: 
+1. We use to worry about computational issues. Instead of differencing, we could have including the additional fixed effects as regressors. Were this a large vector, computation could have become difficult. This is rarely a concern thanks to better computers and better techniques.
+2. We need longitudinal (panel) data (or repeated cross sections in some special circumstances). This is why economists get so much use out of administrative data! This data is rarer in ecology, but with the growth in LTERs and other multi-year sites, this is less of a constraint.
+3. Our target of interest has to be time-varying. Any interesting time-invariant factors have been removed from the equation (literally).
+
 
 We're first going to estimate the following equation site-by-site on the five largest sites (in terms of the number plot-years we observe). 
 \begin{equation}
@@ -178,7 +177,7 @@ We're first going to estimate the following equation site-by-site on the five la
 The year fixed effects $\delta_t$ control for *time-varying* factors (observed or unobserved) that affect all plots at the site under consideration. For example, suppose 2007 was a particularly damp and rainy year at the site; $\delta_t$ controls for the average impact of that across all plots. 
 Because what happens at one site in a year is probably very different from what happens at a different site in the same year, we estimate these separately for each site. This will make the point estimates for each site less precise (especially because we're clustering by plot), but this is just for illustration's sake.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 PlotFE_1 <- comb %>%
   filter(site_code=="cdcr.us") %>%
   feols(log(live_mass) ~ log(rich) | newplotid + year, ., cluster = "newplotid")
@@ -207,41 +206,82 @@ etable(SimpleCorrAll, PlotFE_1, PlotFE_2, PlotFE_3, PlotFE_4, PlotFE_5,
 
 We again plot the bivariate correlation first, and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally).
 
-**TAKEAWAY: SAY SOMETHING SMART**
+**TAKEAWAY: Using unit fixed effects in panel data shifts the identifying variation from across units to within units over time.**
 
 ### Bringing it all Together with Site-by-Year Fixed Effects
 
+We now combine the plot-fixed-effect-based analyses together. This should give us more statistical power to detect effects. We do want to account for the fact that different sites experience different conditions in different years. To do so in a flexible way, we include site-by-year fixed effects, $\delta_{st}$. 
 \begin{equation}
 \ln(\text{Live Mass}_{pst}) = \beta \ln(\text{Richness}_{pst}) + \lambda_p + \delta_{st} +  e_{pst}
 \end{equation}
+These additional fixed effects control for all time-varying effects that impact the site as whole (i.e., that apply to all the plots equally). Thus, they capture the first order effects of weather, among other factors that could shift outcomes for the site as whole.
 
 
+We will include a couple of time-varying controls. To make sure we don't drop locations with values of zero (but for which we want logged values), we first define the inverse hyperbolic sine. Note that we don't need to worry about that for productivity or richness because they never take a zero value.
+```{r message=FALSE, warning=FALSE}
 
-## YO: Random Effects in das haus
+ihs <- function(x) {
+  y <- log(x+sqrt(x^2 + 1))
+}
 
-```{r}
 
-## include examples with Just LM without random effects? 
-MixedMod_Rich_soillm <- lm(log(live_mass) ~ log(rich) + 
-               pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay , comb, REML = F)
-summary(MixedMod_Rich_soillm)  #rich is positive and significant
+MainMod_Rich     <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
+MainMod_RichEven <- feols(log(live_mass) ~ log(rich) + ihs(even) | newplotid + site.by.yeardummy, comb) 
+MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
+MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
 
-# now positive but non-significant 
-MixedMod_Rich_soillm <- lm(log(live_mass) ~ log(rich) + 
-               pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B  , comb, REML = F)
-summary(MixedMod_Rich_soillm)
+etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag,
+          cluster = "newplotid")
 
+```
+
+As you can see, estimate on log richness are relatively stable across different specifications. Of special note: the coefficient on lagged richness (richness last year) is small and insignificant, given us confidence that our results reflect *contemporaneous* movement in richness, and some factor that is also correlated with last year's richness.
+
+**TAKEAWAY: Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!**
+
+
+## Random Effects Don't Usually Cut It...
+
+Researchers sometimes turn to random effects models. While random effects models have a number of useful properties, they **do not solve endogeneity problems**. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with richness. So, random effects on their own don't buy us anything more than conditioning on observables. Check out how the results below vary to see this:
+
+First, consider the two linear models (without random effects) with different sets of soil variables
+
+```{r message=FALSE, warning=FALSE}
+
+## Linear Model with Soil Covariates
+SoilCovars <- feols(log(live_mass) ~ log(rich) +
+                      pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B, 
+                    comb, cluster = "newplotid") 
+
+## Linear Model with More Soil Covariates
+SoilCovars_More <- feols(log(live_mass) ~ log(rich) +
+                      pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +
+                      pH + PercentSand + PercentSilt + PercentClay, 
+                    comb, cluster = "newplotid") 
+
+etable(SoilCovars, SoilCovars_More,
+          cluster = "newplotid", 
+          drop = "!rich", 
+          subtitles = c("Some soil covariates","More soil covariates")) 
+
+```
+
+See how the covariate of interest jumps around. Again, that's a reminder that there are likely omitted variables that are pretty correlated with our variable of interest.
+
+So, that's our baseline. Now let's see what happens with random effects! 
+
+```{r message=FALSE, warning=FALSE}
 
 ## First, characteristics of soil influence both productivity and richness, including XXXXXX. We can use covariates that characterize several aspects of the soil fertility and nutrients... LAUREN FILL IN HERE: including 
 MixedMod_Rich_soil <- lmer(log(live_mass) ~ log(rich) + 
-               pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +   (1|site_code), comb, REML = F)
+                             pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +   (1|site_code), comb, REML = F)
 summary(MixedMod_Rich_soil)
 
 
 ### Based on prior studies and natural history, we would expect management and anthropogenic disturbances to be important confounding variables. The Nutrient Network data has indicator variables .... 
 MixedMod_Rich2 <- lmer(log(live_mass) ~ log(rich) + 
-                        managed + burned + grazed + anthropogenic + 
-                          pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +                             (1|site_code), comb, REML = F)
+                         managed + burned + grazed + anthropogenic + 
+                         pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +                             (1|site_code), comb, REML = F)
 summary(MixedMod_Rich2 )
 
 
@@ -252,409 +292,5 @@ MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.facto
 summary(MixedMod_Rich )
 
 ```
- By leaving any of these variables out of the above model, there is an implicit assumption that these other variables – and no other variables excluded from the model – both affect productivity and are correlated with diversity. Otherwise, we cannot conclude that the estimated coefficient is the true causal relationship (i.e., is unbiased) with confidence. This assumption is a strong one. While some confounding variables may be straightforward to measure, like xxxxx,  other important, confoundning variables are difficult to observe in practice for a wide variety of reasons, such as cost, logistics, or focus of a study (e.g., colonization, disease, frost, land-use change, and pollinator, microbial, or herbivore communities). Similarly, broad classes of omitted variables might be suspected, but researchers can be unable to conceptualize an observable counterpart (e.g., evolutionary history, disturbances from different timing in human settlement, or surrounding, regional land-use change through time). 
- 
 
-### Getting Used to Dummies
-
-One route forward could be to measure the things about sites that we thought were important, decide the functional form that they should have (linear, quadratic, log, spline), and then include them in the analysis. However, we prefer another route, including a *dummy* for each site, which has several advantages over the previous approach.  In this setting, *site dummies* are just binary variables for each site. The big advantage of including the dummy is that captures whatever the average characteristics are within the site. We estimate:
-$$
-\ln(\text{Live Mass}_{pst}) = \beta \ln(\text{Richness}_{pst}) + \gamma_{s} + e_{pst}
-$$
-where the $\gamma$'s are the vector of site dummies (note that we omit the constant from here on out, technically the constant is collinear with full vector of site dummies, so we must either omit the constant or one of the site dummies). 
-
-To see how flexible the dummy is, consider what we could have done. Say we new that there were two important variables at the site level, and we want to model how they enter flexibly, and there's still probably some error, so we have included
-$$
-\gamma_s = g_1 x_{1s} + g_2 x_{2s} + g_3 x^2_{2s} + g_4 \frac{x_{1s}}{x_{2s}} + u_s
-$$
-where the $g$'s are coefficients to be estimated, the $x$'s are things we measure, and $u$ is the site-level error. If we include these $x$'s and whatnot in the above model instead of $\gamma_s$, we would still need $u_s$ to be uncorrelated with richness in order to identify $\beta$. In other words, we would need to measure *every single site-level variable that influences productivity and is correlated with richness*. 
-
-Instead, the dummies control for the average, time-invariant characteristics of each site. This means we're now only comparing plots within a site, although we're still combining plots that might be quite different from years that might be quite different. We repeat the above exercise, but now including site dummies:
-```{r}
-SiteCorrAll <- feols(log(live_mass) ~ log(rich) | site_code, comb, cluster = "newplotid") 
-
-SiteCorr2012 <- comb %>%
-  filter(year==2012) %>%
-  feols(log(live_mass) ~ log(rich) | site_code, ., cluster = "newplotid") 
-
-SiteCorr2013 <- comb %>%
-  filter(year==2013) %>%
-  feols(log(live_mass) ~ log(rich) | site_code, ., cluster = "newplotid") 
-
-etable(SiteCorrAll, SiteCorr2012, SiteCorr2013, 
-          cluster = "newplotid", 
-          drop = "Intercept", 
-          subtitles = c("Data All Years", "Data in 2012", "Data in 2013"))  
-```
-
-Note some similarities and differences with the results above. With all the years of data, the coefficient is positive but insignificant. With only 2012, the results are now negative, but again insignficant. The 2013 results are once more significantly negative.
-
-This was to get you more comfortable with what dummies can do. It's pretty different than *random effects*, something ecologists use quite often. While random effects (and what I think of as their cousins, heirarchical models) can be helpful for some tasks, they generally are not very helpful for causal identification. Another very common use for dummies is to control for time differences. For us, that means year dummies, and hence estimating: 
-$$
-\ln(\text{Live Mass}_{pst}) = \beta \ln(\text{Richness}_{pst}) + \gamma_{s} + \delta_t + e_{pst}
-$$
-```{r}
-SiteYrCorrAll <- feols(log(live_mass) ~ log(rich) | site_code + year, comb, cluster = "newplotid") 
-
-SiteYrCorr2012 <- comb %>%
-  filter(year==2012) %>%
-  feols(log(live_mass) ~ log(rich) | site_code + year, ., cluster = "newplotid") 
-
-SiteYrCorr2013 <- comb %>%
-  filter(year==2013) %>%
-  feols(log(live_mass) ~ log(rich) | site_code + year, ., cluster = "newplotid") 
-
-etable(SiteYrCorrAll, SiteYrCorr2012, SiteYrCorr2013, 
-          cluster = "newplotid", 
-          drop = "Intercept", 
-          subtitles = c("Data All Years", "Data in 2012", "Data in 2013"))  
-```
-
-Only the first column changes, of course, because the next two columns only including one year of data to begin with! Note, though, that these year dummies might not be super helpful, because we have sites from across the world, and so using averages from e.g., Europe is likely not super informative about the e.g., the US (except for maybe El Nino...).
-
-### Changing up the Variation
-
-##Introduce unit (plot) FEs
-
-##discuss why useful
-
-# talk about site-year FEs (si)
-Laura to show the example of different plots moving through time at different sites and how they differ -- i have a figure that provides an exmaple of that
-
-
-### Glossary ###
-
-### Confounding Variables (or “confounders”):
-In this study, we use the term “confounding variable” to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a **non-experimental?** study design.
- 
-### Bias and Hidden Bias:
-Bias is a property of an estimator of a causal effect: it captures the difference between the estimator’s expected value and the true value of the causal effect being estimated (11). The phrase “hidden bias” (also called “unobserved heterogeneity”) is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data (reviewed in (12)). The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability (“noise”) is different from hidden bias; sampling variability is not a source of bias.
-
-### Errors versus Residuals:
-The error term is part of the true data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
-
-### “Selection on Observables” Assumption:
-Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see (1).
- 
- 
-## STUFF FROM ORIGINAL TUTORIAL EX BELOW
-
-
-## Loading Packages
-
-> In R, the fundamental unit of shareable code is the package. A package bundles together code, data, documentation, and tests, and is easy to share with others. As of January 2015, there were over 6,000^[There are >10,000 now] packages available on the Comprehensive R Archive Network, or CRAN, the public clearing house for R packages. This huge variety of packages is one of the reasons that R is so successful: the chances are that someone has already solved a problem that you're working on, and you can benefit from their work by downloading their package. (http://r-pkgs.had.co.nz/intro.html)
-
-The `library()` function with the following syntax is used to load packages:
-
-```{r eval=FALSE}
-library(tidyverse)
-```
-
-Packages much be installed before they can be loaded. If you get a message like:
-
-> `Error in library("tidyverse") : there is no package called 'tidyverse'`
-
-It means that the package is not installed. First install the package (note that the quotes are required):
-
-```{r eval=FALSE}
-install.packages("tidyverse")
-```
-
-and then rerun the code chunk that includes the `library()`^[Inside the call to `library()`, package names do not need to be quoted (but they can be without incident). `install.packages()`, on the other hand, expects to receive a string or vector of strings, so you do need quotes.] commands.
-
-### Best practices (things to remember)
-
-- It is best to install packages (e.g., `install.packages("cowplot")`) from the command line only. If you include this code in a R code chunk, you risk R trying to reinstall the package each time you knit your file. 
-- Packages only need to be installed once on each computer. They are stored locally.
-- Packages do need to be loaded (`library()`) each time you restart R. Loaded packages are not persistent across R sessions.
-- Load all of the packages you need at the start of a document to keep track of what packages your analysis needs.
-
-### Activity
-
-In the *Setup* code chunk at the beginning of this document, add code to load the following packages, which you will need for this problem set:
-
-1. `tidyverse`
-1. `readxl`
-1. `cowplot`
-
-Install these packages if you need to (see **Loading Packages** above for the installation syntax). 
-
-## Loading Data
-
-Sexual size dimorphism (SSD) refers to the difference in size between males and females of the same species. Spiders show some of the most dramatic cases where females are larger than males. 
-
-The golden silk orb weaver (*Nephila clavipes*) is a species of spider that shows extreme SSD, in which males are about 2/3 smaller than females. This picture shows the size disparity between a female and male:
-
-<div style="width:350px">
-![](https://cdn.shopify.com/s/files/1/0841/0073/products/il_570xN.917073770_s7se.jpg)
-</div>
-
-In contrast, in the wolf spider (*Pardosa ramulosa*), males and females do not show large size differences.
-
-<div style="width:350px">
-![](https://crawford.tardigrade.net/journal/album/fordramulosa.jpg)
-</div>
-
-The file `Size_Dimorphism.xlsx` contains data on body mass and body length for males and females in these two species. 
-
-### Activity
-
-Using the `read_excel()` function, load the file `Size_Dimorphism.xlsx` in R. Assign it to the object, `M`.
-
-```{r}
-#FIXME
-M <- read.csv("Size_Dimorphism.csv")
-```
-
-## Exploring Data
-
-Any time you load data from an external source (which is almost every time you are working with data), you should check to make sure that the data has been correctly imported.
-
-You can use two functions to get a quick overview of the columns of a `data.frame` (or any R object, really), `str()` and `glimpse()`, each of which gives a list of the columns and their first few values.
-
-### Activity
-
-Type `str(M)` into the code chunk below and then compile or execute the code chunk in the R console.
-
-```{r}
-#FIXME
-str(M)
-```
-
-Using the output of `str(M)`, answer the following questions.
-
-- How many rows are in the `data.frame` `M`?
-
-> 200
-
-- Does this agree with the number of rows in the Excel file? Why or why not?
-
-> Excel has the header row separate. But the number of data rows matches.
-
-- How many columns are in the `data.frame` `M`? Does this agree with the number of columns in the Excel file? Why or why not?
-
-> 5. This matches. No header issues.
-
-## Number of Observations per Group
-
-This experiment is balanced, meaning there are equal numbers of males and females in each species (50 of each). 
-
-### Activity 
-
-Check that this is the case by creating a logical and summing the resulting TRUE/FALSE vector. i.e. how many female *Nephila clavipes* are there? 
-
-```{r}
-#FIXME
-sum(M$Sex == 'F' & M$Species == 'Nephila_clavipes')
-sum(M$Sex == 'M' & M$Species == 'Nephila_clavipes')
-sum(M$Sex == 'F' & M$Species == 'Pardosa_ramulosa')
-sum(M$Sex == 'M' & M$Species == 'Pardosa_ramulosa')
-```
-
-It looks like something is not right. There are a few ways to figure out what might be going on. Try using the `unique()` function to check for typos in the `Sex` column. If you pass a vector to `unique()` it will return all unique values in that vector. If all of our data is coded correctly, the result *should* be just two values: "M", and "F". Use the `which()` function to identify the observations with typos. (`%in%` might be useful here but there are other ways to do this.)
-
-```{r}
-#FIXME
-unique(M$Sex)
-
-M[which(!(M$Sex %in% c('F', 'M'))), 'ID']
-```
-
-You could use the results of your `which()` calls to find and correct your excel file after making a back up copy just in case you make a mistake (or use version control!). If you were planning to do more editing in excel, this would be preferable. For this exercise will correct these within R here. We've given you the syntax for fixing one. Use this same format to fix the others. Run `unique()` again to make sure you got them all. 
-
-First change `eval=FALSE` to `eval=TRUE`. Changing this flag in the chunk header will cause RStudio to evaluate the chunk when it is knitting the document. When `eval` is `FALSE`, the chunk will be skipped. This is something that we need to do when writing the problem sets, so that they will compile.
-
-```{r eval=TRUE}
-M$Sex[M$Sex == 'f'] <- 'F'
-#FIXME
-M$Sex[M$Sex == 'm'] <- 'M'
-```
-
-Now check the `Species` column in the same way. Fix any errors that you find.
-
-```{r}
-# FIXME
-unique(M$Species)
-
-M$Species[M$Species == 'Pardosa_ramuloso'] <- 'Pardosa_ramulosa'
-M$Species[M$Species == 'Pardosa ramulosa'] <- 'Pardosa_ramulosa'
-M$Species[M$Species == 'Pardosa_ramulosa '] <- 'Pardosa_ramulosa'
-
-unique(M$Species)
-```
-
-Saving yourself the trouble of doing this exercise is one big reason to be careful when you enter data!!
-
-One last step, let's write out your new, typo-free data. Look at the help for `write_csv()`, and write out your data to a new csv file named, `Size_Dimorphism_corrected.csv`. 
-
-```{r}
-# FIXME
-write_csv(M, "../Size_Dimorphism_corrected.csv")
-```
-
-Now read your new file back in as if this next section is a new script. Feel free to overwrite your previous object, `M`. This is a good idea to avoid confusion. Use `read_csv()`.
-
-We prefer to use `write_csv()`, which is part of tidyverse, to R's built-in `write.csv()` (note _ vs. .). `write_csv()` has some friendlier defaults settings.
-
-```{r}
-# FIXME
-M <- read_csv("../Size_Dimorphism_corrected.csv")
-```
-
-## Data Filtering
-
-A very common activity when you are analyzing data is to take subsets, be they subsets of rows or one or more columns (or both simultaneously). Gaining experience at this kind of filtering will make you much more efficient.
-
-### Activity
-
-To give you some practice filtering, filter your data in the following ways using base R functions. We will talk about they tidyverse version of these functions next week, but if you want to get ahead you can google these and try them here. You do not need to save the resulting `data.frame`s.
-
-1. All *Pardosa ramulosa* 
-2. All females of both species
-3. Body mass and sex for *Nephila clavipes*
-4. Rows 1-50 (either using base R or the `slice()` function from tidyverse [use `?slice` to load the help file])
-5. Mass of the largest female (by mass) in each species
-6. Male *Pardosa ramulosa* with body lengths less than 4 or greater than 6
-
-```{r}
-#FIXME
-# 1
-M[M$Species == "Pardosa_ramulosa", ]
-M %>% filter(Species == "Pardosa_ramulosa")
-
-# 2
-M[M$Sex == "F", ]
-M %>% filter(Sex == "F")
-
-# 3
-M[M$Species == "Nephila_clavipes", c("BodyMass", "Sex")]
-M %>% filter(Species == "Nephila_clavipes") %>% 
-  select(BodyMass, Sex)
-
-# 4
-M[1:50, ]
-M %>% slice(1:50)
-
-# 5
-max(M[M$Sex == 'F' & M$Species == 'Pardosa_ramulosa', 'BodyMass'])
-max(M[M$Sex == 'F' & M$Species == 'Nephila_clavipes', 'BodyMass'])
-M %>% filter(Sex == "F") %>% 
-  group_by(Species) %>%
-  summarize(max_BodyMass = max(BodyMass))
-
-# 6
-M[M$Species == "Pardosa_ramulosa" & 
-    M$Sex == "M" &
-    (M$BodyLength < 4 | M$BodyLength > 6), ]
-M %>% filter(Species == "Pardosa_ramulosa" & Sex == "M") %>% 
-  filter(BodyLength < 4 | BodyLength > 6)
-```
-
-## Plotting Histograms
-
-To start looking at sexual size dimorphism, we will make some histograms. This is the easiest method to visualize univariate data.
-
-### Activity
-
-The `cowplot` has a nice built-in ggplot theme that produces nice plots (there are lots of ggplot themes available). A good place to set this is in the setup chunk at the top of this document. Go there and add this code (without the tic marks): `theme_set(theme_cowplot())`.
-
-Start with a histogram of body length overall. Follow the code in the lectures if you need to.
-
-```{r}
-#FIXME
-ggplot(M, aes(BodyLength)) +
-  geom_histogram()
-```
-
-There are some obvious groupings here, but we don't know which species or sex the clusters represent. We need to separate both species and sex. One approach is to make a plot for each species with `fill` coding for sex (this is analogous to using color, but works better with histograms). Try this.
-
-```{r}
-#FIXME
-M %>% 
-  filter(Species == 'Pardosa_ramulosa') %>% 
-  ggplot(aes(BodyLength, fill = Sex)) +
-  geom_histogram()
-
-M %>% 
-  filter(Species == 'Nephila_clavipes') %>% 
-  ggplot(aes(BodyLength, fill = Sex)) +
-  geom_histogram()
-```
-
-You will get a message saying that "`stat_bin()` using `bins = 30`. Pick better value with `binwidth`." That just means that you are using the default bin size for your histograms. In some situations, you would want to specify that value explicitly. For now, using the default value of 30 is fine. Later you can use the `binwidth` option to choose a different size. 
-
-We could also visualize all groups with `facet_grid()`. Here is an example:
-
-```{r eval=TRUE}
-ggplot(M, aes(BodyLength)) +
-  geom_histogram() +
-  facet_grid(Sex ~ Species)
-```
-
-`facet_grid()` can take 1 or two arguments. The argument before `~` splits by rows, and after `~` splits by columns. If you only want one or the other use `.`. See the lecture slides for an example.
-
-With this you can clearly see SSD in *Nephila* but not in *Pardosa*. 
-
-
-## Scatterplot
-
-You might be interested in the relationship between body length and body mass. Scatterplots are the most common way to visualize such bivariate relationships.
-
-### Activity
-
-Create a scatterplot of body length and body mass. Use color to show Sex and facet by Species. Put body length on the x axis. Add axis labels, but don't worry about units for now.
-
-```{r}
-# FIXME
-ggplot(M, aes(x = BodyLength, y = BodyMass, color = Sex)) +
-  geom_point() +
-  facet_grid(Species ~ .) +
-  labs(x = "Body Length", y = "BodyMass")
-```
-
-Describe the patterns you observe. Do you think this is a useful visualization? Why or why not?
-
-> Not really that useful. The data for *Pardosa* is all smashed down to ~0 on the y axis, as is the male data for *Nephila*. The *Nephila* female are the only ones with any variation, which looks like it is increasing as body length increases. 
-
-Because body length and body mass are related by an exponential power, if we take advantage of the math of logarithms and log-transform the data, that will linearize the relationship. Ignoring the y-intercepts:
-
-$$Mass \propto Length^b$$
-$$\log(Mass) \propto b \log(Length)$$
-
-Make two new variables that are the log10-transformations of body length and body mass using `mutate()` and plot the data again. Look at the help for `mutate` for hints. Then add new axis labels.
-
-```{r}
-#FIXME
-M <- mutate(M, logMass = log10(BodyMass),
-            logLength = log10(BodyLength)) 
-
-# or with a pipe
-
-M <- M %>% mutate(logMass = log10(BodyMass),
-                  logLength = log10(BodyLength)) 
-
-# Scatterplot
-ggplot(M, aes(x = logLength, y = logMass, color = Sex)) +
-  geom_point() +
-  facet_grid(Species ~ .) +
-  labs(x = "log Body Length", y = "log Body Mass")
-```
-
-What does this plot tell you? Do you think this is a more effective visualization of the data? 
-
-> There is a positive, linear relationship between log(mass) and log(body length). In *Pardosa*, the female and male distributions overlap almost completely. In *Nephila*, there is a large separation between the females and males.
-
-Now add lines of best fit and transparency (`alpha`) to your points. 
-
-```{r}
-#FIXME
-ggplot(M, aes(x = logLength, y = logMass, color = Sex)) +
-  geom_point(alpha = 1/3) +
-  geom_smooth(method = 'lm') +
-  facet_grid(Species ~ .) +
-  labs(x = "log Body Length", y = "log Body Mass")
-```
-
-What do these regression lines tell you?
-
-> The slopes of the lines are nearly identical, which suggests that the linear relationships between log length and log mass is probably equal across the four groups.
+None these models really addresses endogeneity...
