@@ -43,7 +43,7 @@ source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 
 source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3, and Figure S4 
 source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
-
+source("./code/r/FiguresS1_S2_S3.R") #Produces Figures S1, S2 and S3
 ###########################################################################################################################
 ## Analysis using large cover dataset from Nutrient Network, processed from version 'full-cover-09-April-2018.csv'    ####
 ############################################################################################################################
