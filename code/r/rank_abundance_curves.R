@@ -9,7 +9,7 @@ sites <- sites[-29]
 
 rac.dat <- cover[which(cover$year_trt == 0 & cover$site_code %in% sites),]
 
-rac.dat <- unique(rac.dat[,c(2,3,30)])
+rac.dat <- unique(rac.dat[,c("site_code","Taxon","relative_abundance_spp_site.yr0")])
 # create lists for each site
 
 newdf <- data.frame()
@@ -38,7 +38,7 @@ grfun = function(df){
   ggplot(aes(x = rank, y = relative_abundance_spp_site.yr0), data = df) + 
     geom_point() + 
     geom_line() +
-    labs(x = "", y = "", title  = site) +
+    labs(x = "Species Rank", y = "Species Abundance", title  = site) +
     theme_classic()
 }
 
