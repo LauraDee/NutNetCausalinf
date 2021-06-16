@@ -521,6 +521,7 @@ invasivemod = lm( sr_INT.site ~ year_trt.x, data = mech.data)
 invasivemod = lm( sr_INT ~ year_trt.x, data = mech.data)
 invasivemod = lm( sr_UNK ~ year_trt.x, data = mech.data)
 
+
 # ggplot(data = mech.data, aes(x = site_introduced_richness )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
 #     geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
 #     labs(x = "site introduced species richness") +  theme_bw() +
