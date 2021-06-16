@@ -29,6 +29,7 @@ library(tidyverse)  # v 1.3.0
 library(RColorBrewer) #1.1-2
 library(cowplot) # 1.1.1
 library(corrplot)  # 0.84
+library(gridExtra)
 
 ###  *** Need to run *** 
 ### purpose built functions 

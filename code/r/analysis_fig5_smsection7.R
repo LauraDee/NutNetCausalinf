@@ -356,96 +356,118 @@ esttex(MechMod_All, MechMod_All2, MechMod_All3,
        file = "./output/TableS14_R_CI.tex")
 
 
-
-
-############################################################################################################################
-#### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
-#############################################################################################################################
-richnessvars.fig4c <- c("sr_non.rare_nat", "sr_non.rare_non.nat", "sr_non.nat_rare", "sr_nat_rare")
-richnessvars.to.plot <- mech.data[,richnessvars.fig4c, with=F] #with = F will then use the data.frame conventions, using "" for col names
-pairs(richnessvars.to.plot)
-
-sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, non_rare_spp,
-                            sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom,
-                            sr_non.nat_dom, sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare )]
-cor(sr.metrics)
-corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
-
-
-
 ####################################################################################################################
-###  Supplemental Figures of changes in species groups by site  ##########################################################
+### Produce Supplemental Figure S12 & S13: changes in each species groups by site ##########################################################
 ####################################################################################################################
 mech.data[order(year), change_sr_nonrare.nonative_spp := sr_non.rare_non.nat -shift(sr_non.rare_non.nat), by =.(plot, site_code)]
 mech.data[order(year), change_sr_nonrare.native_spp := sr_non.rare_nat -shift(sr_non.rare_nat), by =.(plot, site_code)]
 mech.data[order(year), change_sr_rare.native_spp := sr_nat_rare -shift(sr_nat_rare), by =.(plot, site_code)]
 mech.data[order(year), change_sr_rare.nonnative_spp := sr_non.nat_rare -shift(sr_non.nat_rare), by =.(plot, site_code)]
 
-
+mech.data = mech.data[site_code != "saline.us", ]
+  
+#################################
+### Figure S12 
+####################################
 # change nonrare nonnative 
-FigSX <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+FigS12A <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
   labs(x = "Plot-level change in non-native non-rare species richness year to year") +  theme_bw() +
   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
   theme(axis.text.y = element_text(size = 14)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
-FigSX
+FigS12A
 
 #native nonrare
-FigSX <- ggplot(data = mech.data, aes(x =  change_sr_nonrare.native_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+FigS12B <- ggplot(data = mech.data, aes(x =  change_sr_nonrare.native_spp)) + geom_histogram()+ theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
   labs(x = "Plot-level change in native non-rare species richness year to year") +  theme_bw() +
   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
   theme(axis.text.y = element_text(size = 14)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
-FigSX
+FigS12B
 
 #native rare
-FigSX <- ggplot(data = mech.data, aes(x =  change_sr_rare.native_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+FigS12C <- ggplot(data = mech.data, aes(x =  change_sr_rare.native_spp)) + geom_histogram()+  theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +  ylim(0, 60) +
   labs(x = "Plot-level change in native rare species richness year to year") +  theme_bw() +
   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
   theme(axis.text.y = element_text(size = 14)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
-FigSX
+FigS12C
 
 #non native rare - change_sr_rare.nonnative_spp 
-FigSX <- ggplot(data = mech.data, aes(x =  change_sr_rare.nonnative_spp )) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
+FigS12D <- ggplot(data = mech.data, aes(x =  change_sr_rare.nonnative_spp )) + geom_histogram()  + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
   labs(x = "Plot-level change in non-native rare species richness year to year") +  theme_bw() +
   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
   theme(axis.text.y = element_text(size = 14)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
-FigSX
+FigS12D
+
+grid.arrange(FigS12A, FigS12B, FigS12C, FigS12D, nrow = 2)
+
+############################################
+### Figure S13 ###########
+#####################################
+
+# change nonrare nonnative 
+FigS13A <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
+  labs(x = "Plot-level change in non-native non-rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigS13A
+
+#native nonrare
+FigS13B <- ggplot(data = mech.data, aes(x =  change_sr_nonrare.native_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
+  labs(x = "Plot-level change in native non-rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigS13B
+
+#native rare
+FigS13C <- ggplot(data = mech.data, aes(x =  change_sr_rare.native_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +  ylim(0, 60) +
+  labs(x = "Plot-level change in native rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigS13C
+
+#non native rare - change_sr_rare.nonnative_spp 
+FigS13D <- ggplot(data = mech.data, aes(x =  change_sr_rare.nonnative_spp )) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
+  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
+  labs(x = "Plot-level change in non-native rare species richness year to year") +  theme_bw() +
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
+  theme(axis.text.y = element_text(size = 14)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text.x = element_text(size=14)) 
+FigS13D
+
+library(gridExtra)
+grid.arrange(FigS13A, FigS13B, nrow = 1)
+grid.arrange(FigS13C, FigS13D, nrow = 1)
+
 
 
 ## do first differences of the above species richness variables: 
 
-#** this is wrong and shpuld be changed to the mech.data with the unique entry per plot and site and year
 setorder(mech.data, year)
 mech.data[, change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
 mech.data[, change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
 mech.data[, change_sr_UNK := sr_UNK-shift(sr_UNK), by =.(plot, site_code)]
 
-# compute change in richness in each group 
-cover[order(year), change_sr_domspp := sr_domspp -shift(sr_domspp), by =.(plot, site_code)]
-cover[order(year), change_sr_rarespp := sr_rarespp -shift(sr_rarespp), by =.(plot, site_code)]
-cover[order(year), change_sr_subordspp := sr_subordspp -shift(sr_subordspp), by =.(plot, site_code)]
-cover[order(year), change_sr_non_rare_spp := sr_non_rare_spp -shift(sr_non_rare_spp), by =.(plot, site_code)]
-
-summary(cover$change_sr_domspp) 
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-# -1.0000  0.0000  0.0000  0.0012  0.0000  1.0000    3005 
-summary(cover$change_sr_subordspp) 
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
-# -13.0000   0.0000   0.0000  -0.0327   0.0000  10.0000     3005 
-summary(cover$change_sr_rare) 
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
-# -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
 
 ggplot(data = mech.data, aes(x = change_sr_INT )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
   geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
@@ -471,7 +493,7 @@ ggplot(data = mech.data, aes(x = change_sr_UNK )) + geom_histogram() + facet_wra
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
 
-
+#invasion trents by site
 ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site)) + facet_wrap(~site_code) + theme_bw() +
   geom_point()
 
@@ -515,5 +537,19 @@ ggplot(data = mech.data, aes(x = site_introduced_richness )) + geom_histogram() 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text.x = element_text(size=14)) 
 
+
+
+############################################################################################################################
+#### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
+#############################################################################################################################
+richnessvars.fig4c <- c("sr_non.rare_nat", "sr_non.rare_non.nat", "sr_non.nat_rare", "sr_nat_rare")
+richnessvars.to.plot <- mech.data[,richnessvars.fig4c, with=F] #with = F will then use the data.frame conventions, using "" for col names
+pairs(richnessvars.to.plot)
+
+sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, 
+                            sr_non.rare_non.nat, sr_non.rare_nat
+)]
+cor(sr.metrics)
+corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
 
 
