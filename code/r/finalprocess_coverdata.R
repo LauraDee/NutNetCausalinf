@@ -134,7 +134,7 @@ list(unique(mech.data$site_code))
 #make a factor that is site by year
 mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
-write.csv(mech.data, "ProcessedMechanismAnalysisData.csv")
+# write out for STATA: write.csv(mech.data, "ProcessedMechanismAnalysisData.csv")
 
 ########################################################################################################################
 ##### Get some summary numbers on this final dataset for the counts of different groups of species ####################
@@ -172,7 +172,12 @@ table(mcla.comb$plot , mcla.comb$year)
 mcla.cover = cover[site_code == "mcla.us" & trt == "Control", ]
 table(mcla.cover$plot, mcla.cover$year)
 
-
-
-
+#####################################################
+###### Plot Data for Figure S10 #####################
+####################################################
+par(mfrow=c(1,2))
+#A
+plot( mech.data$rich, mech.data$sr_nat_rare, pch=19, xlab = "Species richness (plot and year)", ylab = "Native rare species richness (plot and year)", main = "(A) Higher SR is positively associated with native rare SR")
+#B
+plot( mech.data$rich, mech.data$sr_INT, pch=19, xlab = "Species richness (plot and year)", ylab = "Non-native species richness (plot and year)", main = "(B) Higher SR is positively associated with non-native SR")
 
