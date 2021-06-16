@@ -5,6 +5,8 @@ library(ggpubr)
 ###########################
 
 sites <- unique(comb$site_code)
+sites <- sites[-29]
+
 rac.dat <- cover[which(cover$year_trt == 0 & cover$site_code %in% sites),]
 
 rac.dat <- unique(rac.dat[,c(2,3,30)])
