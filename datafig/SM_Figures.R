@@ -119,3 +119,40 @@ FigSX <- ggplot(data = merged.data, aes(x = change_rare.native)) + geom_histogra
   theme(axis.text.x = element_text(size=14)) 
 FigSX
 
+#** cut 
+plot( mech.data$rich, mech.data$sr_rarespp, xlab = "overall species richness", ylab = "all rare species richness", main = "Overall vs all rare species richness")
+
+
+############################################################################################################################
+#### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
+#############################################################################################################################
+richnessvars.fig4c <- c("sr_non.rare_nat", "sr_non.rare_non.nat", "sr_non.nat_rare", "sr_nat_rare")
+richnessvars.to.plot <- mech.data[,richnessvars.fig4c, with=F] #with = F will then use the data.frame conventions, using "" for col names
+pairs(richnessvars.to.plot)
+
+sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, non_rare_spp,
+                            sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom,
+                            sr_non.nat_dom, sr_nat_sub, sr_non.nat_sub, cover_tot_non.rare )]
+cor(sr.metrics)
+corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
+
+
+# compute change in richness in each group 
+cover[order(year), change_sr_domspp := sr_domspp -shift(sr_domspp), by =.(plot, site_code)]
+cover[order(year), change_sr_rarespp := sr_rarespp -shift(sr_rarespp), by =.(plot, site_code)]
+cover[order(year), change_sr_subordspp := sr_subordspp -shift(sr_subordspp), by =.(plot, site_code)]
+cover[order(year), change_sr_non_rare_spp := sr_non_rare_spp -shift(sr_non_rare_spp), by =.(plot, site_code)]
+
+
+
+summary(cover$change_sr_domspp) 
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+# -1.0000  0.0000  0.0000  0.0012  0.0000  1.0000    3005 
+summary(cover$change_sr_subordspp) 
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+# -13.0000   0.0000   0.0000  -0.0327   0.0000  10.0000     3005 
+summary(cover$change_sr_rare) 
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+# -13.0000   0.0000   0.0000  -0.0199   0.0000   7.0000     3005 
+
+
