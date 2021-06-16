@@ -93,6 +93,7 @@ esttex(MechMod_All, MechMod_All_noNAs,
 #####################################################################################################################################
 
 Fig5.data <- tidy(MechMod_All)
+Fig5.data <- Fig5.data[-(5),] #remove the NA row since its not the main focus 
 
 Fig5.data <-  bind_rows(
   Fig5.data %>% mutate(reg = "Richness Model"),
@@ -126,7 +127,7 @@ Fig5.plot <- Fig5.data %>%
   scale_y_continuous(limits=c(-0.7, 0.7)) +
   ylim(-0.7,0.8) %>%
   labs(title = element_blank(),
-       caption = "", x = "Species Type", y = "Estimate for log(species richness) effect size"
+       caption = "", x = "Species Type", y = "Estimated effect size"
   )
 
 Fig5.plot
@@ -366,9 +367,9 @@ mech.data[order(year), change_sr_rare.nonnative_spp := sr_non.nat_rare -shift(sr
 
 mech.data = mech.data[site_code != "saline.us", ]
   
-#################################
-### Figure S12 
-####################################
+#################################################
+### Figure S12  ################################
+####################################################
 # change nonrare nonnative 
 FigS12A <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ theme_bw() +
   geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") + ylim(0, 60) +
@@ -411,9 +412,9 @@ FigS12D
 
 grid.arrange(FigS12A, FigS12B, FigS12C, FigS12D, nrow = 2)
 
-############################################
-### Figure S13 ###########
-#####################################
+##########################################################
+### Figure S13 ###########################################
+#####################################################
 
 # change nonrare nonnative 
 FigS13A <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +

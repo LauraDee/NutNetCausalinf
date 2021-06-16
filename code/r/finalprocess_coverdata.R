@@ -174,7 +174,7 @@ table(mcla.cover$plot, mcla.cover$year)
 
 #####################################################
 ###### Plot Data for Figure S10 #####################
-####################################################
+#####################################################
 par(mfrow=c(1,2))
 #A
 plot( mech.data$rich, mech.data$sr_nat_rare, pch=19, xlab = "Species richness (plot and year)", ylab = "Native rare species richness (plot and year)", main = "(A) Higher SR is positively associated with native rare SR")
