@@ -153,7 +153,7 @@ esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, M
 
 ################################################
 ## Table S9: Dynamic Panel Results 
-#######################################
+###############################################
 
 esttex( MainMod_LagLiveMass, 
        coefstat = "se", replace = TRUE,
