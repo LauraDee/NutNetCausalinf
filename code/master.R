@@ -8,7 +8,7 @@ rm(list = ls())
  cdir <- "C:/GitHub/NutNetCausalinf/"
  setwd(cdir)
 
-#setwd("~/Documents/GitHub/NutNetCausalinf/")  
+setwd("~/Documents/GitHub/NutNetCausalinf/")  
 
 ######################################################
 ## BELOW THIS POINT, code should just run ##
