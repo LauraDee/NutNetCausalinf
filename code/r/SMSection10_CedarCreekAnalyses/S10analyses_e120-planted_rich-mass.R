@@ -24,7 +24,7 @@ ihs = function(x) {
 # read in file that Kaitlin Kimmel processed using the R code e120-biomass-data-2020-12-04.R 
  # d <-fread(here("CedarCreekAnalyses", "data", "e120-plantedbiomass-data-output.csv"), strip.white=T)  
 
-setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection10_CedarCreekAnalyses/data/")
 d <- fread("e120-plantedbiomass-data-output.csv")
 
 ## meta-data and variables used: ##

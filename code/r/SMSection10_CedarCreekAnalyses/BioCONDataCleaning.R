@@ -2,7 +2,7 @@
 library(tidyr) 
 library(here)
 library(plyr)
-setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection10_CedarCreekAnalyses/data/")
 expdes <- read.csv("BioCONExpDes.csv")
 tbiomass <- read.delim("AbvGrndBiomass_2017.txt")
 
