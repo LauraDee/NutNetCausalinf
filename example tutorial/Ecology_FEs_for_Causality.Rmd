@@ -46,20 +46,27 @@ The *comb* dataset contains a wide number of variables; we'll mainly be using th
 
 # Standard Approaches
 
-For causal inference, we need to answer, "how much does a change in $X$ lead to a change in $Y$". Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error (see Ferraro et al. 2018). 
+For causal inference, we need to answer, *how much does a change in $X$ lead to a change in $Y$*. Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error [see @ferraroCausalInferenceCoupled2018]. 
 
-We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question (reviewed in Ferraro et al 2018), as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
+We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
 
 
 ## Simple correlations in single years
 
-Let's begin by looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log of productivity (measured as live aboveground biomass) as the outcome and log species richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details), also following prior studies (REFs). That is, we estimate and report $\beta$ in:
+Let's begin by looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed with a linear regression framework \@ref(eq:eq1), using the log of productivity (measured as live aboveground biomass) as the outcome and the log species richness as the explanatory variable.  We've found that a log-log specification captures the nature of the relationship in our data well (see Figure \@ref(fig:graphbiomasssp) below and the paper for details).
+
+```{r graphbiomasssp, echo = F, fig.cap="log(Live Mass) as a function of log(Richness)."}
+ggplot(comb, aes(x=log(rich), y = log(live_mass))) + geom_point()
+```
+
+We initially estimate and report $\beta$ in:
 \begin{equation}
 \ln(\text{Live Mass}_{pst}) = \alpha + \beta \ln(\text{Richness}_{pst}) + e_{pst}
+(\#eq:eq1)
 \end{equation}
-where $p$ indexes plots, $s$ indexes sites, and $t$ indexes years. The unobserved error term is $e_{pst}$. We include a constant $\alpha$, but do not report estimates of it tells us little.
+where $p$ indexes plots, $s$ indexes sites, and $t$ indexes years. The unobserved error term is $e_{pst}$. We include a constant $\alpha$, but do not report estimates of it as it tells us little.
 
-We report results below using all years of data first, and then report results using two individual years: 2012 and 2013. Here, as everywhere below, we cluster standard errors by plot to reflect serial correlation in errors terms within a plot across years (we don't to assume errors are iid). Note that when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors.
+We report results below using all years of data first, and then report results using two individual years: 2012 and 2013. Here, as everywhere below, we cluster standard errors by plot to reflect serial correlation in errors terms within a plot across years (we do not assume that errors are iid). Note that when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors.
 
 ```{r message=FALSE, warning=FALSE}
 SimpleCorrAll <- feols(log(live_mass) ~ log(rich), comb, cluster = "newplotid") 
@@ -78,14 +85,14 @@ etable(SimpleCorrAll, SimpleCorr2012, SimpleCorr2013,
           subtitles = c("Data All Years", "Data in 2012", "Data in 2013"))  
 ```
 
-As you can see, using all years of data gives a non-significant positive relationship between productivity and richness. In just the 2012 data, the coefficient is larger in magnitude, but still insignificant. Finally, just using 2013 data, the coefficient switches signs and becomes significant. 
+As you can see, using all years of data gives a non-significant positive relationship between productivity and richness. In just the 2012 data, the coefficient is larger in magnitude, but still not significant. Finally, just using 2013 data, the coefficient switches signs and becomes significant. 
 
 So... which one to believe? Well, probably none of these, because they likely do not identify the true causal effect of richness on productivity. Their variability highlights that these estimates, which rely on non-experimental **cross-sectional** data, are likely contaminated by omitted variable bias.
 
 When does $\hat{\beta}$ capture a causal relationship? When there are no unobservables that are correlated with richness that also influence productivity: $\mathbb{E}[e_{pst} \times \ln(\text{Richness}_{pst})]=0$ (i.e., $e_{pst}$ and $\ln(\text{Richness}_{pst})$ aren't correlated). In the above results, there's probably stuff in $e$ that is correlated with richness, like precipitation, disturbance, land-use history, soil characteristics, and other characteristics of sites and plots.
 
-A DAG can help us see the challenges of omitted, and potentially confounding, variables more clearly. In the above analyses from equation (1), $\beta$ is only identified if we assume that any variables that matter but that we omitted are uncorrelated with richness. 
-One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of **statistical bias** (Morgan & Winship 2015).
+A **Directed Acyclic Diagram** (DAG) can help us see the challenges of omitted, and potentially confounding, variables more clearly. In the above analyses from equation \@ref(eq:eq1), $\beta$ is only identified if we assume that any variables that matter but that we omitted are uncorrelated with richness. 
+One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of **statistical bias** [@morganCounterfactualsCausalInference2014].
 
 In our case, many variables that are correlated with biodiversity can also drive productivity (Fig. 1B -- main text), creating the possibility for rival explanations and biased estimates for estimated effects from observations. For example, climatic conditions, soil nutrients, evolutionary history, and historic contingency during community assembly are all related to both productivity and biodiversity (Loreau 1998; Fukami & Nakajima 2011; Grace et al. 2016a). With a common driver of both variables that is not included in a model, two variables (i.e., biodiversity and an ecosystem function) may be correlated, even when there is no causal relationship between them. Similarly, no correlation between variables does not imply a lack of causation. Causal relationships can also be masked when examining correlations, due to an omitted variable (e.g., nitrogen addition), which positively affects productivity but negatively affects richness (Isbell et al. 2013). Models that do not control for that common driver will consequently tend to give estimates that do not correspond to causal effects of biodiversity on productivity (or vice versa). 
 
@@ -170,10 +177,12 @@ What do we have to assume for a causal interpretation? There are a couple of dif
 
 
 
-what's the cost? Well, there are a few to consider, but some really aren't much of a restriction: 
+What's the cost? Well, there are a few to consider, but some really aren't much of a restriction: 
 1. We use to worry about computational issues. Instead of differencing, we could have including the additional fixed effects as regressors. Were this a large vector, computation could have become difficult. This is rarely a concern thanks to better computers and better techniques.
 2. We need longitudinal (panel) data (or repeated cross sections in some special circumstances). This is why economists get so much use out of administrative data! This data is rarer in ecology, but with the growth in LTERs and other multi-year sites, this is less of a constraint.
 3. Our target of interest has to be time-varying. Any interesting time-invariant factors have been removed from the equation (literally).
+
+PUT IN FIGURE: RAW VARIATION AND PLOT FIXED EFFECTS
 
 
 We're first going to estimate the following equation site-by-site on the five largest sites (in terms of the number plot-years we observe). 
@@ -245,6 +254,8 @@ As you can see, estimate on log richness are relatively stable across different 
 
 **TAKEAWAY: Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!**
 
+
+FINAL FIGURE HERE WITH SITEYEAR VARIATION REMOVED
 
 # Random Effects Don't Usually Cut It...
 
