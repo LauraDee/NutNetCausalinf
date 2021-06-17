@@ -3,11 +3,15 @@ title: 'Panel Data and Fixed Effects Methods for Ecology'
 author: "Online tutorial for the analyses run in: Dee et al."
 date: 'Last updated: `r Sys.Date()`'
 output:
-  html_document:
+  bookdown::html_document2:
     smart: no
+    df_print: kable
     theme: flatly
     toc: true
     toc_float: true
+bibliography: [FE.bib]
+biblio-style: "apalike"
+link-citations: true
 ---
 <!-- ## internal notes for how to use markdown -->
 
@@ -22,30 +26,32 @@ output:
 <!-- </div> -->
 <!-- will print the sentence in red.  -->
 
-## Setup and Load Data
+# Setup and Load Data
 
-This data has been cleaned and processed and is ready to use. The data correspond to what we use in the paper for the main analysis, and consists of control plots from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have at least 5 years of data.
+The data used in this tutorial comes from the [Nutrient Network](https://nutnet.org/). It has been cleaned and processed and is ready to use. The data correspond to what we use in the paper for the main analysis, and consists of control plots from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have at least 5 years of data.
 
-We'll primarily use the `fixest' package for analysis; the other packages aid data wrangling and comparing research designs.
+We'll primarily use the *fixest* package for analysis; the other packages (*tidyverse*, *data.table*, *lme4*) aid data wrangling and comparing research designs.
 ```{r setup, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(data.table)
 library(fixest)
-library(lme4)  # 1.1-26
+library(lme4)  # Need at least version 1.1-26
 
 cdir <- getwd()
 comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
 ```
 
+The *comb* dataset contains a wide number of variables; we'll mainly be using the variables *live_mass* and *rich*. Also important are the *site_code*, *plot*, and *year* variables, which we use to create fixed effects (site-by-year fixed were created with `"r comb[, site.by.yeardummy := paste(site_code, year, sep = "_")]"`).
 
-## Standard Approaches
+
+# Standard Approaches
 
 For causal inference, we need to answer, "how much does a change in $X$ lead to a change in $Y$". Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error (see Ferraro et al. 2018). 
 
 We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question (reviewed in Ferraro et al 2018), as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
 
 
-### Simple correlations in single years
+## Simple correlations in single years
 
 Let's begin by looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed in a linear regression framework, use log of productivity (measured as live aboveground biomass) as the outcome and log species richness as the explanatory variable. We've found that the log-log specification captures the nature of the relationship in our data well (see the paper for details), also following prior studies (REFs). That is, we estimate and report $\beta$ in:
 \begin{equation}
@@ -93,7 +99,7 @@ Figure 1B (main text -- right panel) is known as a directed acyclic causal graph
 
 **TAKEAWAY: Omitted variable bias is a pervasive feature in observational analysis, and the assumptions that permit identification of causal effects are unlikely to hold when using cross-sectional variation.**
 
-### Common Ecological Design - Multivariate Regression 
+## Common Ecological Design - Multivariate Regression 
 
 Of course, in the above correlations, we include plots in sites from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
  
@@ -140,11 +146,11 @@ There are a few other points to make about the above results that speak the prac
 
 **TAKEAWAY: It is hard to assume the we observe and correctly control for all confounding variables when analyzing cross-sectional data**
 
-## Fixed Effects: Changing the Source of Variation
+# Fixed Effects: Changing the Source of Variation
 
 We now move on to the main course: Let's switch up where the identification comes from.
 
-### Plot Fixed Effects
+## Plot Fixed Effects
 
 Let's ignore sites for a minute, and just think about the plots that lie in a single site. We're going to estimate the following model:
 \begin{equation}
@@ -208,7 +214,7 @@ We again plot the bivariate correlation first, and then the estimate for each si
 
 **TAKEAWAY: Using unit fixed effects in panel data shifts the identifying variation from across units to within units over time.**
 
-### Bringing it all Together with Site-by-Year Fixed Effects
+## Bringing it all Together with Site-by-Year Fixed Effects
 
 We now combine the plot-fixed-effect-based analyses together. This should give us more statistical power to detect effects. We do want to account for the fact that different sites experience different conditions in different years. To do so in a flexible way, we include site-by-year fixed effects, $\delta_{st}$. 
 \begin{equation}
@@ -240,7 +246,7 @@ As you can see, estimate on log richness are relatively stable across different 
 **TAKEAWAY: Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!**
 
 
-## Random Effects Don't Usually Cut It...
+# Random Effects Don't Usually Cut It...
 
 Researchers sometimes turn to random effects models. While random effects models have a number of useful properties, they **do not solve endogeneity problems**. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with richness. So, random effects on their own don't buy us anything more than conditioning on observables. Check out how the results below vary to see this:
 
