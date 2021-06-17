@@ -85,27 +85,41 @@ ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),],
 comb[,singledm.log.live_mass:=log.live_mass-mean(log.live_mass, na.rm=T), by=.(site, plot)]
 comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
 
+# plot raw variation - no fixed effects
 ggplot(comb[(site=="sedg.us" & plot %in% c("1","17")) | (site=="sevi.us" & plot %in% c("8","12")),],
-       aes(x=year, y=log.live_mass, group=plot, linetype=plot)) + 
-  geom_line() + 
-  ggtitle("Raw variation in log biomass") + 
+       aes(x=year, y=log.live_mass, group=plot, linetype=plot, color = site)) + 
+  geom_line() +   scale_color_manual(values=c('#999999','#E69F00')) +
+  ggtitle("Raw Variation in log(live biomass)") + 
   theme_bw() + 
-  ylim(c(-1,7)) 
+  ylim(c(-1,7)) + labs(y = "log(Live biomass)") +  labs(x = "Year") + 
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 14)) 
+
 
 ## why does this look different?
 ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %in% c("8","12")), ],
-       aes(x=year, y=singledm.log.live_mass, group=plot, linetype=plot)) + 
-  geom_line() + 
-  ggtitle("Variation in log biomass after removing plot FE") + 
+       aes(x=year, y=singledm.log.live_mass, group=plot, linetype=plot, color = site)) + 
+  geom_line() +    scale_color_manual(values=c('#999999','#E69F00')) +
+  ggtitle("Variation in log(live biomass) after removing plot fixed effects") + 
   theme_bw() + 
+  ylim(c(-5,7)) + labs(y = "log(Live biomass)") +  labs(x = "Year") + 
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 14)) 
+
+
+### Variation after accounting for site by year effects  ### 
+sitebyyear = ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %in% c("8","12")),],
+       aes(x=year, y=doubledm.log.live_mass, group=plot, linetype=plot, color = site)) + 
+  geom_line() +   scale_color_manual(values=c('#999999','#E69F00')) +
+  ggtitle("Variation in log(live biomass) after removing plot fixed and site by year effects") +
+  theme_bw() +  
   ylim(c(-5,7)) 
 
-ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %in% c("8","12")),],
-       aes(x=year, y=doubledm.log.live_mass, group=plot, linetype=plot)) + 
-  geom_line() + 
-  ggtitle("Variation in log biomass after removing plot FE and site year effects") +
-  theme_bw() + 
-  ylim(c(-5,7)) 
+sitebyyear +
+  labs(y = "log(Live biomass)") +  labs(x = "Year") + 
+   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 14)) 
+
 
 
 #Look at all plots in sevi to see what happened in 2009
