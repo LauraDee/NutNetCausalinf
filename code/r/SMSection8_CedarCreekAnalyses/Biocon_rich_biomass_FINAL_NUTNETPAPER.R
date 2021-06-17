@@ -24,8 +24,11 @@ ihs = function(x) {
 ### LOAD DATA ##########
 
 #processed by Kaitlin on Dec 16 2020; KK used the biomass files for richness and biomass to be consistent with BigBio.
-#setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
-findat <-  fread(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","biocon_plantedbiomass_output.csv"))
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
+findat <-  fread("biocon_plantedbiomass_output.csv")
+# findat <-  fread(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","biocon_plantedbiomass_output.csv"))
+
+### variables for analysis:
 # The TreatmentSR column = treatment level of spp
 # The ObservedSR = observed species based on what was planted in the plot
 # Live.mass = biomass
@@ -57,7 +60,7 @@ table(findat[TreatmentSR=="1", ObservedSR])  # this should be 1 and 0
 ############################################################################################################
 ## plot the raw realized richness over time, at each richness level - color the points by planted richness level
 plot(findat$Year, findat$ObservedSR)
-plot(findat$TreatmentSR, findat$ObservedSR)
+plot(findat$TreatmentSR, findat$ObservedSR, main = "BioCon Planted versus Realized Richness", xlab = "Planted Richness Levels", ylab = "Realized Richness")
 hist(findat$live.mass, main = "Live biomass of planted species")
 
 # species richness in the plots can go down but not up due to weeding of species colonizating the plot
@@ -86,15 +89,15 @@ realrichovertime.T
 #  Reich,  et al. (2012). Impacts of biodiversity loss escalate through time as redundancy fades. Science, 336, 589–92.
 #  Cardinale, B.J., et al. (2011). The functional role of producer diversity in ecosystems. Am. J. Bot., 98, 572–592.
 biocon.mod  <- feols(ihs(live.mass) ~ ihs(ObservedSR)  | Year + Plot,  findat, cluster = "Plot") 
-# 
-# mod1 <- felm(ihs(live.mass) ~ ihs(ObservedSR) | Plot  + Year | 0 | Plot,  data = findat)
-# summary(mod1)
-
 
 ########################################### 
-#### Print Results for Table S16 ########
+#### Print Results for Table S16 ########## 
 ########################################### 
 
 esttex(biocon.mod, 
        coefstat = "se",  replace = TRUE,
        file = "Table_S16_R_se.tex")
+
+esttex(biocon.mod, 
+       coefstat = "conf",  replace = TRUE,
+       file = "Table_S16_R_ci.tex")

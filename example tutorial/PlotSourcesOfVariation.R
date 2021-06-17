@@ -80,7 +80,7 @@ ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),],
 
 
 ######
-# Decompose variation from one plot
+# Decompose variation from one plot --- *****THESE FIGURES FOR THE TUTORIAL! *****
 ######
 comb[,singledm.log.live_mass:=log.live_mass-mean(log.live_mass, na.rm=T), by=.(site, plot)]
 comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
