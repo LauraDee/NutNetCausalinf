@@ -2,8 +2,12 @@
 library(tidyr) 
 library(here)
 library(plyr)
-expdes <- read.csv(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data", "BioCONExpDes.csv"))
-tbiomass <- read.delim(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","AbvGrndBiomass_2017.txt"))
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
+expdes <- read.csv("BioCONExpDes.csv")
+tbiomass <- read.delim("AbvGrndBiomass_2017.txt")
+
+ #expdes <- read.csv(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data", "BioCONExpDes.csv"))
+# tbiomass <- read.delim(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","AbvGrndBiomass_2017.txt"))
 
 tbiomass$Date <- as.Date(tbiomass$Date,"%m/%d/%Y")
 tbiomass$Month <- as.numeric(format(tbiomass$Date, format = "%m"))
@@ -73,7 +77,10 @@ comb <- merge(rich, mass, by=c("Year", "Plot"))
 summary(comb)
 
 #save data 
-write.csv(tbiomass, here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","biocon_for_ld.csv"))
-write.csv(comb, here::here("code", "r", "SMSection8_CedarCreekAnalyses","data", "biocon_plantedbiomass_output.csv"))
+write.csv(tbiomass, "biocon_for_ld.csv")
+write.csv(comb,  "biocon_plantedbiomass_output.csv")
+
+#write.csv(tbiomass, here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","biocon_for_ld.csv"))
+#write.csv(comb, here::here("code", "r", "SMSection8_CedarCreekAnalyses","data", "biocon_plantedbiomass_output.csv"))
 
           
