@@ -316,7 +316,8 @@ As you can see, estimate on log richness are relatively stable across different 
 
 **TAKEAWAY: Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!**
 
-FINAL FIGURE HERE WITH SITEYEAR VARIATION REMOVED
+Once we account for the site-by-year effects, as in the models above, you can see in HOW TO REFERENCE THE FIG -- > graphdeplotsiteyearFE that we have removed variation in log(live mass) that is site and year specific, and likely to be driven by a confounding variable (e.g., drought at a site in a particular year).
+
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
 ```
@@ -336,12 +337,56 @@ sitebyyear +
 ```
 
 
-# Graphical Depictions of Variation without and with Fixed Effects
+# Graphical Depictions of Variation without and with Fixed Effects  - CHRIS CHECK THIS AND HELP WITH TEXT?
+
+Using simple plots of the relationships between richness and productivity (as log of richness and log of live mass), which mimic our process xxxxxxx, we can see the relationships shift from positive to negative. 
+
+```{r RawBivariate, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="The bivariate relationship with no controls."}
+# Cross-sectional analog - ignoring fixed effects and any other covariates
+comb[,`:=`(log.rich=log(rich), log.live_mass=log(live_mass))]
+ggplot(comb[!is.na(log.rich) & !is.na(log.live_mass),], 
+       aes(x=log.rich, 
+           y=log.live_mass)) + 
+  geom_smooth(method="lm", se=T) + labs(y = "log(Live biomass)") + labs(x = "log(Richness)") + 
+  theme_bw() +
+  geom_point()
+```
+
+```{r plotFixedEffects, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Controlling for only plot-level attributes that do not change through time"}
+# Plot FE only
+# We'll also do (double) demeaning of logged values to mimic 
+# what's done in log-log model
+comb[order(year), change.log.rich := log(rich)-shift(log(rich)), by =.(plot, site_code)]
+comb[order(year), change.log.live_mass := log(live_mass)-shift(log(live_mass)), by =.(plot, site_code)]
+
+ggplot(comb[!is.na(change.log.rich) & !is.na(change.log.live_mass),], 
+       aes(x=change.log.rich, 
+           y=change.log.live_mass)) + labs(y = "log(Live biomass)") + labs(x = "log(Richness)") + 
+  geom_smooth(method="lm", se=F) + 
+  theme_bw() +
+  geom_point()
+```
+
+```{r siteyrplotFixedEffects, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Controlling for plot attributes and attributes of sites that change through time"}
+comb[,dm.changerich:=changerich-mean(changerich, na.rm=T), by=.(site,year)]
+comb[,dm.changelive_mass:=changelive_mass-mean(changelive_mass, na.rm=T), by=.(site,year)]
+comb[,dm.change.log.rich:=change.log.rich-mean(change.log.rich, na.rm=T), by=.(site,year)]
+comb[,dm.change.log.live_mass:=change.log.live_mass-mean(change.log.live_mass, na.rm=T), by=.(site,year)]
+
+# Panel analog (plot FE and site-year effects)
+ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),], 
+       aes(x=dm.change.log.rich, 
+           y=dm.change.log.live_mass)) + labs(y = "log(Live biomass)") + labs(x = "log(Richness)") + 
+  geom_smooth(method="lm", se=F) +
+  theme_bw() +
+  geom_point()
+
+```
 
 
-# Random Effects Don't Usually Cut It...
+# Random Effects Don't Usually Cut It... CHRIS I DONT KNOW HOW TO ADD THE CITATION IN THAT I PUT IN THE ZOTERA LIB
 
-Researchers sometimes turn to random effects models. While random effects models have a number of useful properties, they **do not solve endogeneity problems**. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with richness. So, random effects on their own don't buy us anything more than conditioning on observables. Check out how the results below vary to see this:
+Researchers sometimes turn to random effects models to attempt to deal with confounding variables or *unobserved heterogeneity*. While random effects models have a number of useful properties (reviewed in @bell2011), they **do not solve endogeneity problems** on their own. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with richness (and any other variable in the model) So, random effects on their own don't buy us anything more than conditioning on observables. Check out how the results below vary to see this, and the more details on the mathematics behind this in *Appendix XXXXX* below:
 
 First, consider the two linear models (without random effects) with different sets of soil variables
 
@@ -393,3 +438,10 @@ summary(MixedMod_Rich )
 ```
 
 None these models really addresses endogeneity...
+
+
+#GLOSSARY
+
+WHERE DID THIS GO
+
+#References
