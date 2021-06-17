@@ -52,27 +52,29 @@ ggplot(comb[!is.na(changerich) & !is.na(changelive_mass),],
   geom_point()
 
 
+### LOG BIVARIATE PLOTS #### *** TO ADD TO TUTORIAL ******
 # Plots for log-log models - punchline
-# Cross-sectional analog
+
+# Cross-sectional analog - ignoring fixed effects and any other covariates
 ggplot(comb[!is.na(log.rich) & !is.na(log.live_mass),], 
        aes(x=log.rich, 
            y=log.live_mass)) + 
-  geom_smooth(method="lm", se=T) +
+  geom_smooth(method="lm", se=T) + labs(y = "log(Live biomass)") + labs(x = "log(Richness)") + 
   theme_bw() +
   geom_point()
 
 # Plot FE only
 ggplot(comb[!is.na(change.log.rich) & !is.na(change.log.live_mass),], 
        aes(x=change.log.rich, 
-           y=change.log.live_mass)) + 
-  geom_smooth(method="lm", se=F) +
+           y=change.log.live_mass)) + labs(y = "log(Live biomass)") + labs(x = "log(Richness)") + 
+  geom_smooth(method="lm", se=F) + 
   theme_bw() +
   geom_point()
 
 # Panel analog (plot FE and site-year effects)
 ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),], 
        aes(x=dm.change.log.rich, 
-           y=dm.change.log.live_mass)) + 
+           y=dm.change.log.live_mass)) + labs(y = "log(Live biomass)") + labs(x = "log(Richness)") + 
   geom_smooth(method="lm", se=F) +
   theme_bw() +
   geom_point()
