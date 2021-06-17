@@ -55,7 +55,7 @@ We evaluate causal inference by assessing the credibility and validity of the as
 
 Let's begin by looking at simple correlations. We will examine both the overall correlation and correlations within a single year (i.e., using cross-sectional variation). We proceed with a linear regression framework \@ref(eq:eq1), using the log of productivity (measured as live aboveground biomass) as the outcome and the log species richness as the explanatory variable.  We've found that a log-log specification captures the nature of the relationship in our data well (see Figure \@ref(fig:graphbiomasssp) below and the paper for details).
 
-```{r graphbiomasssp, echo = F, fig.cap="log(Live Mass) as a function of log(Richness)."}
+```{r graphbiomasssp, echo = F, out.width = '60%', fig.align = "center", fig.cap="log(Live Mass) as a function of log(Richness)."}
 ggplot(comb, aes(x=log(rich), y = log(live_mass))) + geom_point()
 ```
 
@@ -94,27 +94,31 @@ When does $\hat{\beta}$ capture a causal relationship? When there are no unobser
 A **Directed Acyclic Diagram** (DAG) can help us see the challenges of omitted, and potentially confounding, variables more clearly. In the above analyses from equation \@ref(eq:eq1), $\beta$ is only identified if we assume that any variables that matter but that we omitted are uncorrelated with richness. 
 One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of **statistical bias** [@morganCounterfactualsCausalInference2014].
 
-In our case, many variables that are correlated with biodiversity can also drive productivity (Fig. 1B -- main text), creating the possibility for rival explanations and biased estimates for estimated effects from observations. For example, climatic conditions, soil nutrients, evolutionary history, and historic contingency during community assembly are all related to both productivity and biodiversity (Loreau 1998; Fukami & Nakajima 2011; Grace et al. 2016a). With a common driver of both variables that is not included in a model, two variables (i.e., biodiversity and an ecosystem function) may be correlated, even when there is no causal relationship between them. Similarly, no correlation between variables does not imply a lack of causation. Causal relationships can also be masked when examining correlations, due to an omitted variable (e.g., nitrogen addition), which positively affects productivity but negatively affects richness (Isbell et al. 2013). Models that do not control for that common driver will consequently tend to give estimates that do not correspond to causal effects of biodiversity on productivity (or vice versa). 
+In our case, many variables that are correlated with biodiversity can also drive productivity (Fig. 1B -- main text), creating the possibility for rival explanations and biased estimates for estimated effects from observations. For example, climatic conditions, soil nutrients, evolutionary history, and historic contingency during community assembly are all related to both productivity and biodiversity [@Loreau1998;@fukamiCommunityAssemblyAlternative2011; @graceIntegrativeModellingReveals2016]. With a common driver of both variables that is not included in a model, two variables (i.e., biodiversity and an ecosystem function) may be correlated, even when there is no causal relationship between them. Similarly, no correlation between variables does not imply a lack of causation. Causal relationships can also be masked when examining correlations, due to an omitted variable (e.g., nitrogen addition), which positively affects productivity but negatively affects richness [@isbellNutrientEnrichmentBiodiversity2013]. Models that do not control for that common driver will consequently tend to give estimates that do not correspond to causal effects of biodiversity on productivity (or vice versa). 
 
 <center>
 <br />
-<img src="https://imgur.com/nNFnoL2.png" width="65%" />
+<img src="https://imgur.com/nNFnoL2.png" width="45%" />
 <br />
 </center>   
 
 Figure 1B (main text -- right panel) is known as a directed acyclic causal graph (DAG) and is a visualization of qualitative causal assumptions (Pearl 2009, 2011; Fieberg & Ditmer 2012; Schoolmaster et al. 2013, 2020). A DAG encodes knowledge and beliefs about how a system works. The graphical relations depicted in the DAG encode causal claims – not just representations of associations. A directed edge (e.g., R --> P) depicts a claim about the results of many hypothetical experiments, whereby if every other variable represented in the graph is held fixed, R and P will covary if R if manipulated, but not if P is manipulated (note, a DAG assumes that one can isolate the effect of R on P, but does not imply that P can never affect R; another DAG may represent the reverse direction, P --> R). 
 
-**TAKEAWAY: Omitted variable bias is a pervasive feature in observational analysis, and the assumptions that permit identification of causal effects are unlikely to hold when using cross-sectional variation.**
+<div style="background-color: #c5cae9">
+TAKEAWAY:
+
+Omitted variable bias is a pervasive feature in observational analysis, and the assumptions that permit identification of causal effects are unlikely to hold when using cross-sectional variation.
+</div>
 
 ## Common Ecological Design - Multivariate Regression 
 
 Of course, in the above correlations, we include plots in sites from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
  
-A common response is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (REF 1). We can visualize this assumption by modifying our DAG, and using some examples in R:
+A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (REF 1). We can visualize this assumption by modifying our DAG, and using some examples in R:
 
 **INSERT DAG WITH THIS ASSUMPTION**
 
-To explore the consequences of adding in covariates, we show the results of five models below. The first column repeats the first column from above. The second column adds in soil chemistry covariates, the third column instead adds weather covariates, and the fourth instead adds management variables plus habitat. The last columns adds in everything. We only show coefficient estimates for richness, even though the other terms are included in the model.
+To explore the consequences of adding in covariates, we show the results of five models below. The first column repeats the first column from above. The second column adds in soil chemistry covariates, the third column instead adds weather covariates, and the fourth instead adds management variables plus habitat. The last columns adds in everything. For the purposes of this tutorial, we only show coefficient estimates for richness in the following table, even though the other terms are included in the model.
 
 ```{r message=FALSE, warning=FALSE}
 SoilCovars <- feols(log(live_mass) ~ log(rich) +
@@ -147,11 +151,18 @@ etable(SimpleCorrAll, SoilCovars, WeatherCovars, MgmtCovars, AllCovars,
 Estimates jump around depending on which covariates are used! This is likely a sign of some sort of omitted variables bias. Even though we consecutively explain more and more of the variation in the data, we are not necessarily any closer to a causal relationship.
 
 There are a few other points to make about the above results that speak the practice of science. 
-1.First, the number of observations changes based on which controls we use. Columns 2 and 5 might be on highly selected sample, and not representative of the overall populations under study. A careful analysis could do any of a number of approaches to control for that, but far too often we just say ``This is what I have (all the) data for, so this what I estimate.'' It would be nice if there were a way to move forward even if we were unable to collect data on all the variables we wanted.
+
+1.First, the number of observations changes based on which controls we use. Columns 2 and 5, where we only have 675 observations, might be on highly selected and not representative of the overall populations under study. A careful analysis could do any of a number of approaches to control for that, but far too often we just say ``This is what I have (all the) data for, so this what I estimate.'' It would be nice if there were a way to move forward even if we were unable to collect data on all the variables we wanted.
+
 2.Second, and more perniciously, is specification hunting. What's to keep from only displaying results in columns 2 and 5 above, with no mention of the other results. P-hacking is something we should all be concerned about, but it's really easy to twiddle and play until one gets just the right set of results that agree with ones hypothesis.
+
 3.Lastly, we assumed that all the covariates entered linearly and did not interact. What if what really matters is the interaction of nitrogen and precipitation? How do we capture that? We could include interactions and quadratics, or splines, but at some point, the number of covariates will exceed our sample size and nothing is identified.
 
-**TAKEAWAY: It is hard to assume the we observe and correctly control for all confounding variables when analyzing cross-sectional data**
+<div style="background-color: #c5cae9">
+TAKEAWAY: 
+
+It is hard to assume the we observe and correctly control for all confounding variables when analyzing cross-sectional data
+</div>
 
 # Fixed Effects: Changing the Source of Variation
 
@@ -161,31 +172,78 @@ We now move on to the main course: Let's switch up where the identification come
 
 Let's ignore sites for a minute, and just think about the plots that lie in a single site. We're going to estimate the following model:
 \begin{equation}
-\ln(\text{Live Mass}_{pt}) = \beta \ln(\text{Richness}_{pt}) + \lambda_p + e_{pt}
+\ln(\text{Live Mass}_{pt}) = \beta \ln(\text{Richness}_{pt}) + \lambda_p + \delta_t + e_{pt}
 \end{equation}
-where we've added the term $\lambda_p$. This represents a vector of plot-specific fixed effect---a dummy variable for each plot. We'll also add time fixed effects (a dummy for each year) to control for the common differences to all plots in a year (in a site), and we'll touch on that later, but really, the plot fixed effects are of greatest consequence.
+where we've added the term $\lambda_p$. This represents a vector of plot-specific fixed effect---a dummy variable for each plot. We also add time fixed effects ($\delta_t$, a dummy for each year) to control for the common differences to all plots in a year (in a site). We'll touch on that more later, but really, the *plot fixed effects are of greatest consequence*.
 
-What does adding this vector of plot dummy variables do? Two big things. First, it controls for any and all time-invariant features of the plot, whether we observe them OR NOT!!! To see this, imagine putting in a variable $x_p$ into the above equation linearly with the coefficient $\gamma$. We wouldn't actually be able to estimate $\gamma x_p$; it's already a component of $\lambda_p$. Don't know what functional for you should use for $x_p$ or whether it should be interacted with another variable? That's fine, that's already included in $\lambda_p$! We get a whole lot for the inclusion of this variable. 
+What does adding this vector of plot dummy variables do? Two big things. First, it controls for any and all time-invariant features of the plot, whether we observe them **or not**!!! To see this, imagine putting in a variable $x_p$ into the above equation linearly with the coefficient $\gamma$. We wouldn't actually be able to estimate $\gamma x_p$; it's already a component of $\lambda_p$. Don't know what functional for you should use for $x_p$ or whether it should be interacted with another variable? That's fine, that's already included in $\lambda_p$! We get a whole lot for the inclusion of this variable. 
 
-Second, and most importantly conceptually, is that we are no longer directly comparing different plots; we aren't using  cross-sectional variation any more. Instead, we are using variation in richness and productivity within the same plot *over time*. So, we're implicitly comparing a plot in year $t$ with this same plot in year $t+k$ for some $k$. Another way to see this is that we could write a very similar equation in differences:
+Second, and most importantly conceptually, is that we are no longer directly comparing different plots; we aren't using  cross-sectional variation any more. Instead, we are using variation in richness and productivity within the same plot *over time*. So, we're implicitly comparing a plot in year $t$ with this same plot in year $t+k$ for some $k$. Another way to see this is that we could write a very similar equation in differences (ignore the $\delta_t$ for a moment):
 \begin{equation}
-(\ln(\text{Live Mass}_{pt})-\ln(\text{Live Mass}_{pt-1}) = \beta ( \ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1})) + (e_{pt} - e_{pt-1})
+\left(\ln(\text{Live Mass}_{pt})-\ln(\text{Live Mass}_{pt-1}) \right)= \beta \left( \ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1}) \right) + \left( e_{pt} - e_{pt-1}\right)
 \end{equation}
 Where did $\lambda_p$ go? Well, $\lambda_p-\lambda_p=0$, so we don't need it. (NB: We could also subtract the mean of each variable over time within each plot and arrive at a similar estimator. There are subtle differences between the two approaches that depend on the nature of the error terms $e$, but they draw on the same source of variation).
 
-What do we have to assume for a causal interpretation? There are a couple of different assumptions we could choose; I think it's easiest to frame it like this: $\mathbb{E}[ (e_{pst} - e_{pst-1}) \times (\ln(\text{Richness}_{pst}) - \ln(\text{Richness}_{pst-1}))]=0$. That is, changes in richness are uncorrelated with *changes in* unobserved determinants of richness. Because time-invariant unobservables do not change, they are no longer a concern! Instead, we're concerned if movements in some unobserved factor could both be driving our outcome variable and be correlated with richness.
+What do we have to assume for a causal interpretation? There are a couple of different assumptions we could choose; I think it's easiest to frame it like this: $\mathbb{E}[ (e_{pt} - e_{pt-1}) \times (\ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1}))]=0$. That is, changes in richness are uncorrelated with *changes in* unobserved determinants of richness. Because time-invariant unobservables do not change, they are no longer a concern! Instead, we're concerned if movements in some unobserved factor could both be driving our outcome variable and be correlated with richness.
 
 
 
-What's the cost? Well, there are a few to consider, but some really aren't much of a restriction: 
+What's the cost? Well, there are a few to consider, but some really aren't much of a restriction:
+
 1. We use to worry about computational issues. Instead of differencing, we could have including the additional fixed effects as regressors. Were this a large vector, computation could have become difficult. This is rarely a concern thanks to better computers and better techniques.
+
 2. We need longitudinal (panel) data (or repeated cross sections in some special circumstances). This is why economists get so much use out of administrative data! This data is rarer in ecology, but with the growth in LTERs and other multi-year sites, this is less of a constraint.
+
 3. Our target of interest has to be time-varying. Any interesting time-invariant factors have been removed from the equation (literally).
 
-PUT IN FIGURE: RAW VARIATION AND PLOT FIXED EFFECTS
+EXPLAIN FIGURES
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+comb$site <- comb$site_code
+comb$plot = as.factor(comb$plot)
+
+comb[,dm.changerich:=changerich-mean(changerich, na.rm=T), by=.(site,year)]
+comb[,dm.changelive_mass:=changelive_mass-mean(changelive_mass, na.rm=T), by=.(site,year)]
+
+comb[,`:=`(log.rich=log(rich), log.live_mass=log(live_mass))]
+comb[order(year), change.log.rich := log(rich)-shift(log(rich)), by =.(plot, site_code)]
+comb[order(year), change.log.live_mass := log(live_mass)-shift(log(live_mass)), by =.(plot, site_code)]
+comb[,dm.change.log.rich:=change.log.rich-mean(change.log.rich, na.rm=T), by=.(site,year)]
+comb[,dm.change.log.live_mass:=change.log.live_mass-mean(change.log.live_mass, na.rm=T), by=.(site,year)]
+
+comb[,singledm.log.live_mass:=log.live_mass-mean(log.live_mass, na.rm=T), by=.(site, plot)]
+comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
+
+```
 
 
-We're first going to estimate the following equation site-by-site on the five largest sites (in terms of the number plot-years we observe). 
+
+```{r graphrawvary, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Raw variation in live mass at four plots across two sites."}
+# plot raw variation - no fixed effects
+ggplot(comb[(site=="sedg.us" & plot %in% c("1","17")) | (site=="sevi.us" & plot %in% c("8","12")),],
+       aes(x=year, y=log.live_mass, group=plot, linetype=plot, color = site)) + 
+  geom_line() +   scale_color_manual(values=c('#999999','#E69F00')) +
+  ggtitle("Raw Variation in log(live biomass)") + 
+  theme_bw() + 
+  ylim(c(-1,7)) + labs(y = "log(Live biomass)") +  labs(x = "Year") + 
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 14)) 
+```
+
+```{r graphdeplotFE, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Variation demaned by plot in live mass at four plots across two sites."}
+## why does this look different?
+ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %in% c("8","12")), ],
+       aes(x=year, y=singledm.log.live_mass, group=plot, linetype=plot, color = site)) + 
+  geom_line() +    scale_color_manual(values=c('#999999','#E69F00')) +
+  ggtitle("Variation in log(live biomass) after removing plot fixed effects") + 
+  theme_bw() + 
+  ylim(c(-5,7)) + labs(y = "log(Live biomass)") +  labs(x = "Year") + 
+  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 14)) 
+```
+
+
+To the statistical model: We're first going to estimate the following equation site-by-site on the five largest sites (in terms of the number plot-years we observe). 
 \begin{equation}
 \ln(\text{Live Mass}_{pt}) = \beta \ln(\text{Richness}_{pt}) + \lambda_p + \delta_t + e_{pt}
 \end{equation}
@@ -219,9 +277,13 @@ etable(SimpleCorrAll, PlotFE_1, PlotFE_2, PlotFE_3, PlotFE_4, PlotFE_5,
           subtitles = c("Data All Years","US - CDCR", "US - CDPT", "CA - Koffler", "US - SEDG", "US - SIER" )) 
 ```
 
-We again plot the bivariate correlation first, and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally).
+We again show the bivariate correlation on all sites first (SimpleCorrAll), and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally).
 
-**TAKEAWAY: Using unit fixed effects in panel data shifts the identifying variation from across units to within units over time.**
+<div style="background-color: #c5cae9">
+TAKEAWAY: 
+
+Using unit fixed effects in panel data shifts the identifying variation from across units to within units over time.
+</div>
 
 ## Bringing it all Together with Site-by-Year Fixed Effects
 
@@ -256,6 +318,9 @@ As you can see, estimate on log richness are relatively stable across different 
 
 
 FINAL FIGURE HERE WITH SITEYEAR VARIATION REMOVED
+
+# Graphical Depictions of Variation without and with Fixed Effects
+
 
 # Random Effects Don't Usually Cut It...
 
