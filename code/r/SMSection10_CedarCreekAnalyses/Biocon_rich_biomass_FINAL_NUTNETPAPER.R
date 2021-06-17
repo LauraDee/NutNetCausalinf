@@ -41,6 +41,8 @@ findat$Year <- as.factor(findat$Year)
 
 #whats the sample size
 table(findat$Year)
+table(findat$Year, findat$TreatmentSR)
+table(findat$TreatmentSR, findat$Year)
 
 #check for any NAs or 0s for Biomass or SR
 table(findat$ObservedSR)  
@@ -60,7 +62,7 @@ table(findat[TreatmentSR=="1", ObservedSR])  # this should be 1 and 0
 ############################################################################################################
 ## plot the raw realized richness over time, at each richness level - color the points by planted richness level
 plot(findat$Year, findat$ObservedSR)
-plot(findat$TreatmentSR, findat$ObservedSR, main = "BioCon Planted versus Realized Richness", xlab = "Planted Richness Levels", ylab = "Realized Richness")
+plot(findat$TreatmentSR, findat$ObservedSR, main = "BioCon Planted versus Realized Richness", xlab = "Planted Richness Levels", ylab = "Realized Richness", pch = 19)
 hist(findat$live.mass, main = "Live biomass of planted species")
 
 # species richness in the plots can go down but not up due to weeding of species colonizating the plot

@@ -98,7 +98,7 @@ ggplot(comb[(site=="sedg.us" & plot %in% c("1","17")) | (site=="sevi.us" & plot 
   theme(axis.text.y = element_text(size = 14)) 
 
 
-## why does this look different?
+## why does this look different? Plot FEs
 ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %in% c("8","12")), ],
        aes(x=year, y=singledm.log.live_mass, group=plot, linetype=plot, color = site)) + 
   geom_line() +    scale_color_manual(values=c('#999999','#E69F00')) +
@@ -107,6 +107,16 @@ ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %i
   ylim(c(-5,7)) + labs(y = "log(Live biomass)") +  labs(x = "Year") + 
   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
   theme(axis.text.y = element_text(size = 14)) 
+
++  geom_segment(
+    x = 1, y = 1,
+    xend = 4, yend = 7,
+    lineend = "round", # See available arrow types in example above
+    linejoin = "round",
+    size = 2, 
+    arrow = arrow(length = unit(0.3, "inches")),
+    colour = "#EC7014") # Also accepts "red", "blue' etc
+  
 
 
 ### Variation after accounting for site by year effects  ### 
