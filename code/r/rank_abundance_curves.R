@@ -1,8 +1,8 @@
 library(ggpubr)
 
-############################
-## Rank abundance curves ##
-###########################
+#############################################
+## Rank abundance curves - Figure S11 ####
+############################################
 
 sites <- unique(comb$site_code)
 sites <- sites[-29]
