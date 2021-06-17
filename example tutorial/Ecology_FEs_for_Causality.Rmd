@@ -1,6 +1,6 @@
 ---
 title: 'Panel Data and Fixed Effects Methods for Ecology'
-author: "Online tutorial for the analyses run in: Dee et al."
+author: "Online tutorial for the analyses run in: Dee et al. written by Chris Severen and Laura Dee"
 date: 'Last updated: `r Sys.Date()`'
 output:
   bookdown::html_document2:
@@ -48,7 +48,7 @@ The *comb* dataset contains a wide number of variables; we'll mainly be using th
 
 For causal inference, we need to answer, *how much does a change in $X$ lead to a change in $Y$*. Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error [see @ferraroCausalInferenceCoupled2018]. 
 
-We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
+We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @morganCounterfactualsCausalInference2014, @ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
 
 
 ## Simple correlations in single years
@@ -114,7 +114,7 @@ Omitted variable bias is a pervasive feature in observational analysis, and the 
 
 Of course, in the above correlations, we include plots in sites from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
  
-A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (REF 1). We can visualize this assumption by modifying our DAG, and using some examples in R:
+A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (****add in REF 1****). We can visualize this assumption by modifying our DAG, and using some examples in R:
 
 **INSERT DAG WITH THIS ASSUMPTION**
 
@@ -316,8 +316,25 @@ As you can see, estimate on log richness are relatively stable across different 
 
 **TAKEAWAY: Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!**
 
-
 FINAL FIGURE HERE WITH SITEYEAR VARIATION REMOVED
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
+```
+
+```{r graphdeplotsiteyearFE, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Variation demaned by plot and site-by-year effects in live mass at four plots across two sites."}
+sitebyyear = ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %in% c("8","12")),],
+       aes(x=year, y=doubledm.log.live_mass, group=plot, linetype=plot, color = site)) + 
+  geom_line() +   scale_color_manual(values=c('#999999','#E69F00')) +
+  ggtitle("Variation in log(live biomass) after removing plot fixed and site by year effects") +
+  theme_bw() +  
+  ylim(c(-5,7)) 
+
+sitebyyear +
+  labs(y = "log(Live biomass)") +  labs(x = "Year") + 
+   theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 14)) 
+```
+
 
 # Graphical Depictions of Variation without and with Fixed Effects
 
