@@ -24,7 +24,7 @@ ihs = function(x) {
 ### LOAD DATA ##########
 
 #processed by Kaitlin on Dec 16 2020; KK used the biomass files for richness and biomass to be consistent with BigBio.
-setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection8_CedarCreekAnalyses/data/")
+setwd("~/Documents/GitHub/NutNetCausalinf/code/r/SMSection10_CedarCreekAnalyses/data/")
 findat <-  fread("biocon_plantedbiomass_output.csv")
 # findat <-  fread(here::here("code", "r", "SMSection8_CedarCreekAnalyses","data","biocon_plantedbiomass_output.csv"))
 
