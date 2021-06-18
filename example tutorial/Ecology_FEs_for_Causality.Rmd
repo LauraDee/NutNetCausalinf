@@ -473,6 +473,10 @@ summary(MixedMod_Rich )
 Across these models, note that the coefficient on log richness does not really change, and is not very different from the linear model above that include additional covariates. This is because random effects are not really controlling for factors that both correlate with richness and with productivity.
 
 
+# Accounting for other sources of confounding variables
+
+
+
 # Glossary
 
 
@@ -480,14 +484,22 @@ Across these models, note that the coefficient on log richness does not really c
 In this study, we use the term "confounding variable" to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a **non-experimental** study design.
 
 ### Bias and Hidden Bias:
-Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated (11). The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data (REF). The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias.
+Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated ***(11)***. The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data ***(REF)***. The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias.
 
 ### Errors versus Residuals:
 The error term is part of the true data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
 
 ### "Selection on Observables" Assumption:
-Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see (REF).
+Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see [@morganCounterfactualsCausalInference2014].
 
+### Instrumental Variable:
+This term is defined in in Figure 1B as variable Z, a variable that affects the treatment variable (in our study, “species richness”) but has no direct effect on the outcome variable (in our study, “above-ground biomass”) except through its effect on the treatment. In a randomized experiment, the instrumental variable is the randomization procedure. To read more, see ***(14–16)***.
+
+### Panel Data:
+Panel data are longitudinal data comprising repeated measures taken from a sample of cases (e.g., plots, sites, regions). Such data are also sometimes referred to as longitudinal multilevel data. See our SM section S3 for more detail on this panel data.
+
+### Cross-sectional Data:
+Data without repeated measures taken from a sample. Instead, one measure is taken from each unit of analysis (e.g., plot). For example, analyses of the effect of biodiversity on productivity in cross-sectional data have only one observation per plot.
 
 # REFERENCES
 
