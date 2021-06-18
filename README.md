@@ -76,6 +76,8 @@ Rest of SM Section 7
 * Results and Table produced in R
 * NEED TO FINALIZE TABLES AND NUMBERING
 
+Supplemental Figures
+
 Figure S1 -- Produced in R (FiguresS1_S2_S3.R) 
 
 Figure S2 -- Produced in R (FiguresS1_S2_S3.R) 
