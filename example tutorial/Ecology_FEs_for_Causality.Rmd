@@ -192,11 +192,11 @@ What's the cost? Well, there are a few to consider, but some really aren't much 
 
 1. We use to worry about computational issues. Instead of differencing, we could have including the additional fixed effects as regressors. Were this a large vector, computation could have become difficult. This is rarely a concern thanks to better computers and better techniques.
 
-2. We need longitudinal (panel) data (or repeated cross sections in some special circumstances). This is why economists get so much use out of administrative data! This data is rarer in ecology, but with the growth in LTERs and other multi-year sites, this is less of a constraint.
+2. We need longitudinal (panel) data (or repeated cross sections in some special circumstances). This is why economists get so much use out of administrative data! This data is rarer in ecology, but with the growth in LTERs and other multi-year sites, this will be less of a constraint.
 
 3. Our target of interest has to be time-varying. Any interesting time-invariant factors have been removed from the equation (literally).
 
-EXPLAIN FIGURES
+Figures \@ref(fig:graphrawvary) and \@ref(fig:graphdeplotFE) illustrate graphically what the plot fixed effects do to the outcome variable (productivity). Figures \@ref(fig:graphrawvary) is just the raw data, and shows loglive mass in four plots split between two sites (at the Sedgwick Reserve and at the Sevilleta LTER). Sedgwick has higher productivity on average. The plot fixed effects remove the average productivity in each site, as shown in Figure \@ref(fig:graphdeplotFE).
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 comb$site <- comb$site_code
@@ -287,36 +287,16 @@ Using unit fixed effects in panel data shifts the identifying variation from acr
 
 ## Bringing it all Together with Site-by-Year Fixed Effects
 
-We now combine the plot-fixed-effect-based analyses together. This should give us more statistical power to detect effects. We do want to account for the fact that different sites experience different conditions in different years. To do so in a flexible way, we include site-by-year fixed effects, $\delta_{st}$. 
+We now combine all sites together to give us more statistical power to detect effects. We do want to account for the fact that different sites experience different conditions in different years.
+To do so in a flexible way, we include site-by-year fixed effects, $\delta_{st}$. 
 \begin{equation}
 \ln(\text{Live Mass}_{pst}) = \beta \ln(\text{Richness}_{pst}) + \lambda_p + \delta_{st} +  e_{pst}
 \end{equation}
-These additional fixed effects control for all time-varying effects that impact the site as whole (i.e., that apply to all the plots equally). Thus, they capture the first order effects of weather, among other factors that could shift outcomes for the site as whole.
+These additional fixed effects control for all time-varying effects that impact the site as whole (i.e., that apply to all the plots equally). Thus, they capture the first order effects of weather, among other factors that could shift outcomes for the site as whole. This gives us sufficient power to conduct conservative inference on our estimated average treatment effect.
 
 
-We will include a couple of time-varying controls. To make sure we don't drop locations with values of zero (but for which we want logged values), we first define the inverse hyperbolic sine. Note that we don't need to worry about that for productivity or richness because they never take a zero value.
-```{r message=FALSE, warning=FALSE}
+To get a sense for what these site-by-year effects do, first recall Figure \@ref(fig:graphdeplotFE). Plots that are in the same site seem to have similar movements in productivity over time, even after controlling for plot fixed effects. The site-by-year fixed effects remove the average of everything that happens across the site in the data in a year (e.g., a drought at a site). Figure \@ref(fig:graphdeplotsiteyearFE) removes this variation; see how the big drop in Sevilleta live mass in 2009 is much less Figure in \@ref(fig:graphdeplotsiteyearFE).
 
-ihs <- function(x) {
-  y <- log(x+sqrt(x^2 + 1))
-}
-
-
-MainMod_Rich     <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
-MainMod_RichEven <- feols(log(live_mass) ~ log(rich) + ihs(even) | newplotid + site.by.yeardummy, comb) 
-MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
-MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
-
-etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag,
-          cluster = "newplotid")
-
-```
-
-As you can see, estimate on log richness are relatively stable across different specifications. Of special note: the coefficient on lagged richness (richness last year) is small and insignificant, given us confidence that our results reflect *contemporaneous* movement in richness, and some factor that is also correlated with last year's richness.
-
-**TAKEAWAY: Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!**
-
-Once we account for the site-by-year effects, as in the models above, you can see in HOW TO REFERENCE THE FIG -- > graphdeplotsiteyearFE that we have removed variation in log(live mass) that is site and year specific, and likely to be driven by a confounding variable (e.g., drought at a site in a particular year).
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
@@ -337,9 +317,39 @@ sitebyyear +
 ```
 
 
-# Graphical Depictions of Variation without and with Fixed Effects  - CHRIS CHECK THIS AND HELP WITH TEXT?
 
-Using simple plots of the relationships between richness and productivity (as log of richness and log of live mass), which mimic our process xxxxxxx, we can see the relationships shift from positive to negative. 
+To provide confidence that the results are robust, we will also include a couple of time-varying controls, evenness and lagged richness. NB: To make sure we don't drop locations with values of zero evenness, we use the inverse hyperbolic sine instead of the natural log. Note that we don't need to worry about that for productivity or richness because they never take a zero value.
+```{r message=FALSE, warning=FALSE}
+
+ihs <- function(x) {
+  y <- log(x+sqrt(x^2 + 1))
+}
+
+
+MainMod_Rich     <- feols(log(live_mass) ~ log(rich)  | newplotid + site.by.yeardummy, comb) 
+MainMod_RichEven <- feols(log(live_mass) ~ log(rich) + ihs(even) | newplotid + site.by.yeardummy, comb) 
+MainMod_RichLag  <- feols(log(live_mass) ~ log(rich) + log(laggedrich) | newplotid + site.by.yeardummy, comb) 
+MainMod_RichEvenLag <- feols(log(live_mass) ~ log(rich) + log(laggedrich) + ihs(even) | newplotid + site.by.yeardummy, comb)
+
+etable(MainMod_Rich, MainMod_RichEven, MainMod_RichLag, MainMod_RichEvenLag,
+          cluster = "newplotid")
+
+```
+
+As you can see, estimate on log richness are relatively stable across different specifications. Of special note: the coefficient on lagged richness (richness from the year before) is small and insignificant, given us confidence that our results reflect *contemporaneous* movement in richness, and not some factor that is also correlated with last year's richness.
+
+<div style="background-color: #c5cae9">
+TAKEAWAY: 
+
+Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!
+</div>
+
+
+# Graphical Depictions of Fixed Effects
+
+Using simple plots of the relationships between richness and productivity (as log of richness and log of live mass), we can see the relationships shift from positive to negative as we add in fixed effects. 
+
+Figure \@ref(fig:RawBivariate) just shows the raw bivariate correlation, and is somewhat positive. Notice the range of variation across productivity and richness.
 
 ```{r RawBivariate, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="The bivariate relationship with no controls."}
 # Cross-sectional analog - ignoring fixed effects and any other covariates
@@ -351,6 +361,8 @@ ggplot(comb[!is.na(log.rich) & !is.na(log.live_mass),],
   theme_bw() +
   geom_point()
 ```
+
+Figure \@ref(fig:plotFixedEffects) shows the relationship conditional on plot fixed effects. Note that this collapses the range of variation substantially. Recall that the plot fixed effects remove factors that are time-invariant and plot-specific. However, this graph still reflects the variation in sites across years.
 
 ```{r plotFixedEffects, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Controlling for only plot-level attributes that do not change through time"}
 # Plot FE only
@@ -366,6 +378,8 @@ ggplot(comb[!is.na(change.log.rich) & !is.na(change.log.live_mass),],
   theme_bw() +
   geom_point()
 ```
+
+Figure \@ref(fig:siteyrplotFixedEffects) continues to control for plot fixed effects, but also removes site-by-year variation via site-by-year fixed effects. This shifts the variation negative as factors that are common to sites within years no longer confound the relationship.
 
 ```{r siteyrplotFixedEffects, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Controlling for plot attributes and attributes of sites that change through time"}
 comb[,dm.changerich:=changerich-mean(changerich, na.rm=T), by=.(site,year)]
@@ -384,12 +398,12 @@ ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),],
 ```
 
 
-# Random Effects Don't Usually Cut It... CHRIS I DONT KNOW HOW TO ADD THE CITATION IN THAT I PUT IN THE ZOTERA LIB
+# Random Effects Don't Usually Cut It... 
 
-Researchers sometimes turn to random effects models to attempt to deal with confounding variables or *unobserved heterogeneity*. While random effects models have a number of useful properties (reviewed in @bell2011), they **do not solve endogeneity problems** on their own. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with richness (and any other variable in the model) So, random effects on their own don't buy us anything more than conditioning on observables. Check out how the results below vary to see this, and the more details on the mathematics behind this in *Appendix XXXXX* below:
+Researchers sometimes turn to random effects models to attempt to deal with confounding variables or *unobserved heterogeneity*. While random effects models have a number of useful properties (reviewed in @bell2019fixed), they **do not solve endogeneity problems** on their own. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with explanatory variables. So, random effects on their own don't really buy us anything more than conditioning on observables in terms of establishing causality . 
 
-First, consider the two linear models (without random effects) with different sets of soil variables
 
+Check out how the results below change (or not) in response to fixed effects (references for more details on the mathematics behind this are listed later on). First, consider the two linear models (without random effects) with different sets of soil variables:
 ```{r message=FALSE, warning=FALSE}
 
 ## Linear Model with Soil Covariates
@@ -416,20 +430,20 @@ So, that's our baseline. Now let's see what happens with random effects!
 
 ```{r message=FALSE, warning=FALSE}
 
-## First, characteristics of soil influence both productivity and richness, including XXXXXX. We can use covariates that characterize several aspects of the soil fertility and nutrients... LAUREN FILL IN HERE: including 
+## First, characteristics of soil influence both productivity and richness. We use covariates that characterize several aspects of the soil fertility and nutrients. We include plot and site random effects.
 MixedMod_Rich_soil <- lmer(log(live_mass) ~ log(rich) + 
                              pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +   (1|site_code), comb, REML = F)
 summary(MixedMod_Rich_soil)
 
 
-### Based on prior studies and natural history, we would expect management and anthropogenic disturbances to be important confounding variables. The Nutrient Network data has indicator variables .... 
+## We now bring in management variables, and retain the plot and site random effects.
 MixedMod_Rich2 <- lmer(log(live_mass) ~ log(rich) + 
                          managed + burned + grazed + anthropogenic + 
                          pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +  ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +                             (1|site_code), comb, REML = F)
 summary(MixedMod_Rich2 )
 
 
-## we build to the model presented in Figure 2B in the main text that includes XXXX variables 
+## we also can bring in controls for country, habitat, and year, again retaining the plot and site random effects. 
 MixedMod_Rich <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                         elevation + managed + burned + grazed + anthropogenic + 
                         TEMP_VAR_v2 + MIN_TEMP_v2 + MAX_TEMP_v2 + TEMP_WET_Q_v2 + TEMP_DRY_Q_v2 + TEMP_WARM_Q_v2 +                            TEMP_COLD_Q_v2 +   pct_C + pct_N + ppm_P + ppm_K + ppm_Na + ppm_Mg + ppm_S + ppm_Na + ppm_Zn +            ppm_Mn +  ppm_Fe + ppm_Cu + ppm_B +   pH + PercentSand + PercentSilt + PercentClay +    (1|newplotid) +                             (1|site_code), comb, REML = F)
@@ -437,11 +451,27 @@ summary(MixedMod_Rich )
 
 ```
 
-None these models really addresses endogeneity...
+Across these models, note that the coefficient on log richness does not really change, and is not very different from the linear model above that include additional covariates. This is because random effects are not really controlling for factors that both correlate with richness and with productivity.
 
 
-#GLOSSARY
+# GLOSSARY
 
-WHERE DID THIS GO
 
-#References
+### Confounding Variables (or "confounders"):
+In this study, we use the term "confounding variable" to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a **non-experimental** study design.
+
+### Bias and Hidden Bias:
+Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated (11). The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data (REF). The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias.
+
+### Errors versus Residuals:
+The error term is part of the true data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
+
+### "Selection on Observables" Assumption:
+Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see (REF).
+
+
+# REFERENCES
+
+
+
+
