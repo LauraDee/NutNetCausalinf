@@ -48,7 +48,7 @@ The *comb* dataset contains a wide number of variables; we'll mainly be using th
 
 For causal inference, we need to answer, *how much does a change in $X$ lead to a change in $Y$*. Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error [see @ferraroCausalInferenceCoupled2018]. 
 
-We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @morganCounterfactualsCausalInference2014, @ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
+We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @morganCounterfactualsCausalInference2014], [@ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
 
 
 ## Simple correlations in single years
@@ -277,7 +277,7 @@ etable(SimpleCorrAll, PlotFE_1, PlotFE_2, PlotFE_3, PlotFE_4, PlotFE_5,
           subtitles = c("Data All Years","US - CDCR", "US - CDPT", "CA - Koffler", "US - SEDG", "US - SIER" )) 
 ```
 
-We again show the bivariate correlation on all sites first (SimpleCorrAll), and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally).
+We again show the bivariate correlation on all sites first (SimpleCorrAll), and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally). Dr. Paul Allison has an excellent [blog post](https://statisticalhorizons.com/prediction-vs-causation-in-regression-analysis) explaining why R-squared values are NOT important for causal interpretations compared to other criteria for evaluation.
 
 <div style="background-color: #c5cae9">
 TAKEAWAY: 
