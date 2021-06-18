@@ -26,6 +26,7 @@ link-citations: true
 <!-- </div> -->
 <!-- will print the sentence in red.  -->
 
+
 # Setup and Load Data
 
 The data used in this tutorial comes from the [Nutrient Network](https://nutnet.org/). It has been cleaned and processed and is ready to use. The data correspond to what we use in the paper for the main analysis, and consists of control plots from 43 NutNet sites. Each site includes one or more control plots that we use. We only use plots for which we have at least 5 years of data.
@@ -36,6 +37,7 @@ library(tidyverse)
 library(data.table)
 library(fixest)
 library(lme4)  # Need at least version 1.1-26
+library(knitr)
 
 cdir <- getwd()
 comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
@@ -102,6 +104,7 @@ In our case, many variables that are correlated with biodiversity can also drive
 <br />
 </center>   
 
+
 Figure 1B (main text -- right panel) is known as a directed acyclic causal graph (DAG) and is a visualization of qualitative causal assumptions (Pearl 2009, 2011; Fieberg & Ditmer 2012; Schoolmaster et al. 2013, 2020). A DAG encodes knowledge and beliefs about how a system works. The graphical relations depicted in the DAG encode causal claims – not just representations of associations. A directed edge (e.g., R --> P) depicts a claim about the results of many hypothetical experiments, whereby if every other variable represented in the graph is held fixed, R and P will covary if R if manipulated, but not if P is manipulated (note, a DAG assumes that one can isolate the effect of R on P, but does not imply that P can never affect R; another DAG may represent the reverse direction, P --> R). 
 
 <div style="background-color: #c5cae9">
@@ -116,8 +119,14 @@ Of course, in the above correlations, we include plots in sites from across the 
  
 A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (****add in REF 1****). We can visualize this assumption by modifying our DAG, and using some examples in R:
 
-**INSERT DAG WITH THIS ASSUMPTION**
 
+<center>
+<br />
+<img src="https://i.imgur.com/s7w6Fhe.png" width="100%" />
+<br />
+</center>   
+
+ 
 To explore the consequences of adding in covariates, we show the results of five models below. The first column repeats the first column from above. The second column adds in soil chemistry covariates, the third column instead adds weather covariates, and the fourth instead adds management variables plus habitat. The last columns adds in everything. For the purposes of this tutorial, we only show coefficient estimates for richness in the following table, even though the other terms are included in the model.
 
 ```{r message=FALSE, warning=FALSE}
@@ -176,7 +185,12 @@ Let's ignore sites for a minute, and just think about the plots that lie in a si
 \end{equation}
 where we've added the term $\lambda_p$. This represents a vector of plot-specific fixed effect---a dummy variable for each plot. We also add time fixed effects ($\delta_t$, a dummy for each year) to control for the common differences to all plots in a year (in a site). We'll touch on that more later, but really, the *plot fixed effects are of greatest consequence*.
 
-What does adding this vector of plot dummy variables do? Two big things. First, it controls for any and all time-invariant features of the plot, whether we observe them **or not**!!! To see this, imagine putting in a variable $x_p$ into the above equation linearly with the coefficient $\gamma$. We wouldn't actually be able to estimate $\gamma x_p$; it's already a component of $\lambda_p$. Don't know what functional for you should use for $x_p$ or whether it should be interacted with another variable? That's fine, that's already included in $\lambda_p$! We get a whole lot for the inclusion of this variable. 
+What does adding this vector of plot dummy variables do? Two big things. First, it controls for any and all time-invariant features of the plot, whether we observe them **or not**!!! To see this, imagine putting in a variable $x_p$ into the above equation linearly with the coefficient $\gamma$. We wouldn't actually be able to estimate $\gamma x_p$; it's already a component of $\lambda_p$. Don't know what functional for you should use for $x_p$ or whether it should be interacted with another variable? That's fine, that's already included in $\lambda_p$! We get a whole lot for the inclusion of this variable. Let's see our updated DAG: now we have removed confounding effects from plot-level attributes whether we can measure them or not! 
+<center>
+<br />
+<img src="https://i.imgur.com/xJHFsrw.png" width="100%" />
+<br />
+</center>   
 
 Second, and most importantly conceptually, is that we are no longer directly comparing different plots; we aren't using  cross-sectional variation any more. Instead, we are using variation in richness and productivity within the same plot *over time*. So, we're implicitly comparing a plot in year $t$ with this same plot in year $t+k$ for some $k$. Another way to see this is that we could write a very similar equation in differences (ignore the $\delta_t$ for a moment):
 \begin{equation}
@@ -185,7 +199,6 @@ Second, and most importantly conceptually, is that we are no longer directly com
 Where did $\lambda_p$ go? Well, $\lambda_p-\lambda_p=0$, so we don't need it. (NB: We could also subtract the mean of each variable over time within each plot and arrive at a similar estimator. There are subtle differences between the two approaches that depend on the nature of the error terms $e$, but they draw on the same source of variation).
 
 What do we have to assume for a causal interpretation? There are a couple of different assumptions we could choose; I think it's easiest to frame it like this: $\mathbb{E}[ (e_{pt} - e_{pt-1}) \times (\ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1}))]=0$. That is, changes in richness are uncorrelated with *changes in* unobserved determinants of richness. Because time-invariant unobservables do not change, they are no longer a concern! Instead, we're concerned if movements in some unobserved factor could both be driving our outcome variable and be correlated with richness.
-
 
 
 What's the cost? Well, there are a few to consider, but some really aren't much of a restriction:
@@ -344,6 +357,12 @@ TAKEAWAY:
 Fixed effects can alter the research design and control for a wide variety of potentially confounding factors!
 </div>
 
+Our updated DAG, including both plot and site-by-year fixed effects, show that we can control more flexibly for a broader set of confounding variables in space and time -- critically, whether they are measured or not! 
+<center>
+<br />
+<img src="https://i.imgur.com/pf8QmGi.png" width="100%" />
+<br />
+</center>   
 
 # Graphical Depictions of Fixed Effects
 
