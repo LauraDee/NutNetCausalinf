@@ -26,6 +26,7 @@ link-citations: true
 <!-- </div> -->
 <!-- will print the sentence in red.  -->
 
+# Note that Laura has more references and definitions to add in before the final product
 
 # Setup and Load Data
 
@@ -117,7 +118,7 @@ Omitted variable bias is a pervasive feature in observational analysis, and the 
 
 Of course, in the above correlations, we include plots in sites from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
  
-A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see (****add in REF 1****). We can visualize this assumption by modifying our DAG, and using some examples in R:
+A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see[@morganCounterfactualsCausalInference2014]. We can visualize this assumption by modifying our DAG, and using some examples in R:
 
 
 <center>
@@ -175,7 +176,7 @@ It is hard to assume the we observe and correctly control for all confounding va
 
 # Fixed Effects: Changing the Source of Variation
 
-We now move on to the main course: Let's switch up where the identification comes from.
+We now move on to the main course: Let's switch up where the **identification** comes from.
 
 ## Plot Fixed Effects
 
@@ -209,7 +210,7 @@ What's the cost? Well, there are a few to consider, but some really aren't much 
 
 3. Our target of interest has to be time-varying. Any interesting time-invariant factors have been removed from the equation (literally).
 
-Figures \@ref(fig:graphrawvary) and \@ref(fig:graphdeplotFE) illustrate graphically what the plot fixed effects do to the outcome variable (productivity). Figures \@ref(fig:graphrawvary) is just the raw data, and shows loglive mass in four plots split between two sites (at the Sedgwick Reserve and at the Sevilleta LTER). Sedgwick has higher productivity on average. The plot fixed effects remove the average productivity in each site, as shown in Figure \@ref(fig:graphdeplotFE).
+Figures \@ref(fig:graphrawvary) and \@ref(fig:graphdeplotFE) illustrate graphically what the plot fixed effects do to the outcome variable (productivity). Figures \@ref(fig:graphrawvary) is just the raw data, and shows log(live mass) in four plots split between two sites (at the Sedgwick Reserve [sedg.us] and at the Sevilleta LTER [sevi.us]). Sedgwick has higher productivity on average. The productivity at these sites also appear to be following different trajectories through time (e.g., note the dip in productivity at Sevilleta in 2009). The plot fixed effects remove the average productivity in each site, as shown in Figure \@ref(fig:graphdeplotFE). They do not remove site-and-year specific sources of confounding variation (e.g., if a more extreme drought happened at Sevilleta than at Sedgwick in 2009 affecting both productivity and richness); we turn to eliminating site and year specific confounding variables below in \@ref(fig:graphdeplotsiteyearFE).
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 comb$site <- comb$site_code
@@ -256,7 +257,7 @@ ggplot(comb[site=="sedg.us" & plot %in% c("1","17") | (site=="sevi.us" & plot %i
 ```
 
 
-To the statistical model: We're first going to estimate the following equation site-by-site on the five largest sites (in terms of the number plot-years we observe). 
+To the statistical model: We're first going to estimate the following equation site-by-site on the five sites with the largest number of observations (in terms of the number plot-years we observe; see Table S1). 
 \begin{equation}
 \ln(\text{Live Mass}_{pt}) = \beta \ln(\text{Richness}_{pt}) + \lambda_p + \delta_t + e_{pt}
 \end{equation}
@@ -291,6 +292,7 @@ etable(SimpleCorrAll, PlotFE_1, PlotFE_2, PlotFE_3, PlotFE_4, PlotFE_5,
 ```
 
 We again show the bivariate correlation on all sites first (SimpleCorrAll), and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally). Dr. Paul Allison has an excellent [blog post](https://statisticalhorizons.com/prediction-vs-causation-in-regression-analysis) explaining why R-squared values are NOT important for causal interpretations compared to other criteria for evaluation.
+
 
 <div style="background-color: #c5cae9">
 TAKEAWAY: 
@@ -475,11 +477,36 @@ Across these models, note that the coefficient on log richness does not really c
 
 # Accounting for other sources of confounding variables
 A hallmark of modern approaches to causal inference is to probe the robustness of results to potential violations in the assumptions used to infer causality from correlation.
-Using four approaches, we use different assumptions than made in our Main Design (Figure 2A) and assess how the conclusions change (see SM).  Causal inference in each approach requires causal assumptions, but each approach makes different assumptions. In other words, each approach can detect hidden biases in our design (i.e., threats to internal validity) under different conditions. Our causal interpretations in the paper are strengthened by the robustness of our inferences to changes in the causal assumptions. In other words, it’s not hard to knock one of the analyses as having limitations, but it’s harder to come up with a story that explains the pattern we observe across all of the analyses (including the complementary analyses about species richness as a heterogeneous treatment in Figs 4 and 5).
+Using four approaches, we use different assumptions than made in our Main Design (Figure 2A) and assess how the conclusions change (see SM).  Causal inference in each approach requires causal assumptions, but each approach makes different assumptions. In other words, each approach can detect hidden biases in our design (i.e., threats to internal validity) under different conditions. Our causal interpretations in the paper are strengthened by the robustness of our inferences to changes in the causal assumptions. In other words, it’s not hard to knock one of the analyses as having limitations, but it’s harder to come up with a story that explains the pattern we observe across all of the analyses (including the complementary analyses about species richness as a heterogeneous treatment in Figs 4 and 5). The results are shown in Figure 3 of the main text and the analyses are described in detail in the SM. 
 
-The results are shown in Figure 3 of the main text and the analyses are described in detail in the SM. The best way to view all of the analyses described in Figure 3 is that each analysis uses different causal assumptions yet comes to the same conclusion. That pattern is the source of our paper’s evidential strength: the results of each individual analysis could be explained by a different rival explanation, but it is hard to come up with a coherent set of rival explanations that could explain them all.  
+<div style="background-color: #c5cae9">
+TAKEAWAY: The best way to view all of the analyses described in Figure 3 is that each analysis uses different causal assumptions yet comes to the same conclusion. That pattern is the source of our paper’s strength of evidence: the results of each individual analysis could be explained by a different rival explanation, but it is hard to come up with a coherent set of rival explanations that could explain them all. And, if so, the analyses and rival explanation point to a clear direction for future studies to examine.
+</div>
 
-We provide some examples of the types of confounding variables addressed by these additional analysis designs. 
+We provide some examples of the types of confounding variables addressed by these additional analysis designs. These examples are illustrative, not intended to be exhaustive: 
+
+#### Dynamic Panel model addresses potential biases from, for example,:
+*	Soil fertility or plant-soil feedbacks
+* Dead standing material/litter influencing (especially annual) recruitment in the following growing season
+* Prior plot-specific disturbances or other shocks that are at the plot level
+* Dynamic effects of productivity on richness (across years)
+
+#### Sensitivity analysis and Instrumental Variables (IV) Design address potential biases in two different ways from, for example,
+* Micro-climate at the plot level that changes through time
+* Insect community composition, pollination communities, herbivory rates
+* Measurement error
+* Disturbances that are plot specific (e.g., gophers)
+
+#### IV and Mechanism blocking designs address potential biases in two different ways from so-called "reverse causality" 
+* The effect of within-season productivity on richness (and related pathways such a plant height, shading) 
+
+The assumptions for each design are laid out in simple form in Figure 3 in the main text (and see below), and at length in the Supplemental Materials. 
+
+<center>
+<br />
+<img src="https://i.imgur.com/Ho4yWS6.png" width="100%" />
+<br />
+</center>   
 
 
 # Glossary
@@ -489,22 +516,31 @@ We provide some examples of the types of confounding variables addressed by thes
 In this study, we use the term "confounding variable" to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a **non-experimental** study design.
 
 ### Bias and Hidden Bias:
-Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated ***(11)***. The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data ***(REF)***. The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias.
+Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated [@wooldridge2015introductory]. The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data ***(REF)***. The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias.
 
 ### Errors versus Residuals:
-The error term is part of the true data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
+The error term is part of the *true* data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
 
 ### "Selection on Observables" Assumption:
 Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see [@morganCounterfactualsCausalInference2014].
 
+### Endogeniety: to do 
+
+[@wooldridge2015introductory]
+
+### Identification: to do 
+
+
 ### Instrumental Variable:
-This term is defined in in Figure 1B as variable Z, a variable that affects the treatment variable (in our study, “species richness”) but has no direct effect on the outcome variable (in our study, “above-ground biomass”) except through its effect on the treatment. In a randomized experiment, the instrumental variable is the randomization procedure. To read more, see ***(14–16)***.
+This term is defined in in Figure 1B as variable Z, a variable that affects the treatment variable (in our study, “species richness”) but has no direct effect on the outcome variable (in our study, “above-ground biomass”) except through its effect on the treatment. In a randomized experiment, the instrumental variable is the randomization procedure. To read more, see [@imbens2014instrumental, @kendall2015statistical] and our SM. 
 
 ### Panel Data:
 Panel data are longitudinal data comprising repeated measures taken from a sample of cases (e.g., plots, sites, regions). Such data are also sometimes referred to as longitudinal multilevel data. See our SM section S3 for more detail on this panel data.
 
 ### Cross-sectional Data:
 Data without repeated measures taken from a sample. Instead, one measure is taken from each unit of analysis (e.g., plot). For example, analyses of the effect of biodiversity on productivity in cross-sectional data have only one observation per plot.
+
+### others?
 
 # REFERENCES
 
