@@ -474,7 +474,12 @@ Across these models, note that the coefficient on log richness does not really c
 
 
 # Accounting for other sources of confounding variables
+A hallmark of modern approaches to causal inference is to probe the robustness of results to potential violations in the assumptions used to infer causality from correlation.
+Using four approaches, we use different assumptions than made in our Main Design (Figure 2A) and assess how the conclusions change (see SM).  Causal inference in each approach requires causal assumptions, but each approach makes different assumptions. In other words, each approach can detect hidden biases in our design (i.e., threats to internal validity) under different conditions. Our causal interpretations in the paper are strengthened by the robustness of our inferences to changes in the causal assumptions. In other words, it’s not hard to knock one of the analyses as having limitations, but it’s harder to come up with a story that explains the pattern we observe across all of the analyses (including the complementary analyses about species richness as a heterogeneous treatment in Figs 4 and 5).
 
+The results are shown in Figure 3 of the main text and the analyses are described in detail in the SM. The best way to view all of the analyses described in Figure 3 is that each analysis uses different causal assumptions yet comes to the same conclusion. That pattern is the source of our paper’s evidential strength: the results of each individual analysis could be explained by a different rival explanation, but it is hard to come up with a coherent set of rival explanations that could explain them all.  
+
+We provide some examples of the types of confounding variables addressed by these additional analysis designs. 
 
 
 # Glossary
