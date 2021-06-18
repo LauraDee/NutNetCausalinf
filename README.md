@@ -76,11 +76,11 @@ Rest of SM Section 7
 * Results and Table produced in R
 * NEED TO FINALIZE TABLES AND NUMBERING
 
-Figure S1 -- NO IDEA
+Figure S1 -- Produced in R (FiguresS1_S2_S3.R) 
 
-Figure S2 -- NO IDEA
+Figure S2 -- Produced in R (FiguresS1_S2_S3.R) 
 
-Figure S3 -- NO IDEA
+Figure S3 -- Produced in R (FiguresS1_S2_S3.R) 
 
 Figure SX -- No Idea
 
