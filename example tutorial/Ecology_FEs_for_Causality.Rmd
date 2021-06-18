@@ -473,7 +473,7 @@ summary(MixedMod_Rich )
 Across these models, note that the coefficient on log richness does not really change, and is not very different from the linear model above that include additional covariates. This is because random effects are not really controlling for factors that both correlate with richness and with productivity.
 
 
-# GLOSSARY
+# Glossary
 
 
 ### Confounding Variables (or "confounders"):
