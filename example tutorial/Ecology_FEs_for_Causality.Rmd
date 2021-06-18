@@ -25,8 +25,14 @@ link-citations: true
 <!--         This is an R Markdown document.  -->
 <!-- </div> -->
 <!-- will print the sentence in red.  -->
+<!-- Example for making links in the doc Causal inference involves ruling out [**rival explanations**](#rivalexplanation) for an estimated relationship.
 
-# Note that Laura has more references and definitions to add in before the final product
+# Glossary {-}
+<a name="rivalexplanation">[rival explanations](#standard-approaches)</a>
+
+: definition for rival explanation  -->
+
+
 
 # Setup and Load Data
 
@@ -51,8 +57,9 @@ The *comb* dataset contains a wide number of variables; we'll mainly be using th
 
 For causal inference, we need to answer, *how much does a change in $X$ lead to a change in $Y$*. Causal inference involves ruling out **rival explanations** for an estimated relationship. This aim and requirement differs from other research tasks (e.g., predicting where total productivity will be the highest, which can be done without knowing the true underlying causes of productivity). Thus, the criteria for evaluating causal inference differ from other task. For example, prediction or forecasting of rely on model fit measures, such as R-squared values or mean squared error [see @ferraroCausalInferenceCoupled2018]. 
 
-We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @morganCounterfactualsCausalInference2014], [@ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference. 
+We evaluate causal inference by assessing the credibility and validity of the assumptions made by the research design for each dataset, system, and question [reviewed in @morganCounterfactualsCausalInference2014;@ferraroCausalInferenceCoupled2018], as we will illustrate next.  Being explicit about these assumptions and evaluating how reasonable they are is important for causal inference.
 
+Dr. Paul Allison has an excellent [blog post](https://statisticalhorizons.com/prediction-vs-causation-in-regression-analysis) explaining why R-squared values are NOT important the important criteria for causal interpretations compared to the credibility and validity of the assumptions made by the research design. 
 
 ## Simple correlations in single years
 
@@ -69,7 +76,7 @@ We initially estimate and report $\beta$ in:
 \end{equation}
 where $p$ indexes plots, $s$ indexes sites, and $t$ indexes years. The unobserved error term is $e_{pst}$. We include a constant $\alpha$, but do not report estimates of it as it tells us little.
 
-We report results below using all years of data first, and then report results using two individual years: 2012 and 2013. Here, as everywhere below, we cluster standard errors by plot to reflect serial correlation in errors terms within a plot across years (we do not assume that errors are iid). Note that when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors.
+We report results below using all years of data first, and then report results using two individual years: 2012 and 2013. Here, as everywhere below, we **cluster standard errors** by plot to reflect serial correlation in errors terms within a plot across years (we do not assume that errors are iid). Note that when we use only a single year of data, this is equivalent to using heteroskedasticity-robust errors. 
 
 ```{r message=FALSE, warning=FALSE}
 SimpleCorrAll <- feols(log(live_mass) ~ log(rich), comb, cluster = "newplotid") 
@@ -97,7 +104,7 @@ When does $\hat{\beta}$ capture a causal relationship? When there are no unobser
 A **Directed Acyclic Diagram** (DAG) can help us see the challenges of omitted, and potentially confounding, variables more clearly. In the above analyses from equation \@ref(eq:eq1), $\beta$ is only identified if we assume that any variables that matter but that we omitted are uncorrelated with richness. 
 One benefit of a DAG is that it makes transparent the assumptions on which one relies for making causal claims from observable data. A DAG therefore allows the researcher and the reader to better judge the credibility of the causal claims from a specific research design. Another way to view this benefit is that a causal graph helps identify the sources of variation in a causal variable and in its outcome, thereby emphasizing potential sources of bias that must be addressed in a research design and pointing to designs that can address these sources of **statistical bias** [@morganCounterfactualsCausalInference2014].
 
-In our case, many variables that are correlated with biodiversity can also drive productivity (Fig. 1B -- main text), creating the possibility for rival explanations and biased estimates for estimated effects from observations. For example, climatic conditions, soil nutrients, evolutionary history, and historic contingency during community assembly are all related to both productivity and biodiversity [@Loreau1998;@fukamiCommunityAssemblyAlternative2011; @graceIntegrativeModellingReveals2016]. With a common driver of both variables that is not included in a model, two variables (i.e., biodiversity and an ecosystem function) may be correlated, even when there is no causal relationship between them. Similarly, no correlation between variables does not imply a lack of causation. Causal relationships can also be masked when examining correlations, due to an omitted variable (e.g., nitrogen addition), which positively affects productivity but negatively affects richness [@isbellNutrientEnrichmentBiodiversity2013]. Models that do not control for that common driver will consequently tend to give estimates that do not correspond to causal effects of biodiversity on productivity (or vice versa). 
+In our case, many variables that are correlated with biodiversity can also drive productivity (Fig. 1B -- main text), creating the possibility for rival explanations and biased estimates for estimated effects from observations. For example, climatic conditions, soil nutrients, evolutionary history, and historic contingency during community assembly are all related to both productivity and biodiversity [@Loreau1998;@fukamiCommunityAssemblyAlternative2011;@graceIntegrativeModellingReveals2016]. With a common driver of both variables that is not included in a model, two variables (i.e., biodiversity and an ecosystem function) may be correlated, even when there is no causal relationship between them. Similarly, no correlation between variables does not imply a lack of causation. Causal relationships can also be masked when examining correlations, due to an omitted variable (e.g., nitrogen addition), which positively affects productivity but negatively affects richness [@isbellNutrientEnrichmentBiodiversity2013]. Models that do not control for that common driver will consequently tend to give estimates that do not correspond to causal effects of biodiversity on productivity (or *vice versa*). 
 
 <center>
 <br />
@@ -106,7 +113,7 @@ In our case, many variables that are correlated with biodiversity can also drive
 </center>   
 
 
-Figure 1B (main text -- right panel) is known as a directed acyclic causal graph (DAG) and is a visualization of qualitative causal assumptions (Pearl 2009, 2011; Fieberg & Ditmer 2012; Schoolmaster et al. 2013, 2020). A DAG encodes knowledge and beliefs about how a system works. The graphical relations depicted in the DAG encode causal claims – not just representations of associations. A directed edge (e.g., R --> P) depicts a claim about the results of many hypothetical experiments, whereby if every other variable represented in the graph is held fixed, R and P will covary if R if manipulated, but not if P is manipulated (note, a DAG assumes that one can isolate the effect of R on P, but does not imply that P can never affect R; another DAG may represent the reverse direction, P --> R). 
+Figure 1B (main text -- right panel) is known as a directed acyclic causal graph (DAG) and is a visualization of qualitative causal assumptions ([@pearl2009causality;  @pearl2011aspects;@fieberg2012understanding; @schoolmaster2013causal; @schoolmaster2020graphical; @Grace2020]). A DAG encodes knowledge and beliefs about how a system works. The graphical relations depicted in the DAG encode causal claims – not just representations of associations. A directed edge (e.g., R --> P) depicts a claim about the results of many hypothetical experiments, whereby if every other variable represented in the graph is held fixed, R and P will covary if R if manipulated, but not if P is manipulated (note, a DAG assumes that one can isolate the effect of R on P, but does not imply that P can never affect R; another DAG may represent the reverse direction, P --> R). 
 
 <div style="background-color: #c5cae9">
 TAKEAWAY:
@@ -118,7 +125,7 @@ Omitted variable bias is a pervasive feature in observational analysis, and the 
 
 Of course, in the above correlations, we include plots in sites from across the world, implicitly comparing grasslands in warmer climates with those in cooler ones, or wetter with dryer, or Europe with the Americas. There are a lot of differences between these places! 
  
-A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see[@morganCounterfactualsCausalInference2014]. We can visualize this assumption by modifying our DAG, and using some examples in R:
+A common response to this problem is to try to measure these differences and include them in the model.  In the causal inference literature, thisis known as **“conditioning on observables”** or Pearl’s **back-door criteria**. Conditioning on observables is convenient but makes strong assumptions for causal inference, namely the **“Selection on Observables” Assumption.** Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching, or stratification methods. To read more, see [@morganCounterfactualsCausalInference2014]. We can visualize this assumption by modifying our DAG, and using some examples in R:
 
 
 <center>
@@ -199,7 +206,7 @@ Second, and most importantly conceptually, is that we are no longer directly com
 \end{equation}
 Where did $\lambda_p$ go? Well, $\lambda_p-\lambda_p=0$, so we don't need it. (NB: We could also subtract the mean of each variable over time within each plot and arrive at a similar estimator. There are subtle differences between the two approaches that depend on the nature of the error terms $e$, but they draw on the same source of variation).
 
-What do we have to assume for a causal interpretation? There are a couple of different assumptions we could choose; I think it's easiest to frame it like this: $\mathbb{E}[ (e_{pt} - e_{pt-1}) \times (\ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1}))]=0$. That is, changes in richness are uncorrelated with *changes in* unobserved determinants of richness. Because time-invariant unobservables do not change, they are no longer a concern! Instead, we're concerned if movements in some unobserved factor could both be driving our outcome variable and be correlated with richness.
+What do we have to assume for a causal interpretation? There are a couple of different assumptions we could choose; I think it's easiest to frame it like this: $\mathbb{E}[ (e_{pt} - e_{pt-1}) \times (\ln(\text{Richness}_{pt}) - \ln(\text{Richness}_{pt-1}))]=0$. That is, changes in richness are uncorrelated with *changes in* unobserved determinants of richness. Because time-invariant unobservable variables do not change, they are no longer a concern! Instead, we're concerned if movements in some unobserved factor could both be driving our outcome variable and be correlated with richness.
 
 
 What's the cost? Well, there are a few to consider, but some really aren't much of a restriction:
@@ -229,7 +236,6 @@ comb[,singledm.log.live_mass:=log.live_mass-mean(log.live_mass, na.rm=T), by=.(s
 comb[,doubledm.log.live_mass:=singledm.log.live_mass-mean(singledm.log.live_mass, na.rm=T), by=.(site, year)]
 
 ```
-
 
 
 ```{r graphrawvary, message=F, warning=F, echo=F, out.width = '60%', fig.align = "center", fig.cap="Raw variation in live mass at four plots across two sites."}
@@ -291,7 +297,7 @@ etable(SimpleCorrAll, PlotFE_1, PlotFE_2, PlotFE_3, PlotFE_4, PlotFE_5,
           subtitles = c("Data All Years","US - CDCR", "US - CDPT", "CA - Koffler", "US - SEDG", "US - SIER" )) 
 ```
 
-We again show the bivariate correlation on all sites first (SimpleCorrAll), and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally). Dr. Paul Allison has an excellent [blog post](https://statisticalhorizons.com/prediction-vs-causation-in-regression-analysis) explaining why R-squared values are NOT important for causal interpretations compared to other criteria for evaluation.
+We again show the bivariate correlation on all sites first (SimpleCorrAll), and then the estimate for each site. **Whoa!** Now we're getting some negative coefficients (though mostly insignificant due to smaller effective sample sizes). We're controlling for lots and lots of things that we couldn't control for before, either because we didn't think to include them or we couldn't collect data on them. The R-squared values confirm that this is the case; we're generally explaining much more of the data than before (but note: R-squared values are NOT important for causal interpretations generally). *Note that, with the plot fixed effects, we do not have much statistical power estimating sites individually.*
 
 
 <div style="background-color: #c5cae9">
@@ -421,8 +427,7 @@ ggplot(comb[!is.na(dm.change.log.rich) & !is.na(dm.change.log.live_mass),],
 
 # Random Effects Don't Usually Cut It... 
 
-Researchers sometimes turn to random effects models to attempt to deal with confounding variables or *unobserved heterogeneity*. While random effects models have a number of useful properties (reviewed in @bell2019fixed), they **do not solve endogeneity problems** on their own. Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with explanatory variables. So, random effects on their own don't really buy us anything more than conditioning on observables in terms of establishing causality . 
-
+Researchers sometimes turn to random effects models to attempt to deal with confounding variables or *unobserved heterogeneity*. While random effects models have a number of useful properties (reviewed in @bell2019fixed), they **do not solve endogeneity problems** on their own (see [**Appendix**](#appendix) and [@wooldridge2015introductory; @wooldridge2010econometric;@larsen2019causal]). Any variable that is omitted from a random effects model is implicitly assumed to either have no effect on productivity or to be uncorrelated with explanatory variables. So, random effects on their own don't really buy us anything more than conditioning on observables in terms of establishing causality. 
 
 Check out how the results below change (or not) in response to fixed effects (references for more details on the mathematics behind this are listed later on). First, consider the two linear models (without random effects) with different sets of soil variables:
 ```{r message=FALSE, warning=FALSE}
@@ -477,7 +482,7 @@ Across these models, note that the coefficient on log richness does not really c
 
 # Accounting for other sources of confounding variables
 A hallmark of modern approaches to causal inference is to probe the robustness of results to potential violations in the assumptions used to infer causality from correlation.
-Using four approaches, we use different assumptions than made in our Main Design (Figure 2A) and assess how the conclusions change (see SM).  Causal inference in each approach requires causal assumptions, but each approach makes different assumptions. In other words, each approach can detect hidden biases in our design (i.e., threats to internal validity) under different conditions. Our causal interpretations in the paper are strengthened by the robustness of our inferences to changes in the causal assumptions. In other words, it’s not hard to knock one of the analyses as having limitations, but it’s harder to come up with a story that explains the pattern we observe across all of the analyses (including the complementary analyses about species richness as a heterogeneous treatment in Figs 4 and 5). The results are shown in Figure 3 of the main text and the analyses are described in detail in the SM. 
+Using four approaches, we use different assumptions than made in our Main Design (the two-way fixed effects estimator -- in Figure 2A) and assess how the conclusions change (see SM). Causal inference in each approach requires causal assumptions, but each approach makes different assumptions. In other words, each approach can detect hidden biases in our design (i.e., threats to internal validity) under different conditions. Our causal interpretations in the paper are strengthened by the robustness of our inferences to changes in the causal assumptions. In other words, it’s not hard to knock one of the analyses as having limitations, but it’s harder to come up with a story that explains the pattern we observe across all of the analyses (including the complementary analyses about species richness as a heterogeneous treatment in Figs 4 and 5). The results are shown in Figure 3 of the main text and the analyses are described in detail in the SM. 
 
 <div style="background-color: #c5cae9">
 TAKEAWAY: The best way to view all of the analyses described in Figure 3 is that each analysis uses different causal assumptions yet comes to the same conclusion. That pattern is the source of our paper’s strength of evidence: the results of each individual analysis could be explained by a different rival explanation, but it is hard to come up with a coherent set of rival explanations that could explain them all. And, if so, the analyses and rival explanation point to a clear direction for future studies to examine.
@@ -516,34 +521,49 @@ The assumptions for each design are laid out in simple form in Figure 3 in the m
 In this study, we use the term "confounding variable" to describe variables that are systematically correlated with the causal variable (e.g., biodiversity) and the outcome variable (e.g., productivity), and thus can mask or mimic a causal effect. Confounding variables are a potential source of bias in a **non-experimental** study design.
 
 ### Bias and Hidden Bias:
-Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated [@wooldridge2015introductory]. The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data ***(REF)***. The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias.
+Bias is a property of an estimator of a causal effect: it captures the difference between the estimator's expected value and the true value of the causal effect being estimated [@wooldridge2015introductory]. The phrase "hidden bias" (also called "unobserved heterogeneity") is often used to describe the potential sources of bias in a study design (e.g., an omitted third variable that affects both biodiversity and productivity). Hidden bias is thus a rival explanation for detecting or failing to detect a correlation between a purported causal variable and its outcome using observable data [@ferraro2014advances].  The goal of causal analysis is to choose data and a design so that an actual causal effect would be visibly different from the most plausible hidden biases. Note: sampling variability ("noise") is different from hidden bias; sampling variability is not a source of bias. Reviewed in  [@larsen2019causal] for ecologists.
 
 ### Errors versus Residuals:
 The error term is part of the *true* data generating process. In contrast, residuals are the difference between the regression line and the observed data points. Residuals cannot be used to assess potential bias in an estimation procedure. 
+
+### Cluster standard errors:  to do 
+See [@wooldridge2010econometric] and [@Cameron2015].
 
 ### "Selection on Observables" Assumption:
 Informally, this assumption implies that confounding variables that could introduce bias into a design are known and observable to the researcher. The bias they introduce into an estimator can thus be eliminated (controlled, blocked) by conditioning strategies, such as regression, matching or stratification methods. To read more, see [@morganCounterfactualsCausalInference2014].
 
 ### Endogeniety: to do 
-
-[@wooldridge2015introductory]
+[@wooldridge2015introductory] reviewed in [@larsen2019causal] and [@kendall2015statistical] for ecologists.
+[placeholder](https://www.youtube.com/watch?v=_sRlvKws7F8)
 
 ### Identification: to do 
-
+reviewed in [@larsen2019causal] for ecologists 
 
 ### Instrumental Variable:
-This term is defined in in Figure 1B as variable Z, a variable that affects the treatment variable (in our study, “species richness”) but has no direct effect on the outcome variable (in our study, “above-ground biomass”) except through its effect on the treatment. In a randomized experiment, the instrumental variable is the randomization procedure. To read more, see [@imbens2014instrumental, @kendall2015statistical] and our SM. 
+This term is defined in in Figure 1B as variable Z, a variable that affects the treatment variable (in our study, “species richness”) but has no direct effect on the outcome variable (in our study, “above-ground biomass”) except through its effect on the treatment. In a randomized experiment, the instrumental variable is the randomization procedure. To read more, see [@imbens2014instrumental;@kendall2015statistical] and our SM. 
 
 ### Panel Data:
-Panel data are longitudinal data comprising repeated measures taken from a sample of cases (e.g., plots, sites, regions). Such data are also sometimes referred to as longitudinal multilevel data. See our SM section S3 for more detail on this panel data.
+Panel data are longitudinal data comprising repeated measures taken from a sample of cases (e.g., plots, sites, regions). Such data are also sometimes referred to as longitudinal multilevel data. See our SM section S3 for more detail on this panel data. For an excellent introduction to approaches using panel data, see [@angrist2008mostly].
 
 ### Cross-sectional Data:
-Data without repeated measures taken from a sample. Instead, one measure is taken from each unit of analysis (e.g., plot). For example, analyses of the effect of biodiversity on productivity in cross-sectional data have only one observation per plot.
+Data without repeated measures taken from a sample. Instead, one measure is taken from each unit of analysis (e.g., plot). For example, analyses of the effect of biodiversity on productivity in cross-sectional data have only one observation per plot. It is is hard to assume the we observe and correctly control for all confounding variables when analyzing cross-sectional data. 
 
-### others?
+### others definitions needed?
 
-# REFERENCES
+# References
 
 
+
+# Appendix: More details on random effects and their assumptions
+<a name="Appendix">[Appendix](#appendix)</a>
+
+See [@wooldridge2010econometric] Chapter 10 and and Appendix to Ch 14 in [@wooldridge2015introductory].
+
+PLACEHOLDER FOR more info on this from Wooldridge:
+<center>
+<br />
+<img src="https://i.imgur.com/eL7iQ02.png" width="100%" />
+<br />
+</center>   
 
 
