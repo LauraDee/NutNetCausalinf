@@ -495,6 +495,8 @@ We provide some examples of the types of confounding variables addressed by thes
 * Dead standing material/litter influencing (especially annual) recruitment in the following growing season
 * Prior plot-specific disturbances or other shocks that are at the plot level
 * Dynamic effects of productivity on richness (across years)
+* Maternal effects
+* etc. 
 
 #### Sensitivity analysis and Instrumental Variables (IV) Design address potential biases in two different ways from, for example,
 * Micro-climate at the plot level that changes through time
