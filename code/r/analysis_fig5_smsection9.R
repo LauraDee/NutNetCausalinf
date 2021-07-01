@@ -67,6 +67,11 @@ linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
+#non-native rare = 0?
+# non-native rare vs non-rare
+linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = 0", 
+                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
+
 ###################
 ## Export Table ## 
 
