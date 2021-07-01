@@ -57,14 +57,14 @@ source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this
 ### Load cover Data  - data processed using the code "ProcessNutNet_coverData_FINAL_pulic.R" which created all variables of SR counts and groupings 
 cover <- fread("./data/NutNetCoverData_ProcessedFinal.csv")
 
-source("./code/r/rank_abundance_curves.R")
 source("./code/r/finalprocess_coverdata.R") # **need to run this line to prep the data for running the models** 
 #the finalprocess_coverdata.R also produces Figure S10.
 
-source("./code/r/analysis_fig5_smsection7.R") ## Produces Figure 5, and tables and supplemental results for section S9 of the supplemental materials
+source("./code/r/analysis_fig5_smsection9.R") ## Produces Figure 5, and tables and supplemental results for section S9 of the supplemental materials
 
 #code to create other supplemental figures
-source("./code/r/analysis_fig5_smsection7.R")
+source("./code/r/rank_abundance_curves.R") # need to run the finalprocess_coverdata.R to produce.
+source("./code/r/analysis_fig5_smsection9.R") #need to run the finalprocess_coverdata.R to produce.
 source("./code/r/SM_Figures.R")
 
 #code to create rank abudance curves for each site 
