@@ -245,7 +245,7 @@ Fig2B.plot <- Fig2B.data %>%
   scale_colour_discrete() +
   scale_color_manual(values=cbPalette[c(8,3,10)]) +
   theme_classic() +
-  theme(legend.position = c(.5, 0.3),
+  theme(legend.position = c(.5, 0.2),
         legend.title = element_blank(), 
         legend.text  = element_text(size=14),
         legend.background = element_rect(size=0.5, 
@@ -279,7 +279,7 @@ common.ylab = ylab("Estimated effect size")  #Estimated % Change in Productivity
 Fig2.both <- plot_grid(Fig2A.plot  + common.ylab,
                        Fig2B.plot + common.ylab)
 Fig2.both
-ggsave("./output/Fig2.pdf", Fig2.both, width=13, height=6)
+ggsave("./output/Fig2.pdf", Fig2.both, width=13.3, height=4)
 
 #################################
 ######## Figure 3
