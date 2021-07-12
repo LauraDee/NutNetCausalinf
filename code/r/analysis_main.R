@@ -215,10 +215,10 @@ Fig2A.plot <- Fig2A.data %>%
         axis.text.y = element_text(size = 16),
         plot.title = element_text(size = 25, face = "bold", hjust = 0.5) ) + 
   geom_hline(yintercept = 0, col = "black") +
-  ylim(-.7, .8) +
+  ylim(-.7, .85) +
   scale_x_discrete(labels = c("Species Richness" , "Simpson's Diversity")) + 
   scale_y_continuous(limits=c(-.8, .85), 
-                     breaks = c(-.8, -.6, -.4, -.2, 0, .2, .4, .6, .8)
+                     breaks = c(-0.5,0,0.5)
   ) %>%
   labs(title = "Main Study Design",
        caption = "", x = "Variable", y = "Estimated effect size"
