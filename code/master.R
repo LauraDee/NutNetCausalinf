@@ -67,7 +67,7 @@ source("./code/r/rank_abundance_curves.R") # need to run the finalprocess_coverd
 source("./code/r/analysis_fig5_smsection9.R") #need to run the finalprocess_coverdata.R to produce.
 source("./code/r/SM_Figures.R")
 
-#code to create rank abudance curves for each site 
+#code to create rank abundance curves for each site:
 
 #experimental analysis code, see the folder: 
 
