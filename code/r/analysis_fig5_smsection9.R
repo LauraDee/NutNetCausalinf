@@ -128,7 +128,7 @@ Fig5.plot <- Fig5.data %>%
         axis.text.y = element_text(size = 16),
         plot.title = element_text(size = 25, face = "bold", hjust = 0.5) ) + 
   geom_hline(yintercept = 0, col = "black") +
-  scale_x_discrete(labels = c('Rare & Native','Non-rare & Native', 'Non-rare & Non-native', 'Rare & Non-native')) +
+  scale_x_discrete(labels = c('Rare, Native','Non-rare, Native', 'Non-rare, Non-native', 'Rare, Non-native')) +
   scale_y_continuous(limits=c(-0.7, 0.7)) +
   ylim(-0.7,0.8) %>%
   labs(title = element_blank(),
