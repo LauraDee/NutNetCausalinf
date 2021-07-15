@@ -63,11 +63,10 @@ source("./code/r/finalprocess_coverdata.R") # **need to run this line to prep th
 source("./code/r/analysis_fig5_smsection9.R") ## Produces Figure 5, and tables and supplemental results for section S9 of the supplemental materials
 
 #code to create other supplemental figures
-source("./code/r/rank_abundance_curves.R") # need to run the finalprocess_coverdata.R to produce.
+#code to create rank abundance curves for each site
+source("./code/r/rank_abundance_curves.R") # need to run the finalprocess_coverdata.R to produce. 
 source("./code/r/analysis_fig5_smsection9.R") #need to run the finalprocess_coverdata.R to produce.
-source("./code/r/SM_Figures.R")
+source("./code/r/FiguresS1_S2_S3.R")
 
-#code to create rank abundance curves for each site:
-
-#experimental analysis code, see the folder: 
+#experimental analysis code, see the folder: "./code/r/SMSection10_CedarCreekAnalyses/"
 

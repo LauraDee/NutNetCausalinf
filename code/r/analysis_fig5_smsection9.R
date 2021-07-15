@@ -315,8 +315,6 @@ esttex(MechFreq3, MechFreq.NoNA3,
        file = "./output/TableSS13SensitivityAnal2_R_se.tex")
 
 
-
-
 ###############################################################################################################################################
 #### Section S9f.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
 ##################################################################################################################################################
@@ -362,9 +360,9 @@ esttex(MechMod_All, MechMod_All2, MechMod_All3,
        file = "./output/TableS14_R_CI.tex")
 
 
-####################################################################################################################
+###########################################################################################################################################
 ### Produce Supplemental Figure S12 & S13: changes in each species groups by site ##########################################################
-####################################################################################################################
+###########################################################################################################################################
 mech.data[order(year), change_sr_nonrare.nonative_spp := sr_non.rare_non.nat -shift(sr_non.rare_non.nat), by =.(plot, site_code)]
 mech.data[order(year), change_sr_nonrare.native_spp := sr_non.rare_nat -shift(sr_non.rare_nat), by =.(plot, site_code)]
 mech.data[order(year), change_sr_rare.native_spp := sr_nat_rare -shift(sr_nat_rare), by =.(plot, site_code)]
@@ -417,9 +415,9 @@ FigS12D
 
 grid.arrange(FigS12A, FigS12B, FigS12C, FigS12D, nrow = 2)
 
-##########################################################
-### Figure S13 ###########################################
-#####################################################
+#################################################################################
+### Figure S13  Change in Groups by Site ###########################################
+############################################################################
 
 # change nonrare nonnative 
 FigS13A <- ggplot(data = mech.data, aes(x = change_sr_nonrare.nonative_spp)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
@@ -461,102 +459,8 @@ FigS13D <- ggplot(data = mech.data, aes(x =  change_sr_rare.nonnative_spp )) + g
   theme(axis.text.x = element_text(size=14)) 
 FigS13D
 
-library(gridExtra)
 grid.arrange(FigS13A, FigS13B, nrow = 1)
 grid.arrange(FigS13C, FigS13D, nrow = 1)
 
-
-
-## do first differences of the above species richness variables: 
-
-setorder(mech.data, year)
-mech.data[, change_sr_INT := sr_INT-shift(sr_INT), by =.(plot, site_code)]
-mech.data[, change_sr_NAT := sr_NAT-shift(sr_NAT), by =.(plot, site_code)]
-mech.data[, change_sr_UNK := sr_UNK-shift(sr_UNK), by =.(plot, site_code)]
-
-
-ggplot(data = mech.data, aes(x = change_sr_INT )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "change in plot introduced species richness from year to year") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-ggplot(data = mech.data, aes(x = change_sr_NAT )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "change in plot native species richness from year to year") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-ggplot(data = mech.data, aes(x = change_sr_UNK )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "change in plot species richness of uknown origin from year to year") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-#invasion trents by site
-ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site)) + facet_wrap(~site_code) + theme_bw() +
-  geom_point()
-
-ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT)) + facet_wrap(~site_code) + theme_bw() +
-  geom_point()
-
-
-ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT, color = site_code)) +
-  geom_point(alpha = 0.5) + 
-  geom_smooth(method = "loess")
-
-ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site, color = site_code)) +
-  geom_point(alpha = 0.5) + 
-  geom_smooth(method = "loess")
-
-ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT.site)) +
-  geom_point(aes(color = site_code), alpha = 0.5) + 
-  geom_smooth(method = "loess", colour = 'grey40')
-
-ggplot(data = mech.data, mapping = aes(x = year_trt.x , y = sr_INT)) +
-  geom_point(aes(color = site_code), alpha = 0.5) + 
-  geom_smooth(method = "loess", colour = 'grey40')
-
-invasivemod = lm( sr_INT.site ~ year_trt.x, data = mech.data)
-invasivemod = lm( sr_INT ~ year_trt.x, data = mech.data)
-invasivemod = lm( sr_UNK ~ year_trt.x, data = mech.data)
-
-
-# ggplot(data = mech.data, aes(x = site_introduced_richness )) + geom_histogram() + facet_wrap(~site_code) + theme_bw() +
-#     geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-#     labs(x = "site introduced species richness") +  theme_bw() +
-#      theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-#     theme(axis.text.y = element_text(size = 14)) + 
-#      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-#      theme(axis.text.x = element_text(size=14)) 
-
-ggplot(data = mech.data, aes(x = site_introduced_richness )) + geom_histogram()  + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "site introduced species richness") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-
-
-
-############################################################################################################################
-#### Figure Extra. Plot Correlations between all of the SR grouping variables ###################################################################
-#############################################################################################################################
-richnessvars.fig4c <- c("sr_non.rare_nat", "sr_non.rare_non.nat", "sr_non.nat_rare", "sr_nat_rare")
-richnessvars.to.plot <- mech.data[,richnessvars.fig4c, with=F] #with = F will then use the data.frame conventions, using "" for col names
-pairs(richnessvars.to.plot)
-
-sr.metrics <- mech.data[, .(sr_non.nat_rare, sr_nat_rare, 
-                            sr_non.rare_non.nat, sr_non.rare_nat
-)]
-cor(sr.metrics)
-corrplot(cor(sr.metrics), method = "square", tl.cex = .5)
 
 
