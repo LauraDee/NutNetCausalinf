@@ -65,7 +65,7 @@ source("./code/r/analysis_fig5_smsection9.R") ## Produces Figure 5, and tables a
 #code to create other supplemental figures
 source("./code/r/rank_abundance_curves.R") # need to run the finalprocess_coverdata.R to produce.
 source("./code/r/analysis_fig5_smsection9.R") #need to run the finalprocess_coverdata.R to produce.
-source("./code/r/SM_Figures.R")
+source("./code/r/FiguresS1_S2_S3.R")
 
 #code to create rank abundance curves for each site:
 
