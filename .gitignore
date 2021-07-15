@@ -3,3 +3,4 @@ data/full-cover-09-April-2018.csv
 data/processed/cross_vs_time_variation_histograms.pdf
 data/processed/NutNetCoverData_ProcessedAug2019-2.csv
 ProcessedMechanismAnalysisData.csv
+.DS_Store
