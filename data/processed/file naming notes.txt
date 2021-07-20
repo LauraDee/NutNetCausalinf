@@ -1,2 +1,0 @@
-Main data file was: NutNetControlPlotDataToUseApril2018.csv
-Renamed to: NutNetControlPlotData_v201804.csv for Github post
