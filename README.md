@@ -16,66 +16,84 @@ Stata Replication Instructions: Set the global macros to local repo location.
 #### Provenance of Results
 
 Figure 2A
+
 * All results in R 
 * Figure produced in R
 * Replicable in Stata (except for minor standard error differences)
 
 Figure 2B
+
 * All results in Stata 
 * Figure produced in R
 * NOT replicated in R
 
 Figure 3 
+
 * Results 1, 2, and 4 in R 
 * Result 3 and 5 in Stata
 * Replicable in Stata (except for minor standard error differences)
 
 Figure 5
+
 * Results only in R
 * Figure produced in R
 
 Table S1
+
 * Dataset Description 
 
 Table S2
+
 * Results and Table produced in R (analysis_main.R) 
 * Replicable in Stata (except for minor standard error differences)
 
 Table S3
+
 * Results and Table produced in Stata and R (analysis_main.R)
 
 Table S4
+
 * Results and Table produced in R (analysis_sm5.R)
 
 Table S5
+
 * Results and Table produced in R (analysis_sm5.R)
 
 Table S6 
+
 * Results and Table produced in R (analysis_sm5.R)
 
 Table S7
+
 * Results and Table produced in Stata 
 
 Table S8
+
 * Results and Table produced in Stata and R (analysis_main.R)
 
 Table S9
+
 * Results and Table produced in R (analysis_main.R)
 * Replicable in Stata (except for minor standard error differences)
 
 Table S10
+
 * Results and Table produced in R (analysis_fig5_smsection9.R)
 
 Table S11
+
 * Results and Table produced in R (analysis_fig5_smsection9.R)
 
 Table S12
+
 * Results and Table produced in R (analysis_fig5_smsection9.R)
 
 Table S13
+
 * Results and Table produced in R (analysis_fig5_smsection9.R)
 
 Table S14
+
 * Results and Table produced in R (analysis_fig5_smsection9.R)
 
 
@@ -93,5 +111,5 @@ Supplemental Figures
 * Figure S11 -- Produced in R  (finalprocess_coverdata.R)
 * Figure S12 -- Produced in R  (analysis_fig5_smsection9.R)
 * Figure S13 -- Produced in R  (analysis_fig5_smsection9.R)
-* Figure S14 -- Produced in R 
+* Figure S14 -- Produced in R (Biocon_rich_biomass_FINAL_NUTNETPAPER.R and S10analyses_e120-planted_rich-mass.R) 
 
