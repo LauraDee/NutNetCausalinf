@@ -3,7 +3,7 @@ This repository contains a tutorial for the methods in and replication code for 
 
 ### Tutorial Instructions
 
-To access the tutorial, see the folder "./tutorial in R/". The folder includes an html ("Ecology_FEs_for_Causality.html"") and a Rmarkdown file that uses the data "cleaned_comb_data.csv" in the data.zip file for reviewers. The html can be accessed without using this data. 
+To access the tutorial, see the folder "./tutorial in R/". The folder includes an html ("Ecology_FEs_for_Causality.html") and a Rmarkdown file that uses the data "cleaned_comb_data.csv" in the data.zip file for reviewers. The html can be accessed without using this data. 
 
 ### Replication Instructions
 
