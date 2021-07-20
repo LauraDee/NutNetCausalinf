@@ -9,7 +9,7 @@ To access the tutorial, see the folder "./tutorial in R/". The folder includes a
 
 The analysis for this project was done in R and Stata, with the majority in R. Below, under *Provenance of Results*, is a list of all results in the paper and supplemental materials and where the authoritative version can be found. 
 
-R Replication Instructions: Set cdir to your local repo location. For the review process, the data files are includes in the data.zip for reviewers as an attachments. Post acceptance: Note that only *comb* data is included; *cover* is larger and must be obtained separately, and requires settings its own path.
+R Replication Instructions: Set cdir to your local repo location. For the review process, the data files are includes in the data.zip for reviewers as an attachments. Post acceptance: Note that only *comb* data is included; *cover* is larger and must be obtained separately, and requires settings its own path. The master.R runs through each step in the code and data processing for analysis; readers should start there.
 
 Stata Replication Instructions: Set the global macros to local repo location.
 
@@ -19,20 +19,19 @@ Figure 2A
 
 * All results in R 
 * Figure produced in R
-* Replicable in Stata (except for minor standard error differences)
+* Replicable in Stata 
 
 Figure 2B
 
 * All results in Stata 
-* Figure produced in R
+* Figure produced in R 
 * NOT replicated in R
 
 Figure 3 
 
 * Results 1, 2, and 4 in R 
 * Result 3 and 5 in Stata
-* Replicable in Stata (except for minor standard error differences)
-
+* Replicable in Stata 
 Figure 5
 
 * Results only in R
@@ -45,7 +44,7 @@ Table S1
 Table S2
 
 * Results and Table produced in R (analysis_main.R) 
-* Replicable in Stata (except for minor standard error differences)
+* Replicable in Stata 
 
 Table S3
 
@@ -74,7 +73,7 @@ Table S8
 Table S9
 
 * Results and Table produced in R (analysis_main.R)
-* Replicable in Stata (except for minor standard error differences)
+* Replicable in Stata 
 
 Table S10
 
