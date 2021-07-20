@@ -6,3 +6,11 @@ ProcessedMechanismAnalysisData.csv
 .DS_Store
 .DS_Store
 data/.DS_Store
+data/cutoff1_species.csv
+data/cutoff2_species.csv
+data/NutNetCoverData_ProcessedFinal.csv
+data/printNAbysite.csv
+data/processed/file naming notes.txt
+data/processed/NutNet_Prepped.csv
+data/processed/NutNet_Prepped.dta
+data/processed/NutNetControlPlotData_v201804.csv
