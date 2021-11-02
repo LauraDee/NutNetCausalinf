@@ -1,43 +1,27 @@
-\begin{tabular}{lccc}
+\begin{tabular}{lcc}
 \tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{3}{c}{log(live\_mass)}\\
-Model:&(1) & (2) & (3)\\
-\midrule \emph{Variables}&   &   &  \\
-ihs(sr\_non.rare\_nat)&0.0478 &    &   \\
-  &(0.0721) &    &   \\
-ihs(sr\_non.rare\_non.nat)&-0.1735$^{***}$ &    &   \\
-  &(0.0646) &    &   \\
-ihs(sr\_non.nat\_rare)&0.0394 &    &   \\
-  &(0.0712) &    &   \\
-ihs(sr\_nat\_rare)&-0.1475$^{***}$ &    &   \\
-  &(0.0459) &    &   \\
-ihs(sr\_NA)&-0.0894$^{**}$ &    &   \\
-  &(0.0430) &    &   \\
-ihs(sr\_non.rare\_nat2)&   & 0.0488 &   \\
-  &   & (0.0849) &   \\
-ihs(sr\_non.rare\_non.nat2)&   & -0.2158$^{***}$ &   \\
-  &   & (0.0732) &   \\
-ihs(sr\_non.nat\_rare2)&   & -0.0179 &   \\
-  &   & (0.0658) &   \\
-ihs(sr\_nat\_rare2)&   & -0.1052$^{**}$ &   \\
-  &   & (0.0445) &   \\
-ihs(sr\_non.rare\_nat3)&   &    & 0.0082\\
-  &   &    & (0.0717)\\
-ihs(sr\_non.rare\_non.nat3)&   &    & -0.1757$^{***}$\\
-  &   &    & (0.0664)\\
-ihs(sr\_non.nat\_rare3)&   &    & -0.0262\\
-  &   &    & (0.0693)\\
-ihs(sr\_nat\_rare3)&   &    & -0.0885$^{*}$\\
-  &   &    & (0.0484)\\
-\midrule \emph{Fixed-effects}&   &   &  \\
-newplotid & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & \\
-Observations & 1,175&1,175&1,175\\
-R$^2$ & 0.87527&0.87360&0.87302\\
-Within R$^2$ & 0.02966&0.01665&0.01218\\
-\midrule\midrule\multicolumn{4}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
-\multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+Dependent Variable:&\multicolumn{2}{c}{log(live\_mass)}\\
+Model:&(1) & (2)\\
+\midrule \emph{Variables}&   &  \\
+ihs(sr\_non.rare\_nat.Freq)&0.0394 & 0.0488\\
+  &(0.0805) & (0.0825)\\
+ihs(sr\_non.rare\_non.nat.Freq)&-0.1752$^{**}$ & -0.1856$^{***}$\\
+  &(0.0688) & (0.0685)\\
+ihs(sr\_rare\_non.nat.Freq)&-0.0131 & -0.0188\\
+  &(0.0607) & (0.0593)\\
+ihs(sr\_rare\_nat.Freq)&-0.0926$^{*}$ & -0.0904$^{*}$\\
+  &(0.0501) & (0.0502)\\
+ihs(sr\_NA)&-0.0827$^{*}$ &   \\
+  &(0.0420) &   \\
+\midrule \emph{Fixed-effects}&   &  \\
+newplotid & Yes & Yes\\
+site.by.yeardummy & Yes & Yes\\
+\midrule \emph{Fit statistics}&  & \\
+Observations & 1,175&1,175\\
+R$^2$ & 0.87396&0.87314\\
+Within R$^2$ & 0.01943&0.01304\\
+\midrule\midrule\multicolumn{3}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
+\multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
 \end{tabular}
 
 
