@@ -145,12 +145,12 @@ ggsave("./output/Fig5.pdf", Fig5.plot)
 
 
 ######################################################################################################################################################
-#### Section S8c. Sensitivity Analyses: Species with unknown origin  ###############################################################################
+#### Section S8c.i Sensitivity Analyses: Species with unknown origin  ###############################################################################
 ######################################################################################################################################################
 # Sensitivity Analyses: Run Models that categorize species with unknown origin as all native or all non-native to bound results 
 #We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
 # was native or introduced).
-## 1. Excluding them, as done in MechMod_All analyses above for results in Figure 5 and in Table S9 (Cut-off1) #### 
+## 1. Excluding them, as done in MechMod_All analyses above for results in Figure 5 and in Table S11 (for Cut-off 1) #### 
 
 ## 2. Including the unknown spp origin all as *native* : ####
 ## to do so, we replace: ihs(sr_non.rare_nat)   with  ihs(sr_non.rare_nat_unk)
@@ -175,11 +175,9 @@ vcov_MechModS2.noNA <- vcov(MechMod_S2, cluster = "newplotid")
 
 
 # 3. Including the species with unknown origin all as non-native, using these variables:
-# sr_non.nat_unk_rare 
-# sr_non.rare_non.nat_unk 
+   # sr_non.nat_unk_rare 
+   # sr_non.rare_non.nat_unk 
 
-## replace: ihs(sr_non.rare_non.nat)     with  ihs(sr_non.rare_non.nat_unk)
-## replace:  ihs(sr_non.nat_rare)    with    ihs(sr_non.nat_unk_rare )
 MechMod_S3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_non.nat_unk) +  ihs(sr_non.nat_unk_rare) +  ihs(sr_nat_rare) + ihs(sr_NA)
                    | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechModS3 <- vcov(MechMod_S3, cluster = "newplotid")
@@ -228,7 +226,7 @@ esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
 
 
 ######################################################################################################################################################
-#### SM Section S8d. Sensitivity Analyses using relative frequency as the metric for rarity  #########################################################################
+#### SM Section S8c.ii Sensitivity Analyses using relative frequency as the metric for rarity  #########################################################################
 ######################################################################################################################################################
 # Sensitivity Analyses: Grouped based on Relative Frequency in year 0 
 
@@ -278,9 +276,9 @@ MechFreq.NoNA2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk.Freq) + ihs(sr_n
 vcov_MechFreq.NoNA2 <- vcov(MechFreq.NoNA2, cluster = "newplotid")
 summary(MechFreq.NoNA2)
 
-
-### Group as Non Native ## group all of the unknown species origins as non-native for both rare and non-rare groups: 
-# variables to use:  sr_non.rare_non.nat_unk.Freq
+### Group as Non Native 
+## group all of the unknown species origins as non-native for both rare and non-rare groups. # variables to use: 
+             # sr_non.rare_non.nat_unk.Freq
               #  sr_rare_non.nat_unk.Freq
 MechFreq3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat_unk.Freq)  + ihs(sr_rare_non.nat_unk.Freq) +  ihs(sr_rare_nat.Freq) + ihs(sr_NA)
                        | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
@@ -292,7 +290,6 @@ MechFreq.NoNA3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.r
                       | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq.NoNA3 <- vcov(MechFreq.NoNA3, cluster = "newplotid")
 summary(MechFreq.NoNA3)
-
 
 ################################################
 ## print sensitivity analyses for Table S14  ##
@@ -316,16 +313,17 @@ esttex(MechFreq3, MechFreq.NoNA3,
 
 
 ###############################################################################################################################################
-#### Section SI8f.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
+#### Section S8c.iii.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
 ##################################################################################################################################################
-# For SI section S8f. Run Models with Relative Abundance Comparing different grouping cutoffs for Rare vs Non-rare species 
+# For SI section S8c.iii. Run Models with Relative Abundance Comparing different grouping cutoffs for Rare vs Non-rare species 
 
 ##########################
 ### Table S15 Models. ##
 #########################
 
-## First Grouped based on second  cutoffs (see SI section 8) versus cut-offs from Figure 5
-# sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2 , #include variables for cut-off 2 as sensitivity test for main species group model for Figure 5
+## First Grouped based on second  cutoffs (see SI section 8c.iii) versus cut-offs from Figure 5
+ #include variables for cut-off 2 as sensitivity test for main species group model for Figure 5
+ # variables to use: # sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2 
 
 MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
@@ -339,9 +337,10 @@ linearHypothesis(MechMod_All2,
                  test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
 #####################
-### Run models grouped based on  third cutoffs (see SI section 8) versus cut-offs from Figure 5
+### Run models grouped based on  third cutoffs (see SI section 8c.iii) versus cut-offs from Figure 5
 ####################
-# sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3 #include variables for cut-off 2 as sensitvity test for main model for Figure 5
+#include variables for cut-off 2 as sensitvity test for main model for Figure 5, variables to use:
+      # sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3 
 
 MechMod_All3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat3) +   ihs(sr_non.rare_non.nat3)  + ihs(sr_non.nat_rare3)  +  ihs(sr_nat_rare3)
                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
