@@ -1,16 +1,16 @@
-
+### SI Section 8 ######
 ####################################################################################################################################
 #### Models for the role of rare and non-native species  ##########################################################################################################
 ####################################################################################################################################
 
-# This code includes analysis for reproducing Figure 5 in the main text and SM analyses for Section 7.
+# This code includes analysis for reproducing Figure 5 in the main text and SI analyses for SI Section 8.
 # Code written by Laura Dee and Chris Severen
 
 ######################################################################################################################
 ###  Figure 5 - Main text. Rare vs Non-Rare and Native vs Invasive  #######################################################################
 ####################################################################################################################
 ###########
-### Figure 5 - Main text and SM Tables SX and SX. 
+### Figure 5 - Main text and SM Tables S11-S15 
 ##########
 # We first present the analyses shown in the main text Figure 5, which include 4 groups of species, which are: 
 #1) rare, native: sr_nat_rare
@@ -86,12 +86,12 @@ esttex(MechMod_All,
 
 esttex(MechMod_All, MechMod_All_noNAs,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS10_R_se.tex")
+       file = "./output/TableS11_R_se.tex")
 
 
 esttex(MechMod_All, MechMod_All_noNAs,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS10_R_ci.tex")
+       file = "./output/TableS11_R_ci.tex")
 
 ###################################################################################################################################
 ### Plot Figure 5 ######################################################################################################################
@@ -140,12 +140,12 @@ ggsave("./output/Fig5.pdf", Fig5.plot)
 
 
 ###################################################################################################################################################
-### SM Analyses for Section S7  ######################################################################################################################
+### SM Analyses for Section S8  ######################################################################################################################
 #####################################################################################################################################################
 
 
 ######################################################################################################################################################
-#### Section S9c. Sensitivity Analyses: Species with unknown origin  ###############################################################################
+#### Section S8c. Sensitivity Analyses: Species with unknown origin  ###############################################################################
 ######################################################################################################################################################
 # Sensitivity Analyses: Run Models that categorize species with unknown origin as all native or all non-native to bound results 
 #We test the sensitivity of our results to data processing decisions, with respect to species that have unknown origins (e.g., site coordinators did not know if the species
@@ -199,38 +199,38 @@ linearHypothesis(MechMod_S3,
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
 ###############################################################
-## Print Tables S11 and S12  ##################################
+## Print Tables S12 and S13  ##################################
 ###############################################################
 esttex(MechMod_S2, 
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS11_R_se.tex")
+       file = "./output/TableS12_R_se.tex")
 
 esttex(MechMod_S2, 
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS11_R_ci.tex")
+       file = "./output/TableS12_R_ci.tex")
 
 esttex(MechMod_S3, 
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS12_R_se.tex")
+       file = "./output/TableS13_R_se.tex")
 
 esttex(MechMod_S3, 
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS12_R_ci.tex")
+       file = "./output/TableS13_R_ci.tex")
 
 # for supplemental analyses and comparing the analyses in one table, print:
 esttex(MechMod_All, MechMod_S2, MechMod_S2.noNA,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS11_SensitivityAnal_R_seMay202021.tex")
+       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
 
 esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
+       file = "./output/TableS13_SensitivityAnal_R_seMay202021.tex")
 
 
 ######################################################################################################################################################
-#### SM Section S9d. Sensitivity Analyses using relative frequency as the metric for rarity  #########################################################################
+#### SM Section S8d. Sensitivity Analyses using relative frequency as the metric for rarity  #########################################################################
 ######################################################################################################################################################
-# S9d: Sensitivity Analyses: Grouped based on Relative Frequency in year 0 
+# Sensitivity Analyses: Grouped based on Relative Frequency in year 0 
 
 #with controlling for NAs
 MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) + ihs(sr_NA)
@@ -244,23 +244,23 @@ MechFreq.NoNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.ra
 vcov_MechFreq.NoNA <- vcov(MechFreq.NoNA, cluster = "newplotid")
 
 ###############################################################
-## Print Table S13  ###########################################
+## Print Table S14  ###########################################
 ###############################################################
 
 esttex(MechFreq1,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS13_R_se.tex")
+       file = "./output/TableS14_R_se.tex")
 
 
 esttex(MechFreq1, MechFreq.NoNA, 
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS13_R_se.tex")
+       file = "./output/TableS14_R_se.tex")
 
 esttex(MechFreq1, MechFreq.NoNA,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS13_R_ci.tex")
+       file = "./output/TableS14_R_ci.tex")
 
-#### Sensitivity Analyses for Results in Table S13: 
+#### Sensitivity Analyses for Results in Table S14: 
 ### Group as Native 
 # variables to use: sr_rare_unk_nat.Freq   
                 # sr_non.rare_nat_unk.Freq 
@@ -295,36 +295,36 @@ summary(MechFreq.NoNA3)
 
 
 ################################################
-## print sensitivity analyses for Table S13  ##
+## print sensitivity analyses for Table S14  ##
 ###############################################
 esttex(MechFreq1, MechFreq2, MechFreq3,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS13Sensitivity_R_se.tex")
+       file = "./output/TableS14Sensitivity_R_se.tex")
 
 esttex(MechFreq1, MechFreq2,MechFreq3 ,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS13Sensitivity_R_CI.tex")
+       file = "./output/TableS14Sensitivity_R_CI.tex")
 
 #print out results
 esttex(MechFreq2, MechFreq.NoNA2,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS13SensitivityAnal2_R_se.tex")
+       file = "./output/TableS14SensitivityAnal2_R_se.tex")
 
 esttex(MechFreq3, MechFreq.NoNA3,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableSS13SensitivityAnal2_R_se.tex")
+       file = "./output/TableSS14SensitivityAnal2_R_se.tex")
 
 
 ###############################################################################################################################################
-#### Section S9f.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
+#### Section SI8f.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
 ##################################################################################################################################################
-# For SM section S9f. Run Models with Relative Abundance Comparing different grouping cutoffs for Rare vs Non-rare species 
+# For SI section S8f. Run Models with Relative Abundance Comparing different grouping cutoffs for Rare vs Non-rare species 
 
 ##########################
-### Table S14 Models. ##
+### Table S15 Models. ##
 #########################
 
-## First Grouped based on  cutoffs of XXXXXX versus cut-offs from Figure 5
+## First Grouped based on second  cutoffs (see SI section 8) versus cut-offs from Figure 5
 # sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2 , #include variables for cut-off 2 as sensitivity test for main species group model for Figure 5
 
 MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
@@ -339,7 +339,7 @@ linearHypothesis(MechMod_All2,
                  test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
 #####################
-### Run models frouped based on  cutoffs of XXXXXX versus cut-offs from Figure 5
+### Run models grouped based on  third cutoffs (see SI section 8) versus cut-offs from Figure 5
 ####################
 # sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3 #include variables for cut-off 2 as sensitvity test for main model for Figure 5
 
@@ -349,16 +349,15 @@ MechMod_All3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat3) +   ihs(sr_non.rare_
 vcov_MechMod3 <- vcov(MechMod_All3, cluster = "newplotid")
 
 ################################################
-## Table S14   #################################
+## Table S15   #################################
 #################################################
 esttex(MechMod_All, MechMod_All2, MechMod_All3,
        coefstat = "se", replace = TRUE,
-       file = "./output/TableS14_R_se.tex")
+       file = "./output/TableS15_R_se.tex")
 
 esttex(MechMod_All, MechMod_All2, MechMod_All3,
        coefstat = "confint", replace = TRUE,
-       file = "./output/TableS14_R_CI.tex")
-
+       file = "./output/TableS15_R_CI.tex")
 
 ###########################################################################################################################################
 ### Produce Supplemental Figure S12 & S13: changes in each species groups by site ##########################################################
