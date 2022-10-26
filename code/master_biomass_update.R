@@ -79,6 +79,7 @@ source("./code/r/FiguresS1_S2_S3.R") #Produces Figures S1, S2 and S3
 ## *cover data is in separate location (not on Github) due its size!!!!!*
 
 rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
+setwd("~/Documents/GitHub/NutNetCausalinf/")  
 source("./code/r/useful_functions.R")
 combonly <- FALSE
 #comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')

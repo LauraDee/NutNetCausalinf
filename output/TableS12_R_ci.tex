@@ -1,27 +1,27 @@
-\begin{tabular}{lc}
+\begin{tabular}{lcc}
 \tabularnewline\midrule\midrule
-Dependent Variable:&log(live\_mass)\\
-Model:&(1)\\
-\midrule \emph{Variables}&  \\
-ihs(sr\_non.rare\_nat\_unk)&0.0839\\
-  &[-0.0557; 0.2236]\\
-ihs(sr\_non.rare\_non.nat)&-0.1731$^{***}$\\
-  &[-0.2979; -0.0482]\\
-ihs(sr\_non.nat\_rare)&0.0364\\
-  &[-0.1017; 0.1745]\\
-ihs(sr\_nat\_unk\_rare)&-0.1401$^{***}$\\
-  &[-0.2299; -0.0504]\\
-ihs(sr\_NA)&-0.0907$^{**}$\\
-  &[-0.1754; -0.0060]\\
-\midrule \emph{Fixed-effects}&  \\
-newplotid & Yes\\
-site.by.yeardummy & Yes\\
-\midrule \emph{Fit statistics}&  \\
-Observations & 1,175\\
-R$^2$ & 0.87506\\
-Within R$^2$ & 0.02797\\
-\midrule\midrule\multicolumn{2}{l}{\emph{One-way (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
-\multicolumn{2}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+Dependent Variable:&\multicolumn{2}{c}{log(live\_mass)}\\
+Model:&(1) & (2)\\
+\midrule \emph{Variables}&   &  \\
+ihs(sr\_non.rare\_nat\_unk)&0.0848 & 0.0878\\
+  &[-0.0547; 0.2244] & [-0.0531; 0.2287]\\
+ihs(sr\_non.rare\_non.nat)&-0.1717$^{***}$ & -0.1796$^{***}$\\
+  &[-0.2972; -0.0462] & [-0.3061; -0.0530]\\
+ihs(sr\_non.nat\_rare)&0.0367 & 0.0263\\
+  &[-0.1012; 0.1747] & [-0.1096; 0.1623]\\
+ihs(sr\_nat\_unk\_rare)&-0.1399$^{***}$ & -0.1333$^{***}$\\
+  &[-0.2296; -0.0502] & [-0.2255; -0.0411]\\
+ihs(sr\_NA)&-0.0914$^{**}$ &   \\
+  &[-0.1761; -0.0067] &   \\
+\midrule \emph{Fixed-effects}&   &  \\
+newplotid & Yes & Yes\\
+site.by.yeardummy & Yes & Yes\\
+\midrule \emph{Fit statistics}&  & \\
+Observations & 1,175&1,175\\
+R$^2$ & 0.87432&0.87331\\
+Within R$^2$ & 0.02803&0.02020\\
+\midrule\midrule\multicolumn{3}{l}{\emph{One-way (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
+\multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
 \end{tabular}
 
 
