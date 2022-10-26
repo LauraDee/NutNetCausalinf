@@ -152,16 +152,28 @@ esttex(MainMod_Rich, MainMod_LagLiveMass, MainMod_Oster, MainMod_MechBlocking, M
        file = "./output/Table_forFig3_R_ci.tex")
 
 ################################################
-## Table S9: Dynamic Panel Results 
+## Table S7 MainMod_IVRevCaus in STATA for the 2 stage least squares
+################################################
+
+esttex(MainMod_IVRevCaus,
+       coefstat = "confint", replace = TRUE,
+       file = "./output/Table_S7_R_ci.tex")
+
+esttex(MainMod_IVRevCaus,
+       coefstat = "se", replace = TRUE,
+       file = "./output/Table_S7_R_se.tex")
+
+################################################
+## Table S8: Dynamic Panel Results 
 ###############################################
 
 esttex( MainMod_LagLiveMass, 
        coefstat = "se", replace = TRUE,
-       file = "./output/Table_S9_R_se.tex")
+       file = "./output/Table_S8_R_se.tex")
 
 esttex(MainMod_LagLiveMass,
        coefstat = "confint", replace = TRUE,
-       file = "./output/Table_S9_R_ci.tex")
+       file = "./output/Table_S8_R_ci.tex")
 
 # Print results for mechanism blocking analysis, reported in the SM:
 esttex(MainMod_MechBlocking, 
@@ -171,6 +183,7 @@ esttex(MainMod_MechBlocking,
 esttex(MainMod_MechBlocking, 
        coefstat = "confint", replace = TRUE,
        file = "./output/Table_MechBlocking_R_ci.tex")
+
 
 ##############################################
 ##############################################

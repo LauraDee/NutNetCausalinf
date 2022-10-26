@@ -46,7 +46,7 @@ cover$year <- as.character(cover$year)
 comb$plot <- as.character(comb$plot)
 cover$plot <- as.character(cover$plot)
 cover$V1 = NULL
-cover$V1 = NULL
+comb$V1 = NULL
 
 #################################################################################################
 ## Grab the summary columns from cover to merge  #######################################################

@@ -51,23 +51,23 @@ linearHypothesis(MechMod_All_noNAs,
                  test = "F", vcov = vcov_MechMod_noNAs,  singular.ok = T)
 
 
-# not rare: native vs non-native - are their effects on productivity significantly differently?
+# not rare: native vs non-native - are their effects on productivity significantly differently? Evidence to reject their effects are equal.
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-# native rare vs non-rare:
+# native rare vs non-rare are = . Evidence to reject 
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-# non-native rare vs non-rare
+# non-native rare vs non-rare are =, Evidence to reject 
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-# non-native vs native rare 
+# non-native vs native rare are =. Evidence to reject 
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
-#non-native rare = 0?
+#does difference between non-native rare and native rare = 0? no evidence to reject.
 # non-native rare vs non-rare
 linearHypothesis(MechMod_All, hypothesis.matrix = "ihs(sr_non.nat_rare) = 0", 
                  test = "F", vcov = vcov_MechMod,  singular.ok = T)
@@ -160,13 +160,6 @@ MechMod_S2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_n
 vcov_MechModS2 <- vcov(MechMod_S2, cluster = "newplotid")
 summary(MechMod_S2)
 
-#**need to update 
-#testing if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechMod_S2, 
-                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
-                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
-                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
-
 
 #without controlling for NA species:
 MechMod_S2.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat_unk) + ihs(sr_non.rare_non.nat)  + ihs(sr_non.nat_rare) +  ihs(sr_nat_unk_rare)
@@ -189,33 +182,27 @@ MechMod_S3.noNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat) + ihs(sr_non.rare_
 vcov_MechModS3.noNA <- vcov(MechMod_S3, cluster = "newplotid")
 summary(MechMod_S3.noNA)
 
-#**update 
-#testing if the groups are not all the same: rejecting the null that they are the same
-linearHypothesis(MechMod_S3, 
-                 hypothesis.matrix = c("ihs(sr_non.rare_nat) = ihs(sr_non.rare_non.nat)", "ihs(sr_nat_rare) = ihs(sr_non.rare_nat)",
-                                       "ihs(sr_non.nat_rare) = ihs(sr_non.rare_non.nat)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
-                 test = "F", vcov = vcov_MechMod,  singular.ok = T)
 
 ###############################################################
 ## Print Tables S12 and S13  ##################################
 ###############################################################
-esttex(MechMod_S2, 
+esttex(MechMod_S2, MechMod_S2.noNA,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS12_R_se.tex")
 
-esttex(MechMod_S2, 
+esttex(MechMod_S2, MechMod_S2.noNA,
        coefstat = "confint", replace = TRUE,
        file = "./output/TableS12_R_ci.tex")
 
-esttex(MechMod_S3, 
+esttex(MechMod_S3, MechMod_S3.noNA,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS13_R_se.tex")
 
-esttex(MechMod_S3, 
+esttex(MechMod_S3, MechMod_S3.noNA,
        coefstat = "confint", replace = TRUE,
        file = "./output/TableS13_R_ci.tex")
 
-# for supplemental analyses and comparing the analyses in one table, print:
+# for supplemental analyses to compare the analyses in one table, print:
 esttex(MechMod_All, MechMod_S2, MechMod_S2.noNA,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS12_SensitivityAnal_R_seMay202021.tex")
@@ -245,11 +232,6 @@ vcov_MechFreq.NoNA <- vcov(MechFreq.NoNA, cluster = "newplotid")
 ## Print Table S14  ###########################################
 ###############################################################
 
-esttex(MechFreq1,
-       coefstat = "se", replace = TRUE,
-       file = "./output/TableS14_R_se.tex")
-
-
 esttex(MechFreq1, MechFreq.NoNA, 
        coefstat = "se", replace = TRUE,
        file = "./output/TableS14_R_se.tex")
@@ -258,7 +240,7 @@ esttex(MechFreq1, MechFreq.NoNA,
        coefstat = "confint", replace = TRUE,
        file = "./output/TableS14_R_ci.tex")
 
-#### Sensitivity Analyses for Results in Table S14: 
+#### Sensitivity Analyses for Results using relative frequency in Table S14: 
 ### Group as Native 
 # variables to use: sr_rare_unk_nat.Freq   
                 # sr_non.rare_nat_unk.Freq 
@@ -291,9 +273,9 @@ MechFreq.NoNA3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.r
 vcov_MechFreq.NoNA3 <- vcov(MechFreq.NoNA3, cluster = "newplotid")
 summary(MechFreq.NoNA3)
 
-################################################
-## print sensitivity analyses for Table S14  ##
-###############################################
+###########################################################
+## print additional sensitivity analyses for Table S14  ##
+##########################################################
 esttex(MechFreq1, MechFreq2, MechFreq3,
        coefstat = "se", replace = TRUE,
        file = "./output/TableS14Sensitivity_R_se.tex")
@@ -310,7 +292,6 @@ esttex(MechFreq2, MechFreq.NoNA2,
 esttex(MechFreq3, MechFreq.NoNA3,
        coefstat = "se", replace = TRUE,
        file = "./output/TableSS14SensitivityAnal2_R_se.tex")
-
 
 ###############################################################################################################################################
 #### Section S8c.iii.Sensitivity Analyses:  Sensitivity Analyses using different cut-offs for rare versus non-rare categories   #################
@@ -333,7 +314,7 @@ vcov_MechMod2 <- vcov(MechMod_All2, cluster = "newplotid")
 #test if the groups are not all the same: rejecting the null that they are the same
 linearHypothesis(MechMod_All2, 
                  hypothesis.matrix = c("ihs(sr_non.rare_nat2) = ihs(sr_non.rare_non.nat2)", "ihs(sr_nat_rare2) = ihs(sr_non.rare_nat2)",
-                                       "ihs(sr_non.nat_rare2) = ihs(sr_nat_rare)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                                       "ihs(sr_non.nat_rare2) = ihs(sr_nat_rare2)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
                  test = "F", vcov = vcov_MechMod2,  singular.ok = T)
 
 #####################
@@ -344,8 +325,12 @@ linearHypothesis(MechMod_All2,
 
 MechMod_All3 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat3) +   ihs(sr_non.rare_non.nat3)  + ihs(sr_non.nat_rare3)  +  ihs(sr_nat_rare3)
                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
 vcov_MechMod3 <- vcov(MechMod_All3, cluster = "newplotid")
+
+linearHypothesis(MechMod_All3, 
+                hypothesis.matrix = c("ihs(sr_non.rare_nat3) = ihs(sr_non.rare_non.nat3)", "ihs(sr_nat_rare3) = ihs(sr_non.rare_nat3)",
+                                      "ihs(sr_non.nat_rare3) = ihs(sr_nat_rare3)"), # by transitivity this is included but needs to be dropped: "ihs(sr_non.nat_rare) = ihs(sr_nat_rare)"),  
+                test = "F", vcov = vcov_MechMod3,  singular.ok = T)
 
 ################################################
 ## Table S15   #################################

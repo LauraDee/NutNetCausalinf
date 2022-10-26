@@ -90,25 +90,6 @@ cover[, sr_UNK := length(unique(Taxon[local_provenance=="UNK" & max_cover>0])), 
 ## to make a plot of number of introduced species over time at a site 
 cover[, sr_INT.site := length(unique(Taxon[local_provenance == "INT" & max_cover>0])), by = .(site_code, year)]
 
-
-#*** CUT IN BTWN *****
-cover.int.unique = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt,  sr_INT.site, sr_INT)])
-
-INTsp <- ggplot(data = cover.int.unique , aes(x = year, y = sr_INT.site) + geom_point() +  # + facet_wrap(~site_code) + theme_bw() +
-                  labs(x = "Count of Non-Native Species") +  theme_bw() +
-                  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-                  theme(axis.text.y = element_text(size = 14)) + 
-                  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-                  theme(axis.text.x = element_text(size=14)) 
-                INTsp
-                
-invasionmod <- lm(sr_INT.site ~ year_trt, data = cover.int.unique)
-                summary(invasionmod)
-                
-plot(cover.int.unique$year_trt, cover.int.unique$sr_INT.site )
-abline(invasionmod)
- #*** CUT IN BTWN / Do for the final dataset*****
-
                 
 #####
 ##### Compute a convenience column that says whether a species was present in a plot in a site in the pre-treatment year
