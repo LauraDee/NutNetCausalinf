@@ -17,3 +17,6 @@ data/processed/NutNetControlPlotData_v201804.csv
 tutorial in R/cleaned_comb_data.csv
 code/.DS_Store
 .DS_Store
+output/.DS_Store
+code/.DS_Store
+.DS_Store
