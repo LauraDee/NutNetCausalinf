@@ -221,13 +221,13 @@ esttex(MechMod_All, MechMod_S3, MechMod_S3.noNA,
 MechFreq1 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) + ihs(sr_NA)
                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq1 <- vcov(MechFreq1, cluster = "newplotid")
-
+summary(MechFreq1)
 
 #without controlling for NAs
 MechFreq.NoNA <-feols(log(live_mass) ~ ihs(sr_non.rare_nat.Freq) + ihs(sr_non.rare_non.nat.Freq)  + ihs(sr_rare_non.nat.Freq) +  ihs(sr_rare_nat.Freq) 
                   | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechFreq.NoNA <- vcov(MechFreq.NoNA, cluster = "newplotid")
-
+summary(MechFreq.NoNA)
 ###############################################################
 ## Print Table S14  ###########################################
 ###############################################################
@@ -308,7 +308,6 @@ esttex(MechFreq3, MechFreq.NoNA3,
 
 MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
-
 vcov_MechMod2 <- vcov(MechMod_All2, cluster = "newplotid")
 
 #test if the groups are not all the same: rejecting the null that they are the same
