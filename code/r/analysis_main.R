@@ -46,9 +46,7 @@ MixedMod_Simpson <- lmer(log(live_mass) ~ log(simpson) + as.factor(country) + as
                            pH + PercentSand + PercentSilt + PercentClay + 
                            (1|newplotid) + (1|site_code), comb, REML = F)
 
-#  Bivariate and Common Multivariate Analyses Models
-
-SimpleRE_TwoVar <- lmer(log(live_mass) ~ log(rich) + as.factor(year) + (1|newplotid), comb, REML = F)
+#   Common Multivariate Analyses Models
 
 SimpleRE_MultiVar <- lmer(log(live_mass) ~ log(rich) + as.factor(country) + as.factor(habitat) + as.factor(year) + 
                         elevation + managed + burned + grazed + anthropogenic + 
@@ -114,6 +112,12 @@ MainMod_LevQuad <- feols(live_mass ~ rich + I(rich^2) | newplotid + site.by.year
 ## Tables #
 ##############################################
 ##############################################
+
+################################################
+## Report Common Design Results 
+################################################
+summary(SimpleRE_MultiVar)
+
 
 ################################################
 ## Table S2
