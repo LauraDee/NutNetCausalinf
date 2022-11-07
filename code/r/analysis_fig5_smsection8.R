@@ -309,6 +309,7 @@ esttex(MechFreq3, MechFreq.NoNA3,
 MechMod_All2 <-feols(log(live_mass) ~ ihs(sr_non.rare_nat2) +   ihs(sr_non.rare_non.nat2)  + ihs(sr_non.nat_rare2)  +  ihs(sr_nat_rare2)
                      | newplotid + site.by.yeardummy, mech.data, cluster = "newplotid")
 vcov_MechMod2 <- vcov(MechMod_All2, cluster = "newplotid")
+summary(MechMod_All2)
 
 #test if the groups are not all the same: rejecting the null that they are the same
 linearHypothesis(MechMod_All2, 

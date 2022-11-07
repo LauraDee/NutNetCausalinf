@@ -45,9 +45,11 @@ library(data.table)
 library(fixest)
 library(lme4)  # Need at least version 1.1-26
 library(knitr)
+library(ggplot2)
 
 cdir <- getwd()
 comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
+comb$V1 = NULL
 ```
 
 The *comb* dataset contains a wide number of variables; we'll mainly be using the variables *live_mass* and *rich*. Also important are the *site_code*, *plot*, and *year* variables, which we use to create fixed effects (site-by-year fixed were created with `"r comb[, site.by.yeardummy := paste(site_code, year, sep = "_")]"`).
