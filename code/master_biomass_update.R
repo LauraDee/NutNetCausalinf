@@ -44,8 +44,7 @@ source("./code/r/useful_functions.R")
 #replace data in NutNetControlPlotData_v201804.csv for comp.pt 2015 data and marc.ar 2011 and 2012 with data in the file marc-comp-comb-by.csv
 
 combonly <- TRUE  # combonly -> finalprocess_and_datachecks
-#comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
-comb <- fread("./data/NutNetControlPlotData_biomassfixAug22.csv",na.strings='NA')
+comb <- fread("./data/NutNetControlPlotData_derived.csv",na.strings='NA')
 
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3, and Figure S4 
@@ -61,8 +60,9 @@ rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
 setwd("~/Documents/GitHub/NutNetCausalinf/")  
 source("./code/r/useful_functions.R")
 combonly <- FALSE
-#comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
-comb <- fread("./data/NutNetControlPlotData_biomassfixAug22.csv",na.strings='NA')
+comb <- fread("./data/NutNetControlPlotData_derived.csv",na.strings='NA')
+
+#**need to run ***
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 
 ### Load cover Data  - data processed using the code "ProcessNutNet_coverData_FINAL_public.R" which created all variables of SR counts and groupings 
