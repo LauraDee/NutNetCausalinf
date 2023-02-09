@@ -5,7 +5,7 @@
 # updated May 11 2020 to add:  #an IV of average neighbor TREATED richness at the site
      #variables identifying if richness change is  positive, negative, or no change
 
-# Meta-data files are attached, but here are some key variables used:
+# Meta-data description of  some key variables:
       # Field	column type	description
       # site_name	varchar(45)	Expanded site name
       # site_code	varchar(45)	code in the form of "shorthand.country" e.g., cdcr.us, kiny.au, frue.ch
@@ -16,10 +16,6 @@
       # latitude	double	latitude from -90 (S) to +90 (N) in decimal degrees
       # longitude	double	longitude from -180 (W) to 180 (E) in decimal degrees
       # plot	int(11)	plot number
-      # N	tinyint(1)	1=N added, 0 = control
-      # P	tinyint(1)	1=P added, 0 = control
-      # K	tinyint(1)	1=K added, 0 = control
-      # Exclose	tinyint(1)	1=fenced, 0=control
       # year_trt	decimal(6,0)	0 = pretreatment observation; 1=first observations after treatments; 2=2nd year after treatment; etc
       # rich	decimal(24,4)	COUNT of unique taxa in the plot
       # site_year_rich	bigint(21)	COUNT of unique taxa observed across all plots at the site in that year
@@ -46,7 +42,7 @@ library(foreign)
 
 # Load plot level plant, soil, and climate data
 setwd("~/Dropbox/IV in ecology/NutNet")
-## load latest data file
+## load data file
 comb <- fread('comb-by-plot-clim-soil-diversity-09-Apr-2018.csv',na.strings= 'NA')
 comb$site <- comb$site_code
 comb$plot <- as.factor(comb$plot)
@@ -304,5 +300,4 @@ write.csv(tab, "DatasetDescript-ControlPlotsSiteYearList.csv")
 
 # write as csv datafile to use for R
 write.csv(comb, "NutNetControlPlotData_v201804.csv")
-
 
