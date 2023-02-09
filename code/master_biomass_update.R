@@ -9,8 +9,6 @@ rm(list = ls())
 #  setwd(cdir)
 setwd("~/Documents/GitHub/NutNetCausalinf/")  
 
-#setwd("~/Dropbox/Nutnet causality paper draft/Nat Comms revision1/biomass_fix_analysis/")
-
 ######################################################
 ## BELOW THIS POINT, code should just run ##
 
@@ -19,13 +17,12 @@ library(dplyr)
 require(ggplot2) # 3.3.3
 library(plyr) # 1.8.6
 library(data.table) # v 1.13.6
-library(AER) # v 1.2-9 ### Do we use this anymore??? 
 library(sandwich) #3.0-0
 library(foreign) # 0.8-80
 library(car)  #v  3.0-10
 library(fixest)  # v 0.8.2
 library(lme4)  # 1.1-26
-library(texreg) # 1.37. 5  #### Do we use this anymore??? 
+library(texreg) # 1.37. 5  
 library(broom)  # v 0.7.4
 library(tidyverse)  # v 1.3.0 
 library(RColorBrewer) #1.1-2
@@ -68,6 +65,7 @@ comb[,`:=`(u_live_mass=NULL,
            update=NULL)]
 
 write.csv(comb, "./data/NutNetControlPlotData_biomassfixAug22.csv")
+
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
 
 source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3, and Figure S4 

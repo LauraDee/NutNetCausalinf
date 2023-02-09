@@ -305,4 +305,30 @@ write.csv(tab, "DatasetDescript-ControlPlotsSiteYearList.csv")
 # write as csv datafile to use for R
 write.csv(comb, "NutNetControlPlotData_v201804.csv")
 
+######################################################################################################################
+### Biomass update and fix for marc and comp sites ######################################################################
+######################################################################################################################
+
+comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
+
+#load in new data  for comp.pt 2015 data and marc.ar 2011 and 2012 (see read me doc about this update: NutNet Biomass Issue log_August12_2022.docx)
+updates <- fread("./data/marc-comp-comb-by.csv", na.strings = 'NA')
+setnames(updates, old=c("live_mass","dead_mass","total_mass"), new=c("u_live_mass","u_dead_mass","u_total_mass"))
+updates[,update:=T]
+
+# merge with existing data
+comb = merge(comb, updates, by=c("site_code","year","plot"), all.x=T)
+
+# overwrite old biomass info with updated info for relevant updated recs
+comb[update==T, `:=`(live_mass=u_live_mass,
+                     dead_mass=u_dead_mass,
+                     total_mass=u_total_mass)]
+# remove temporary columns
+comb[,`:=`(u_live_mass=NULL,
+           u_dead_mass=NULL,
+           u_total_mass=NULL,
+           update=NULL)]
+
+write.csv(comb, "./data/NutNetControlPlotData_biomassfixAug22.csv")
+
 
