@@ -98,23 +98,9 @@ cover[,present_year0:=max_cover[year_trt==0]>0, by=.(Taxon,site_code,plot)]
 #compute the SR of species that were not present in year 0 for each plot and year but are present in a given year in that plot
 cover[, sr_NA := length(unique(Taxon[present_year0 == FALSE & max_cover>0])), by = .(plot, site_code, year)]
 
-#*** ultimately cut btwn these lines to clean code*****
 printNA <- table(cover$sr_NA, cover$site_code)
-# summary(cover$sr_NA.test)
 write.csv(printNA, "printNAbysite.csv")
-
 cover.NA.unique = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt,  sr_NA)])
-#plot 
-Nasp <- ggplot(data =cover.NA.unique, aes(x = sr_NA)) + geom_histogram()+ facet_wrap(~site_code) + theme_bw() +
-  geom_vline(xintercept=c(0,0), color = "blue", linetype="dashed") +
-  labs(x = "Count of Number of Species that would be NA per plot and year") +  theme_bw() +
-  theme(axis.title.y= element_text(size=14)) + theme(axis.title.x= element_text(size=12)) +
-  theme(axis.text.y = element_text(size = 14)) + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text.x = element_text(size=14)) 
-Nasp
-#*** ultimately cut btwn these lines to clean code*****
-#*
 
 ##########################################################################################################
 ##### Compute TOTAL & TOTAL LIVE RELATIVE COVER PER PLOT MEASURES ########################################
@@ -173,7 +159,7 @@ cover_present_year0 = cover[present_year0 == TRUE,]
 ####### Make Categorical Variables to Label Spp as Dominant, Subordinant, and Rare   - based on the relative abundance Quantiles per Site #########################################
 #############################################################################################################################################
 
-#**Note to self ****
+#**Note**
 #0 quartile = 0 quantile = 0 percentile
 # 1 quartile = 0.25 quantile = 25 percentile
 # 2 quartile = .5 quantile = 50 percentile (median)
@@ -277,22 +263,6 @@ cover_present_year0[, sr_non.nat_sub := length(unique(Taxon[RAsite_group == "Sub
 
 ### Create a variable for the unknown SR
 cover_present_year0[, sr_unk_rare := length(unique(Taxon[RAsite_group== "Rare" &  local_provenance == "UNK"])), by = .(plot, site_code, year)]
-
-## look a the data 
-#***ultimately cut between these lines
-cover_present_year0[site_code=="yarra.au" & plot==8,.(plot, year, sr_nat_rare, sr_non.nat_rare, sr_nat_unk_rare, sr_non.nat_unk_rare)]
-hist(cover_present_year0$sr_non.nat_rare)
-table(cover_present_year0$sr_non.nat_rare, cover_present_year0$year)
-hist(cover_present_year0$sr_nat_rare)
-table(cover_present_year0$sr_nat_rare)
-hist(cover_present_year0$sr_non.nat_unk_rare)
-table(cover_present_year0$sr_non.nat_unk_rare)
-hist(cover_present_year0$sr_nat_unk_rare)
-table(cover_present_year0$sr_nat_unk_rare)
-#***
-#*
-
-
 
 #################################################################################################################################
 ### SR variables by combined groupings based on site Relative Frequency ###############################################
@@ -428,7 +398,6 @@ cover_present_year0[, sr_non.rare_nat2 := length(unique(Taxon[non_rare_spp2 == "
 # include in the final code for data processing "finalprocess_coverdata.R"
   # sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2
 
-
 ######################################################################################################################
 ## Make a 3rd Cut-off for Relative Abundance Groupings For Sensitivity Analyses 
 ###################################################################################################################################################
@@ -498,7 +467,7 @@ write.csv(cover_present_year0, "NutNetCoverData_ProcessedFinal.csv")
 
 
 ################################################################################################################################
-## Examine missing cover data for sier.us, kiny.au, and mcla.us for Control plots by years #######################################
+## Examine missing cover data for sier.us, kiny.au, and mcla.us for control plots by years #######################################
 ##################################################################################################################################
 # to then compare with coverage of observations of plots/years with comb data
 sier.cover = cover_present_year0[site_code =="sier.us" & trt == "Control", ]

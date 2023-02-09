@@ -56,33 +56,11 @@ cover$V1 = NULL
 comb$V1 = NULL
 
 #################################################################################################
-## Grab the summary columns from cover to merge  #######################################################
-################################################################################################
-
-#to subset columns and also remove duplicate rows from the cover file so that there is one observation per plot and year 
-# and the data isn't artificially replicated 
-coversummaries = unique(cover[, .(site_code, year,  site_name,  plot,  year_trt , trt, totplotcover.yr.live, sr_NA,
-                                  sr_INT, sr_NAT, sr_UNK, sr_INT.site, 
-                                  sr_non.nat_rare,  sr_nat_rare, sr_non.rare_non.nat, sr_non.rare_nat, sr_nat_dom, sr_non.nat_dom, 
-                                  sr_nat_unk_rare, ## 2. Including the unknown spp origin all as native: ####
-                                  sr_non.nat_unk_rare, # 3.Including them all as non-native: 
-                                  sr_non.rare_nat_unk, ## 2. Include the unknown spp origin all as native: ####
-                                  sr_non.rare_non.nat_unk , # 3.Including them all as non-native
-                                  sr_non_rare_spp.Freq, sr_non.rare_nat.Freq, sr_non.rare_non.nat.Freq,
-                                  sr_rare_non.nat.Freq, sr_rare_nat.Freq,
-                                  sr_rare_unk_nat.Freq , sr_non.rare_nat_unk.Freq, ## 2. Including the unknown spp origin all as native: ####
-                                  sr_non.rare_non.nat_unk.Freq, sr_rare_non.nat_unk.Freq,   # 3.Including them all as non-native
-                                  sr_non.rare_nat2, sr_non.rare_non.nat2 , sr_nat_rare2, sr_non.nat_rare2 , #include variables for cut-off 2 as sensitivity test for main model for Figure 5
-                                  sr_non.rare_nat3, sr_non.rare_non.nat3 , sr_nat_rare3, sr_non.nat_rare3 #include variables for cut-off 2 as sensitvity test for main model for Figure 5
-                                  )])
-nrow(coversummaries)
-
-#################################################################################################
 ## Merge comb with Processed Cover Data #######################################################
 ################################################################################################
 # Merge the cover data with the comb data. Processed the April 2018 versions of the datasets.
 # merge to keep the data that is in the comb file (i.e., sites with at least 5 years of data for control plots)
-mech.data = merge(comb, coversummaries, by=c("site_code","plot","year"), all.x=T)
+mech.data = merge(comb, cover, by=c("site_code","plot","year"), all.x=T)
 
 #what I had been doing: mech.data = merge(comb, cover, by=c("site_code","plot","year"), all.x=T)
 nrow(mech.data) #should be 1231
@@ -115,7 +93,8 @@ list(unique(mech.data$site_code))
 #make a factor that is site by year
 mech.data[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
-# write out for STATA: write.csv(mech.data, "ProcessedMechanismAnalysisData.csv")
+# write out for STATA
+write.csv(mech.data, "ProcessedMechanismAnalysisData.csv")
 
 ########################################################################################################################
 ##### Get some summary numbers on this final dataset for the counts of different groups of species ####################

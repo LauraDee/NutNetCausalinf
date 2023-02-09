@@ -39,9 +39,9 @@ source("./code/r/useful_functions.R")
 ## Analysis using small complete data ####
 ###### Note on data version ######
 # these analyses used the 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv' with updates to the biomass data.
-# Updated with notice of biomass issue August 2022. 
-# Updated biomass data for comp.pt 2015 data and marc.ar 2011 and 2012 live mass data from Peter W. 
-#replace data in NutNetControlPlotData_v201804.csv for comp.pt 2015 data and marc.ar 2011 and 2012 with data in the file marc-comp-comb-by.csv
+# To see the data processing steps, please see "ProcessData_NutNetCausality_final.R" and FilterData_comb.R" files from the raw data/
+# This file was updated with notice of biomass issue August 2022; Updated biomass data for comp.pt 2015 data and marc.ar 2011 and 2012 live mass data from Peter W. 
+#replace data in the data version 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv'for comp.pt 2015 data and marc.ar 2011 and 2012 with data in the file 'marc-comp-comb-by.csv'
 
 combonly <- TRUE  # combonly -> finalprocess_and_datachecks
 comb <- fread("./data/NutNetControlPlotData_derived.csv",na.strings='NA')
@@ -65,8 +65,9 @@ comb <- fread("./data/NutNetControlPlotData_derived.csv",na.strings='NA')
 #**need to run ***
 source("./code/r/finalprocess_and_datachecks.R") # Doesn't produce Table S1 this time
 
-### Load cover Data  - data processed using the code "ProcessNutNet_coverData_FINAL_public.R" which created all variables of SR counts and groupings 
-cover <- fread("./data/NutNetCoverData_ProcessedFinal.csv")
+### Load cover Data  - Data processed using the code "ProcessNutNet_coverData_FINAL.R" and "FilterData_cover.R" which created all variables of SR counts and groupings 
+# from the raw data file from the Nutrient Network: 'full-cover-09-April-2018.csv'
+cover <- fread("./data/NutNetCover_derived.csv")
 
 source("./code/r/finalprocess_coverdata.R") # **need to run this line to prep the data for running the models** 
 #the finalprocess_coverdata.R also produces Figure S10.
