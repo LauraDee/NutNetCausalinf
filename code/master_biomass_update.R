@@ -31,46 +31,27 @@ library(corrplot)  # 0.84
 library(gridExtra)
 
 
-###  *** Need to run *** 
+###  **** Need to run ****
 ### purpose built functions 
 source("./code/r/useful_functions.R")
 
 ##########################################
 ## Analysis using small complete data ####
-combonly <- TRUE  # combonly -> finalprocess_and_datachecks
-comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
-
 ###### Note on data version ######
 # these analyses used the 'comb-by-plot-clim-soil-diversity-09-Apr-2018.csv' with updates to the biomass data.
 # Updated with notice of biomass issue August 2022. 
 # Updated biomass data for comp.pt 2015 data and marc.ar 2011 and 2012 live mass data from Peter W. 
-#replace data in NutNetControlPlotData_v201804.csv for comp.pt 2015 data and marc.ar 2011 and 2012 with data in the following file
+#replace data in NutNetControlPlotData_v201804.csv for comp.pt 2015 data and marc.ar 2011 and 2012 with data in the file marc-comp-comb-by.csv
 
-#load in new data  for comp.pt 2015 data and marc.ar 2011 and 2012 (see read me doc about this update)
-updates <- fread("./data/marc-comp-comb-by.csv", na.strings = 'NA')
-setnames(updates, old=c("live_mass","dead_mass","total_mass"), new=c("u_live_mass","u_dead_mass","u_total_mass"))
-updates[,update:=T]
-
-# merge with existing data
-comb = merge(comb, updates, by=c("site_code","year","plot"), all.x=T)
-
-# overwrite old biomass info with updated info for relevant updated recs
-comb[update==T, `:=`(live_mass=u_live_mass,
-                     dead_mass=u_dead_mass,
-                     total_mass=u_total_mass)]
-# remove temporary columns
-comb[,`:=`(u_live_mass=NULL,
-           u_dead_mass=NULL,
-           u_total_mass=NULL,
-           update=NULL)]
-
-write.csv(comb, "./data/NutNetControlPlotData_biomassfixAug22.csv")
+combonly <- TRUE  # combonly -> finalprocess_and_datachecks
+#comb <- fread("./data/processed/NutNetControlPlotData_v201804.csv",na.strings='NA')
+comb <- fread("./data/NutNetControlPlotData_biomassfixAug22.csv",na.strings='NA')
 
 source("./code/r/finalprocess_and_datachecks.R") ## Produces Table S1
-
 source("./code/r/analysis_main.R") ## Produces Figures 2A, 2B, 3, and Tables S2, S3, and Figure S4 
 source("./code/r/analysis_sm5.R") ## Produces Tables S4, S5, and S6
 source("./code/r/FiguresS1_S2_S3.R") #Produces Figures S1, S2 and S3
+
 ###########################################################################################################################
 ## Analysis using large cover dataset from Nutrient Network, processed from version 'full-cover-09-April-2018.csv'    ####
 ############################################################################################################################

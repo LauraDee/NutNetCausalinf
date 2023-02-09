@@ -1,23 +1,32 @@
-\begin{tabular}{lcc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{2}{c}{log(live\_mass)}\\
-Model:&(1) & (2)\\
-\midrule \emph{Variables}&   &  \\
-log(rich)&-0.3305$^{**}$ & -0.3532$^{**}$\\
-  &[-0.6458; -0.0151] & [-0.6736; -0.0327]\\
-log(rich) $\times $ ave\_site\_livemass.peryr&0.0003 &   \\
-  &[-0.0005; 0.0011] &   \\
-log(rich) $\times $ ave\_site\_livemass&   & 0.0004\\
-  &   & [-0.0005; 0.0012]\\
-\midrule \emph{Fixed-effects}&   &  \\
-newplotid & Yes & Yes\\
-site.by.yeardummy & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & \\
-Observations & 1,231&1,231\\
-R$^2$ & 0.86682&0.86679\\
-Within R$^2$ & 0.01376&0.01350\\
-\midrule\midrule\multicolumn{3}{l}{\emph{One-way (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
-\multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lcc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{2}{c}{log(live\_mass)}\\
+      Model:                                          & (1)                & (2)\\  
+      \midrule
+      \emph{Variables}\\
+      log(rich)                                       & -0.3305$^{**}$     & -0.3532$^{**}$\\   
+                                                      & [-0.6484; -0.0126] & [-0.6762; -0.0301]\\   
+      log(rich) $\times$ ave\_site\_livemass.peryr    & 0.0003             &   \\   
+                                                      & [-0.0005; 0.0011]  &   \\   
+      log(rich) $\times$ ave\_site\_livemass          &                    & 0.0004\\   
+                                                      &                    & [-0.0005; 0.0012]\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                                       & Yes                & Yes\\  
+      site.by.yeardummy                               & Yes                & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                                    & 1,231              & 1,231\\  
+      R$^2$                                           & 0.86682            & 0.86679\\  
+      Within R$^2$                                    & 0.01376            & 0.01350\\  
+      \midrule \midrule
+      \multicolumn{3}{l}{\emph{Clustered (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
+      \multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

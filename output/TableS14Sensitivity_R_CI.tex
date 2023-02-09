@@ -1,35 +1,44 @@
-\begin{tabular}{lccc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{3}{c}{log(live\_mass)}\\
-Model:&(1) & (2) & (3)\\
-\midrule \emph{Variables}&   &   &  \\
-ihs(sr\_non.rare\_nat.Freq)&0.0411 &    & 0.0327\\
-  &[-0.1166; 0.1988] &    & [-0.1262; 0.1916]\\
-ihs(sr\_non.rare\_non.nat.Freq)&-0.1739$^{**}$ & -0.1739$^{**}$ &   \\
-  &[-0.3086; -0.0391] & [-0.3077; -0.0401] &   \\
-ihs(sr\_rare\_non.nat.Freq)&-0.0126 & -0.0138 &   \\
-  &[-0.1313; 0.1062] & [-0.1330; 0.1054] &   \\
-ihs(sr\_rare\_nat.Freq)&-0.0936$^{*}$ &    & -0.0960$^{*}$\\
-  &[-0.1915; 0.0043] &    & [-0.1934; 0.0013]\\
-ihs(sr\_NA)&-0.0834$^{**}$ & -0.0836$^{**}$ & -0.0869$^{**}$\\
-  &[-0.1657; -0.0010] & [-0.1660; -0.0013] & [-0.1696; -0.0042]\\
-ihs(sr\_non.rare\_nat\_unk.Freq)&   & 0.0639 &   \\
-  &   & [-0.0924; 0.2202] &   \\
-ihs(sr\_rare\_unk\_nat.Freq)&   & -0.0890$^{*}$ &   \\
-  &   & [-0.1852; 0.0072] &   \\
-ihs(sr\_non.rare\_non.nat\_unk.Freq)&   &    & -0.1306$^{*}$\\
-  &   &    & [-0.2655; 0.0043]\\
-ihs(sr\_rare\_non.nat\_unk.Freq)&   &    & 0.0291\\
-  &   &    & [-0.0829; 0.1411]\\
-\midrule \emph{Fixed-effects}&   &   &  \\
-newplotid & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & \\
-Observations & 1,175&1,175&1,175\\
-R$^2$ & 0.87323&0.87320&0.87288\\
-Within R$^2$ & 0.01962&0.01934&0.01689\\
-\midrule\midrule\multicolumn{4}{l}{\emph{One-way (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
-\multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lccc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{3}{c}{log(live\_mass)}\\
+      Model:                                  & (1)                & (2)                & (3)\\  
+      \midrule
+      \emph{Variables}\\
+      ihs(sr\_non.rare\_nat.Freq)             & 0.0411             &                    & 0.0327\\   
+                                              & [-0.1179; 0.2001]  &                    & [-0.1276; 0.1929]\\   
+      ihs(sr\_non.rare\_non.nat.Freq)         & -0.1739$^{**}$     & -0.1739$^{**}$     &   \\   
+                                              & [-0.3098; -0.0380] & [-0.3088; -0.0390] &   \\   
+      ihs(sr\_rare\_non.nat.Freq)             & -0.0126            & -0.0138            &   \\   
+                                              & [-0.1323; 0.1072]  & [-0.1340; 0.1064]  &   \\   
+      ihs(sr\_rare\_nat.Freq)                 & -0.0936$^{*}$      &                    & -0.0960$^{*}$\\   
+                                              & [-0.1923; 0.0052]  &                    & [-0.1942; 0.0021]\\   
+      ihs(sr\_NA)                             & -0.0834$^{**}$     & -0.0836$^{**}$     & -0.0869$^{**}$\\   
+                                              & [-0.1664; -0.0003] & [-0.1667; -0.0006] & [-0.1703; -0.0035]\\   
+      ihs(sr\_non.rare\_nat\_unk.Freq)        &                    & 0.0639             &   \\   
+                                              &                    & [-0.0937; 0.2215]  &   \\   
+      ihs(sr\_rare\_unk\_nat.Freq)            &                    & -0.0890$^{*}$      &   \\   
+                                              &                    & [-0.1860; 0.0080]  &   \\   
+      ihs(sr\_non.rare\_non.nat\_unk.Freq)    &                    &                    & -0.1306$^{*}$\\   
+                                              &                    &                    & [-0.2666; 0.0054]\\   
+      ihs(sr\_rare\_non.nat\_unk.Freq)        &                    &                    & 0.0291\\   
+                                              &                    &                    & [-0.0838; 0.1421]\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                               & Yes                & Yes                & Yes\\  
+      site.by.yeardummy                       & Yes                & Yes                & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                            & 1,175              & 1,175              & 1,175\\  
+      R$^2$                                   & 0.87323            & 0.87320            & 0.87288\\  
+      Within R$^2$                            & 0.01962            & 0.01934            & 0.01689\\  
+      \midrule \midrule
+      \multicolumn{4}{l}{\emph{Clustered (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
+      \multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

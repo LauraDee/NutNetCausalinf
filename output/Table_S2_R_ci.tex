@@ -1,25 +1,33 @@
-\begin{tabular}{lcccccc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{6}{c}{log(live\_mass)}\\
-Model:&(1) & (2) & (3) & (4) & (5) & (6)\\
-\midrule \emph{Variables}&   &   &   &   &   &  \\
-log(rich)&-0.2418$^{***}$ & -0.2418$^{***}$ & -0.2237$^{***}$ & -0.2185$^{**}$ & -0.2057$^{**}$ &   \\
-  &[-0.4092; -0.0743] & [-0.4165; -0.0670] & [-0.3905; -0.0568] & [-0.4024; -0.0345] & [-0.3914; -0.0199] &   \\
-ihs(even)&   &    & -0.1864 &    & -0.1450 &   \\
-  &   &    & [-0.6022; 0.2294] &    & [-0.6128; 0.3228] &   \\
-log(laggedrich)&   &    &    & -0.0146 & -0.0096 &   \\
-  &   &    &    & [-0.1919; 0.1627] & [-0.1866; 0.1675] &   \\
-log(simpson)&   &    &    &    &    & -0.1701$^{**}$\\
-  &   &    &    &    &    & [-0.3031; -0.0370]\\
-\midrule \emph{Fixed-effects}&   &   &   &   &   &  \\
-newplotid & Yes & Yes & Yes & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & & & & \\
-Co-variance& newplotid&site\_code&newplotid&newplotid&newplotid&newplotid\\
-Observations & 1,231&1,231&1,231&1,093&1,093&1,231\\
-R$^2$ & 0.86669&0.86669&0.86689&0.87092&0.87103&0.86648\\
-Within R$^2$ & 0.01281&0.01281&0.01425&0.01064&0.01148&0.01121\\
-\midrule\midrule\multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lcccccc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{6}{c}{log(live\_mass)}\\
+      Model:            & (1)                & (2)                & (3)                & (4)                & (5)                & (6)\\  
+      \midrule
+      \emph{Variables}\\
+      log(rich)         & -0.2418$^{***}$    & -0.2418$^{***}$    & -0.2237$^{***}$    & -0.2185$^{**}$     & -0.2057$^{**}$     &   \\   
+                        & [-0.4106; -0.0730] & [-0.4217; -0.0618] & [-0.3919; -0.0555] & [-0.4039; -0.0330] & [-0.3930; -0.0184] &   \\   
+      ihs(even)         &                    &                    & -0.1864            &                    & -0.1450            &   \\   
+                        &                    &                    & [-0.6056; 0.2328]  &                    & [-0.6166; 0.3266]  &   \\   
+      log(laggedrich)   &                    &                    &                    & -0.0146            & -0.0096            &   \\   
+                        &                    &                    &                    & [-0.1933; 0.1642]  & [-0.1881; 0.1689]  &   \\   
+      log(simpson)      &                    &                    &                    &                    &                    & -0.1701$^{**}$\\   
+                        &                    &                    &                    &                    &                    & [-0.3042; -0.0359]\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid         & Yes                & Yes                & Yes                & Yes                & Yes                & Yes\\  
+      site.by.yeardummy & Yes                & Yes                & Yes                & Yes                & Yes                & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations      & 1,231              & 1,231              & 1,231              & 1,093              & 1,093              & 1,231\\  
+      R$^2$             & 0.86669            & 0.86669            & 0.86689            & 0.87092            & 0.87103            & 0.86648\\  
+      Within R$^2$      & 0.01281            & 0.01281            & 0.01425            & 0.01064            & 0.01148            & 0.01121\\  
+      \midrule \midrule
+      \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

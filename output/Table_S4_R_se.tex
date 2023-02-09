@@ -1,27 +1,36 @@
-\begin{tabular}{lcccc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{4}{c}{log(live\_mass)}\\
-Model:&(1) & (2) & (3) & (4)\\
-\midrule \emph{Variables}&   &   &   &  \\
-log(rich)&-0.4398$^{**}$ & -0.2753$^{**}$ & -0.3834$^{*}$ & -0.3184$^{**}$\\
-  &(0.2155) & (0.1197) & (0.1998) & (0.1494)\\
-log(rich) $\times $ site\_richness&0.0026 &    &    &   \\
-  &(0.0027) &    &    &   \\
-log(rich) $\times $ site\_introduced\_richness&   & 0.0018 &    &   \\
-  &   & (0.0061) &    &   \\
-log(rich) $\times $ site\_year\_rich&   &    & 0.0041 &   \\
-  &   &    & (0.0050) &   \\
-log(rich) $\times $ site\_native\_richness&   &    &    & 0.0021\\
-  &   &    &    & (0.0031)\\
-\midrule \emph{Fixed-effects}&   &   &   &  \\
-newplotid & Yes & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & & \\
-Observations & 1,231&1,231&1,231&1,231\\
-R$^2$ & 0.86691&0.86671&0.86685&0.86675\\
-Within R$^2$ & 0.01438&0.01295&0.01396&0.01321\\
-\midrule\midrule\multicolumn{5}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
-\multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lcccc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{4}{c}{log(live\_mass)}\\
+      Model:                                           & (1)            & (2)            & (3)           & (4)\\  
+      \midrule
+      \emph{Variables}\\
+      log(rich)                                        & -0.4398$^{**}$ & -0.2753$^{**}$ & -0.3834$^{*}$ & -0.3184$^{**}$\\   
+                                                       & (0.2155)       & (0.1197)       & (0.1998)      & (0.1494)\\   
+      log(rich) $\times$ site\_richness                & 0.0026         &                &               &   \\   
+                                                       & (0.0027)       &                &               &   \\   
+      log(rich) $\times$ site\_introduced\_richness    &                & 0.0018         &               &   \\   
+                                                       &                & (0.0061)       &               &   \\   
+      log(rich) $\times$ site\_year\_rich              &                &                & 0.0041        &   \\   
+                                                       &                &                & (0.0050)      &   \\   
+      log(rich) $\times$ site\_native\_richness        &                &                &               & 0.0021\\   
+                                                       &                &                &               & (0.0031)\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                                        & Yes            & Yes            & Yes           & Yes\\  
+      site.by.yeardummy                                & Yes            & Yes            & Yes           & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                                     & 1,231          & 1,231          & 1,231         & 1,231\\  
+      R$^2$                                            & 0.86691        & 0.86671        & 0.86685       & 0.86675\\  
+      Within R$^2$                                     & 0.01438        & 0.01295        & 0.01396       & 0.01321\\  
+      \midrule \midrule
+      \multicolumn{5}{l}{\emph{Clustered (newplotid) standard-errors in parentheses}}\\
+      \multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

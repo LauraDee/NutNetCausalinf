@@ -1,27 +1,36 @@
-\begin{tabular}{lcc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{2}{c}{log(live\_mass)}\\
-Model:&(1) & (2)\\
-\midrule \emph{Variables}&   &  \\
-log(rich)&-0.2090$^{*}$ & -0.1946\\
-  &[-0.4186; 0.0006] & [-0.4680; 0.0787]\\
-log(rich) $\times $ ProdGroupMedium&0.1075 &   \\
-  &[-0.1188; 0.3339] &   \\
-log(rich) $\times $ ProdGroupHigh&-0.0718 &   \\
-  &[-0.4129; 0.2693] &   \\
-log(rich) $\times $ ProdGroup\_WangCutoffsMedium&   & -0.1358\\
-  &   & [-0.5249; 0.2534]\\
-log(rich) $\times $ ProdGroup\_WangCutoffsHigh&   & 0.0623\\
-  &   & [-0.3537; 0.4784]\\
-\midrule \emph{Fixed-effects}&   &  \\
-newplotid & Yes & Yes\\
-site.by.yeardummy & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & \\
-Observations & 1,214&1,231\\
-R$^2$ & 0.86060&0.86690\\
-Within R$^2$ & 0.01143&0.01432\\
-\midrule\midrule\multicolumn{3}{l}{\emph{One-way (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
-\multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lcc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{2}{c}{log(live\_mass)}\\
+      Model:                                            & (1)               & (2)\\  
+      \midrule
+      \emph{Variables}\\
+      log(rich)                                         & -0.2090$^{*}$     & -0.1946\\   
+                                                        & [-0.4203; 0.0023] & [-0.4702; 0.0810]\\   
+      log(rich) $\times$ ProdGroupMedium                & 0.1075            &   \\   
+                                                        & [-0.1206; 0.3357] &   \\   
+      log(rich) $\times$ ProdGroupHigh                  & -0.0718           &   \\   
+                                                        & [-0.4156; 0.2720] &   \\   
+      log(rich) $\times$ ProdGroup\_WangCutoffsMedium   &                   & -0.1358\\   
+                                                        &                   & [-0.5281; 0.2565]\\   
+      log(rich) $\times$ ProdGroup\_WangCutoffsHigh     &                   & 0.0623\\   
+                                                        &                   & [-0.3571; 0.4818]\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                                         & Yes               & Yes\\  
+      site.by.yeardummy                                 & Yes               & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                                      & 1,214             & 1,231\\  
+      R$^2$                                             & 0.86060           & 0.86690\\  
+      Within R$^2$                                      & 0.01143           & 0.01432\\  
+      \midrule \midrule
+      \multicolumn{3}{l}{\emph{Clustered (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
+      \multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

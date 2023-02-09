@@ -1,27 +1,36 @@
-\begin{tabular}{lcc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{2}{c}{log(live\_mass)}\\
-Model:&(1) & (2)\\
-\midrule \emph{Variables}&   &  \\
-ihs(sr\_non.rare\_nat)&0.0488 & 0.0507\\
-  &[-0.0926; 0.1901] & [-0.0911; 0.1925]\\
-ihs(sr\_non.rare\_non.nat)&-0.1721$^{***}$ & -0.1794$^{***}$\\
-  &[-0.2994; -0.0449] & [-0.3070; -0.0517]\\
-ihs(sr\_non.nat\_rare)&0.0397 & 0.0300\\
-  &[-0.0997; 0.1791] & [-0.1074; 0.1674]\\
-ihs(sr\_nat\_rare)&-0.1473$^{***}$ & -0.1429$^{***}$\\
-  &[-0.2372; -0.0573] & [-0.2342; -0.0517]\\
-ihs(sr\_NA)&-0.0901$^{**}$ &   \\
-  &[-0.1744; -0.0058] &   \\
-\midrule \emph{Fixed-effects}&   &  \\
-newplotid & Yes & Yes\\
-site.by.yeardummy & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & \\
-Observations & 1,175&1,175\\
-R$^2$ & 0.87454&0.87355\\
-Within R$^2$ & 0.02971&0.02208\\
-\midrule\midrule\multicolumn{3}{l}{\emph{One-way (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
-\multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lcc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{2}{c}{log(live\_mass)}\\
+      Model:                       & (1)                & (2)\\  
+      \midrule
+      \emph{Variables}\\
+      ihs(sr\_non.rare\_nat)       & 0.0488             & 0.0507\\   
+                                   & [-0.0938; 0.1913]  & [-0.0922; 0.1937]\\   
+      ihs(sr\_non.rare\_non.nat)   & -0.1721$^{***}$    & -0.1794$^{***}$\\   
+                                   & [-0.3004; -0.0438] & [-0.3081; -0.0506]\\   
+      ihs(sr\_non.nat\_rare)       & 0.0397             & 0.0300\\   
+                                   & [-0.1008; 0.1803]  & [-0.1085; 0.1686]\\   
+      ihs(sr\_nat\_rare)           & -0.1473$^{***}$    & -0.1429$^{***}$\\   
+                                   & [-0.2380; -0.0566] & [-0.2349; -0.0509]\\   
+      ihs(sr\_NA)                  & -0.0901$^{**}$     &   \\   
+                                   & [-0.1751; -0.0051] &   \\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                    & Yes                & Yes\\  
+      site.by.yeardummy            & Yes                & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                 & 1,175              & 1,175\\  
+      R$^2$                        & 0.87454            & 0.87355\\  
+      Within R$^2$                 & 0.02971            & 0.02208\\  
+      \midrule \midrule
+      \multicolumn{3}{l}{\emph{Clustered (newplotid) co-variance matrix, 95\% confidence intervals in brackets}}\\
+      \multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

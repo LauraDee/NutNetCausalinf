@@ -1,31 +1,40 @@
-\begin{tabular}{lccc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{3}{c}{log(live\_mass)}\\
-Model:&(1) & (2) & (3)\\
-\midrule \emph{Variables}&   &   &  \\
-ihs(sr\_non.rare\_nat)&0.0488 &    &   \\
-  &(0.0721) &    &   \\
-ihs(sr\_non.rare\_non.nat)&-0.1721$^{***}$ & -0.1717$^{***}$ & -0.1796$^{***}$\\
-  &(0.0649) & (0.0640) & (0.0646)\\
-ihs(sr\_non.nat\_rare)&0.0397 & 0.0367 & 0.0263\\
-  &(0.0711) & (0.0704) & (0.0693)\\
-ihs(sr\_nat\_rare)&-0.1473$^{***}$ &    &   \\
-  &(0.0459) &    &   \\
-ihs(sr\_NA)&-0.0901$^{**}$ & -0.0914$^{**}$ &   \\
-  &(0.0430) & (0.0432) &   \\
-ihs(sr\_non.rare\_nat\_unk)&   & 0.0848 & 0.0878\\
-  &   & (0.0712) & (0.0719)\\
-ihs(sr\_nat\_unk\_rare)&   & -0.1399$^{***}$ & -0.1333$^{***}$\\
-  &   & (0.0458) & (0.0470)\\
-\midrule \emph{Fixed-effects}&   &   &  \\
-newplotid & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & \\
-Observations & 1,175&1,175&1,175\\
-R$^2$ & 0.87454&0.87432&0.87331\\
-Within R$^2$ & 0.02971&0.02803&0.02020\\
-\midrule\midrule\multicolumn{4}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
-\multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lccc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{3}{c}{log(live\_mass)}\\
+      Model:                         & (1)             & (2)             & (3)\\  
+      \midrule
+      \emph{Variables}\\
+      ihs(sr\_non.rare\_nat)         & 0.0488          &                 &   \\   
+                                     & (0.0721)        &                 &   \\   
+      ihs(sr\_non.rare\_non.nat)     & -0.1721$^{***}$ & -0.1717$^{***}$ & -0.1796$^{***}$\\   
+                                     & (0.0649)        & (0.0640)        & (0.0646)\\   
+      ihs(sr\_non.nat\_rare)         & 0.0397          & 0.0367          & 0.0263\\   
+                                     & (0.0711)        & (0.0704)        & (0.0693)\\   
+      ihs(sr\_nat\_rare)             & -0.1473$^{***}$ &                 &   \\   
+                                     & (0.0459)        &                 &   \\   
+      ihs(sr\_NA)                    & -0.0901$^{**}$  & -0.0914$^{**}$  &   \\   
+                                     & (0.0430)        & (0.0432)        &   \\   
+      ihs(sr\_non.rare\_nat\_unk)    &                 & 0.0848          & 0.0878\\   
+                                     &                 & (0.0712)        & (0.0719)\\   
+      ihs(sr\_nat\_unk\_rare)        &                 & -0.1399$^{***}$ & -0.1333$^{***}$\\   
+                                     &                 & (0.0458)        & (0.0470)\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                      & Yes             & Yes             & Yes\\  
+      site.by.yeardummy              & Yes             & Yes             & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                   & 1,175           & 1,175           & 1,175\\  
+      R$^2$                          & 0.87454         & 0.87432         & 0.87331\\  
+      Within R$^2$                   & 0.02971         & 0.02803         & 0.02020\\  
+      \midrule \midrule
+      \multicolumn{4}{l}{\emph{Clustered (newplotid) standard-errors in parentheses}}\\
+      \multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

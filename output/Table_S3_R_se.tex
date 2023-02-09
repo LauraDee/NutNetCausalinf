@@ -1,23 +1,32 @@
-\begin{tabular}{lcccc}
-\tabularnewline\midrule\midrule
-Dependent Variables:&\multicolumn{2}{c}{log(live\_mass)}&\multicolumn{2}{c}{live\_mass}\\
-Model:&(1) & (2) & (3) & (4)\\
-\midrule \emph{Variables}&   &   &   &  \\
-log(rich)&-0.2418$^{***}$ &    &    &   \\
-  &(0.0854) &    &    &   \\
-rich&   & -0.0147$^{*}$ & -1.916 & -16.83$^{**}$\\
-  &   & (0.0080) & (2.919) & (6.623)\\
-I(I(rich\^2))&   &    &    & 0.5602$^{**}$\\
-  &   &    &    & (0.2162)\\
-\midrule \emph{Fixed-effects}&   &   &   &  \\
-newplotid & Yes & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & & \\
-Observations & 1,231&1,231&1,231&1,231\\
-R$^2$ & 0.86669&0.86551&0.83060&0.83206\\
-Within R$^2$ & 0.01281&0.00402&0.00069&0.00927\\
-\midrule\midrule\multicolumn{5}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
-\multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lcccc}
+      \tabularnewline \midrule \midrule
+      Dependent Variables: & \multicolumn{2}{c}{log(live\_mass)} & \multicolumn{2}{c}{live\_mass}\\
+      Model:            & (1)             & (2)           & (3)     & (4)\\  
+      \midrule
+      \emph{Variables}\\
+      log(rich)         & -0.2418$^{***}$ &               &         &   \\   
+                        & (0.0854)        &               &         &   \\   
+      rich              &                 & -0.0147$^{*}$ & -1.916  & -16.83$^{**}$\\   
+                        &                 & (0.0080)      & (2.919) & (6.623)\\   
+      rich square       &                 &               &         & 0.5602$^{**}$\\   
+                        &                 &               &         & (0.2162)\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid         & Yes             & Yes           & Yes     & Yes\\  
+      site.by.yeardummy & Yes             & Yes           & Yes     & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations      & 1,231           & 1,231         & 1,231   & 1,231\\  
+      R$^2$             & 0.86669         & 0.86551       & 0.83060 & 0.83206\\  
+      Within R$^2$      & 0.01281         & 0.00402       & 0.00069 & 0.00927\\  
+      \midrule \midrule
+      \multicolumn{5}{l}{\emph{Clustered (newplotid) standard-errors in parentheses}}\\
+      \multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 

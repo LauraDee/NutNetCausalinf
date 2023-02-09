@@ -1,35 +1,44 @@
-\begin{tabular}{lccc}
-\tabularnewline\midrule\midrule
-Dependent Variable:&\multicolumn{3}{c}{log(live\_mass)}\\
-Model:&(1) & (2) & (3)\\
-\midrule \emph{Variables}&   &   &  \\
-ihs(sr\_non.rare\_nat.Freq)&0.0411 &    & 0.0327\\
-  &(0.0804) &    & (0.0811)\\
-ihs(sr\_non.rare\_non.nat.Freq)&-0.1739$^{**}$ & -0.1739$^{**}$ &   \\
-  &(0.0688) & (0.0683) &   \\
-ihs(sr\_rare\_non.nat.Freq)&-0.0126 & -0.0138 &   \\
-  &(0.0606) & (0.0608) &   \\
-ihs(sr\_rare\_nat.Freq)&-0.0936$^{*}$ &    & -0.0960$^{*}$\\
-  &(0.0500) &    & (0.0497)\\
-ihs(sr\_NA)&-0.0834$^{**}$ & -0.0836$^{**}$ & -0.0869$^{**}$\\
-  &(0.0420) & (0.0420) & (0.0422)\\
-ihs(sr\_non.rare\_nat\_unk.Freq)&   & 0.0639 &   \\
-  &   & (0.0797) &   \\
-ihs(sr\_rare\_unk\_nat.Freq)&   & -0.0890$^{*}$ &   \\
-  &   & (0.0491) &   \\
-ihs(sr\_non.rare\_non.nat\_unk.Freq)&   &    & -0.1306$^{*}$\\
-  &   &    & (0.0688)\\
-ihs(sr\_rare\_non.nat\_unk.Freq)&   &    & 0.0291\\
-  &   &    & (0.0571)\\
-\midrule \emph{Fixed-effects}&   &   &  \\
-newplotid & Yes & Yes & Yes\\
-site.by.yeardummy & Yes & Yes & Yes\\
-\midrule \emph{Fit statistics}&  & & \\
-Observations & 1,175&1,175&1,175\\
-R$^2$ & 0.87323&0.87320&0.87288\\
-Within R$^2$ & 0.01962&0.01934&0.01689\\
-\midrule\midrule\multicolumn{4}{l}{\emph{One-way (newplotid) standard-errors in parentheses}}\\
-\multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
-\end{tabular}
+
+\begin{table}[htbp]
+   \caption{no title}
+   \centering
+   \begin{tabular}{lccc}
+      \tabularnewline \midrule \midrule
+      Dependent Variable: & \multicolumn{3}{c}{log(live\_mass)}\\
+      Model:                                  & (1)            & (2)            & (3)\\  
+      \midrule
+      \emph{Variables}\\
+      ihs(sr\_non.rare\_nat.Freq)             & 0.0411         &                & 0.0327\\   
+                                              & (0.0804)       &                & (0.0811)\\   
+      ihs(sr\_non.rare\_non.nat.Freq)         & -0.1739$^{**}$ & -0.1739$^{**}$ &   \\   
+                                              & (0.0688)       & (0.0683)       &   \\   
+      ihs(sr\_rare\_non.nat.Freq)             & -0.0126        & -0.0138        &   \\   
+                                              & (0.0606)       & (0.0608)       &   \\   
+      ihs(sr\_rare\_nat.Freq)                 & -0.0936$^{*}$  &                & -0.0960$^{*}$\\   
+                                              & (0.0500)       &                & (0.0497)\\   
+      ihs(sr\_NA)                             & -0.0834$^{**}$ & -0.0836$^{**}$ & -0.0869$^{**}$\\   
+                                              & (0.0420)       & (0.0420)       & (0.0422)\\   
+      ihs(sr\_non.rare\_nat\_unk.Freq)        &                & 0.0639         &   \\   
+                                              &                & (0.0797)       &   \\   
+      ihs(sr\_rare\_unk\_nat.Freq)            &                & -0.0890$^{*}$  &   \\   
+                                              &                & (0.0491)       &   \\   
+      ihs(sr\_non.rare\_non.nat\_unk.Freq)    &                &                & -0.1306$^{*}$\\   
+                                              &                &                & (0.0688)\\   
+      ihs(sr\_rare\_non.nat\_unk.Freq)        &                &                & 0.0291\\   
+                                              &                &                & (0.0571)\\   
+      \midrule
+      \emph{Fixed-effects}\\
+      newplotid                               & Yes            & Yes            & Yes\\  
+      site.by.yeardummy                       & Yes            & Yes            & Yes\\  
+      \midrule
+      \emph{Fit statistics}\\
+      Observations                            & 1,175          & 1,175          & 1,175\\  
+      R$^2$                                   & 0.87323        & 0.87320        & 0.87288\\  
+      Within R$^2$                            & 0.01962        & 0.01934        & 0.01689\\  
+      \midrule \midrule
+      \multicolumn{4}{l}{\emph{Clustered (newplotid) standard-errors in parentheses}}\\
+      \multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+   \end{tabular}
+\end{table}
 
 
