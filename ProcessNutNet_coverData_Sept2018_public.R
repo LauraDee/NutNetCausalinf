@@ -7,14 +7,6 @@
 #Updates on Dec 28 2019 to include other cut offs for rare groups
 ##########################################
 
-#June 22 2020 - Fix the DIgroup2, prior versions didnt have the cut off 2 for the DIgroup that matched the others. 
-# check w/: DI group 1 vs 2
-# table(cover$DIgroup2)
-# 
-# > table(cover$DIgroup)
-# 
-# Dominant        Rare Subordinate 
-# 432        4521       16993 
 
 #Close graphics and clear local memory
 graphics.off()

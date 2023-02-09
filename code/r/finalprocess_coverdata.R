@@ -1,7 +1,14 @@
 ####################################################################################################
 ## Filter cover data to only control plots & prep for merge and models ###############################
 ##################################################################################################
-#comb = comb[is.control==T & has.5.yrs.data==T,]  #this should be done already in the saved file from "NutNetControlPlotDataToUseApril2018.csv"
+# The data use policy of the Nutrient Network is to publish the minimum dataset required to produce the analyses, from the derived data. 
+# This code is used to filter to the data to meet their requirements, though we also provide the full code to show all steps from our data processing from the raw data for reproducibility.
+# The raw data for unmanipulated plots that were not included in the analyses, because they did not meet the inclusion criteria, 
+# are available under restricted access for which permission can be obtained by contacting the Nutrient Network at https://nutnet.org. 
+
+# Updated by Laura Dee Feb 9 2023
+
+#comb = comb[is.control==T & has.5.yrs.data==T,]  #this should be done already in the saved file from "NutNetControlPlotData_derived.csv"
 
 ### Confirm that only control plots are in the data
 table(comb$trt)
