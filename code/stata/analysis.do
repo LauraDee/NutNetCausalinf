@@ -1,4 +1,4 @@
-use 	"$datadir/processed/NutNet_Prepped.dta"
+use 	"$datadir/NutNet_Prepped.dta"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -28,6 +28,7 @@ reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_i
 est clear
 
 eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(site_code2)
 eststo: reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 eststo: reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
@@ -167,26 +168,7 @@ est clear
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Table S7 (Sensitivity Analysis a la Oster)
-//
-////////////////////////////////////////////////////////////////////////////////
-
-** areg on outcome equation log-log specification **
-est clear
-eststo: areg l_lmass l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
-
-** areg on selection equation **
-eststo: areg l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
-
-esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
-est clear
-
-psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_id)) delta(-0.1) rmax(1)
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-** Table S8 (IV)
+** Table S7 (IV)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -204,7 +186,7 @@ drop includeinfirst
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-** Table S9: Lagged Dependent Varaibles (also replicates a result in Table 3)
+** Table S8: Lagged Dependent Varaibles (also replicates a result in Table 3)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -218,3 +200,23 @@ eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(sty
 
 esttab * using "$userdir/output/Table_S9.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
 est clear
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+** Table S9 (Sensitivity Analysis a la Oster)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+** areg on outcome equation log-log specification **
+est clear
+eststo: areg l_lmass l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
+
+** areg on selection equation **
+eststo: areg l_rich i.styr_id, absorb(plst_id) cluster(plst_id)
+
+esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+est clear
+
+psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_id)) delta(-0.1) rmax(1)
+
