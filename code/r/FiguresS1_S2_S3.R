@@ -16,7 +16,7 @@ comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
 merged.data <- fread("merged_NutNet_Oct2019.csv", na.strings = 'NA')
 
 ####################################################################################################
-## Filter cover data to only control plots used  ###############################
+## Filter  data to only control plots used  ###############################
 ##################################################################################################
 comb = comb[is.control==T & has.5.yrs.data==T,]
 
@@ -30,7 +30,7 @@ comb = comb[is.control==T & has.5.yrs.data==T,]
 
 # # make year a character, to be a dummy variable: 
 comb$year <- as.character(comb$year)
-cover$year <- as.character(cover$year)
+merged.data$year <- as.character(merged.data$year)
 # same with plot
 comb$plot <- as.character(comb$plot)
 
