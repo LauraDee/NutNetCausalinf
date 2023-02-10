@@ -1,4 +1,4 @@
-insheet using  "$datadir/processed/NutNetControlPlotData_v201804.csv", clear
+insheet using  "$datadir/NutNetControlPlotData_derived.csv", clear
 
 ** Check characteristics of data 
 destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neighbor_rich avgtrtneighrichwithinblock lagged_avg_neighbor_rich even initial_site_rich, i("NA") replace
@@ -48,8 +48,8 @@ encode habitat, gen(tierra)
 
 ** SAVE OUTPUT
 
-save 	"$datadir/processed/NutNet_Prepped.dta", replace
-outsheet using "$datadir/processed/NutNet_Prepped.csv", comma replace
+save 	"$datadir/NutNet_Prepped.dta", replace
+outsheet using "$datadir/NutNet_Prepped.csv", comma replace
 clear all
 
 ** PROCESSING NOTES FROM PAUL AND CHRIS
