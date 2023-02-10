@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230209.smcl
+       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230210.smcl
   log type:  smcl
- opened on:   9 Feb 2023, 16:21:09
+ opened on:  10 Feb 2023, 15:41:52
 
 . 
 . /////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 . 
 . do              "$codedir/stata/final_processing.do"
 
-. insheet using  "$datadir/NutNetControlPlotData_biomassfixAug22.csv", clear
+. insheet using  "$datadir/NutNetControlPlotData_derived.csv", clear
 (151 vars, 1,328 obs)
 
 . 
@@ -415,40 +415,8 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
 
-. reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(pls
-> t_id)
-WARNING: Singleton observations not dropped; statistical significance is biased
->  (link)
-(MWFE estimator converged in 5 iterations)
-
-HDFE Linear regression                            Number of obs   =      1,231
-Absorbing 2 HDFE groups                           F(   1,    150) =       6.27
-Statistics robust to heteroskedasticity           Prob > F        =     0.0133
-                                                  R-squared       =     0.8665
-                                                  Adj R-squared   =     0.7775
-                                                  Within R-sq.    =     0.0112
-Number of clusters (plst_id) =        151         Root MSE        =     0.4527
-
-                              (Std. err. adjusted for 151 clusters in plst_id)
-------------------------------------------------------------------------------
-             |               Robust
-     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-   l_simpson |  -.1700502   .0679065    -2.50   0.013    -.3042269   -.0358735
-       _cons |   5.659222   .0847183    66.80   0.000     5.491827    5.826617
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     plst_id |       151         151           0    *|
-     styr_id |       341           0         341     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
 . 
-. ** Table S2 includes the following 
+. ** Table S2 (Columns 1-4) includes the following 
 . 
 . est clear
 
@@ -586,10 +554,85 @@ Absorbed degrees of freedom:
 * = FE nested within cluster; treated as redundant for DoF computation
 (est4 stored)
 
+. eststo: reghdfe l_lmass l_rich L.l_rich, keepsingletons absorb(plst_id styr_i
+> d) cluster(plst_id)
+WARNING: Singleton observations not dropped; statistical significance is biased
+>  (link)
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =      1,093
+Absorbing 2 HDFE groups                           F(   2,    150) =       2.98
+Statistics robust to heteroskedasticity           Prob > F        =     0.0538
+                                                  R-squared       =     0.8709
+                                                  Adj R-squared   =     0.7787
+                                                  Within R-sq.    =     0.0106
+Number of clusters (plst_id) =        151         Root MSE        =     0.4600
+
+                              (Std. err. adjusted for 151 clusters in plst_id)
+------------------------------------------------------------------------------
+             |               Robust
+     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      l_rich |
+         --. |  -.2184604   .0938532    -2.33   0.021    -.4039054   -.0330153
+         L1. |  -.0145782   .0904606    -0.16   0.872    -.1933198    .1641635
+             |
+       _cons |   5.988877   .2586911    23.15   0.000     5.477728    6.500026
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     plst_id |       151         151           0    *|
+     styr_id |       303           0         303     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(est5 stored)
+
+. eststo: reghdfe l_lmass l_rich ihs_even L.l_rich, keepsingletons absorb(plst_
+> id styr_id) cluster(plst_id)
+WARNING: Singleton observations not dropped; statistical significance is biased
+>  (link)
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =      1,093
+Absorbing 2 HDFE groups                           F(   3,    150) =       2.12
+Statistics robust to heteroskedasticity           Prob > F        =     0.0998
+                                                  R-squared       =     0.8710
+                                                  Adj R-squared   =     0.7786
+                                                  Within R-sq.    =     0.0115
+Number of clusters (plst_id) =        151         Root MSE        =     0.4601
+
+                              (Std. err. adjusted for 151 clusters in plst_id)
+------------------------------------------------------------------------------
+             |               Robust
+     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      l_rich |  -.2056816   .0947765    -2.17   0.032     -.392951   -.0184122
+    ihs_even |  -.1450023   .2386885    -0.61   0.544    -.6166281    .3266235
+             |
+      l_rich |
+         L1. |  -.0095856   .0903274    -0.11   0.916    -.1880641    .1688929
+             |
+       _cons |   6.038576    .273278    22.10   0.000     5.498604    6.578547
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     plst_id |       151         151           0    *|
+     styr_id |       303           0         303     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+(est6 stored)
+
 . 
 . esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
+(file C:\GitHub\NutNetCausalinf/output/Table_S2.tex not found)
 (output written to C:\GitHub\NutNetCausalinf/output/Table_S2.tex)
 
 . est clear
@@ -1041,183 +1084,6 @@ plst_id: Identity            |
                 sd(Residual) |    .707751     .10069       .535528    .9353602
 ------------------------------------------------------------------------------
 
-. xtmixed l_lmass l_simpson `control_vars' || site_code2: || plst_id:, vce(robu
-> st)
-note: 10.tierra omitted because of collinearity.
-note: anthropogenic omitted because of collinearity.
-
-Performing EM optimization: 
-
-Performing gradient-based optimization: 
-
-Iteration 0:   log pseudolikelihood = -736.41922  
-Iteration 1:   log pseudolikelihood = -733.52829  
-Iteration 2:   log pseudolikelihood = -733.35093  
-Iteration 3:   log pseudolikelihood =  -733.3508  
-Iteration 4:   log pseudolikelihood =  -733.3508  
-
-Computing standard errors:
-
-Mixed-effects regression                        Number of obs     =        675
-
-        Grouping information
-        -------------------------------------------------------------
-                        |     No. of       Observations per group
-         Group variable |     groups    Minimum    Average    Maximum
-        ----------------+--------------------------------------------
-             site_code2 |         28          7       24.1         60
-                plst_id |         82          5        8.2         11
-        -------------------------------------------------------------
-
-                                                Wald chi2(27)     =          .
-Log pseudolikelihood =  -733.3508               Prob > chi2       =          .
-
-                                   (Std. err. adjusted for 28 clusters in site_
-> code2)
--------------------------------------------------------------------------------
-------
-                    |               Robust
-            l_lmass | Coefficient  std. err.      z    P>|z|     [95% conf. int
-> erval]
---------------------+----------------------------------------------------------
-------
-          l_simpson |   .0746331   .0817398     0.91   0.361    -.0855739    .2
-> 348401
-                    |
-               pais |
-                CA  |   14.85548   6.211522     2.39   0.017     2.681124    27
-> .02984
-                CH  |   12.26424   3.253604     3.77   0.000     5.887296    18
-> .64119
-                DE  |   13.27463   7.134023     1.86   0.063    -.7078024    27
-> .25706
-                TZ  |   2.168642   7.351143     0.30   0.768    -12.23933    16
-> .57662
-                UK  |   10.02446   6.634021     1.51   0.131    -2.977979    23
-> .02691
-                US  |   12.07496   7.932162     1.52   0.128    -3.471789    27
-> .62172
-                    |
-             tierra |
-  annual grassland  |   8.977895   7.533763     1.19   0.233    -5.788008     2
-> 3.7438
-  desert grassland  |   -.717645   4.725819    -0.15   0.879     -9.98008     8
-> .54479
-   mesic grassland  |   8.313769   4.533932     1.83   0.067    -.5725743    17
-> .20011
- montane grassland  |   -3.90077   2.087168    -1.87   0.062    -7.991544    .1
-> 900041
-         old field  |   7.300084   6.389112     1.14   0.253    -5.222346    19
-> .82251
-           pasture  |   -.151683   4.042713    -0.04   0.970    -8.075256     7
-> .77189
-           savanna  |          0  (omitted)
-semiarid grassland  |   14.52747   13.22887     1.10   0.272    -11.40064    40
-> .45557
-shortgrass prairie  |   6.771127   5.323101     1.27   0.203    -3.661959    17
-> .20421
-      shrub steppe  |  -3.512696   1.291446    -2.72   0.007    -6.043884   -.9
-> 815074
- tallgrass prairie  |   7.379937   6.393378     1.15   0.248    -5.150854    19
-> .91073
-                    |
-               year |
-                 2  |   .0323708   .1444057     0.22   0.823    -.2506591    .3
-> 154008
-                 3  |  -.0329839   .2849243    -0.12   0.908    -.5914251    .5
-> 254574
-                 4  |   .2534421   .1644823     1.54   0.123    -.0689372    .5
-> 758214
-                 5  |   .0370637   .1945719     0.19   0.849    -.3442901    .4
-> 184175
-                 6  |  -.0583753   .1445027    -0.40   0.686    -.3415953    .2
-> 248448
-                 7  |   .1794145   .1115532     1.61   0.108    -.0392258    .3
-> 980549
-                 8  |  -.0823078   .2409109    -0.34   0.733    -.5544844    .3
-> 898689
-                 9  |  -.1302126   .2465974    -0.53   0.597    -.6135346    .3
-> 531095
-                10  |   .4976047   .1801031     2.76   0.006     .1446092    .8
-> 506002
-                11  |    .394552    .130652     3.02   0.003     .1384787    .6
-> 506252
-                    |
-          elevation |    .011619   .0065646     1.77   0.077    -.0012473    .0
-> 244853
-            managed |  -5.894716    3.26841    -1.80   0.071    -12.30068    .5
-> 112508
-             burned |  -1.377868   1.019853    -1.35   0.177    -3.376743    .6
-> 210062
-             grazed |   7.044079   3.749348     1.88   0.060    -.3045079    14
-> .39267
-      anthropogenic |          0  (omitted)
-        temp_var_v2 |   -.380697   .1404393    -2.71   0.007     -.655953    -.
-> 105441
-        min_temp_v2 |  -.7650605   .8166556    -0.94   0.349    -2.365676    .8
-> 355551
-        max_temp_v2 |  -3.099273   1.104583    -2.81   0.005    -5.264216   -.9
-> 343294
-      temp_wet_q_v2 |   .1282223   .1089201     1.18   0.239    -.0852572    .3
-> 417017
-      temp_dry_q_v2 |   .4255238   .2484538     1.71   0.087    -.0614367    .9
-> 124843
-     temp_warm_q_v2 |   18.97487   6.972631     2.72   0.007     5.308765    32
-> .64098
-     temp_cold_q_v2 |  -14.82031   6.752102    -2.19   0.028    -28.05419   -1.
-> 586436
-             pct_c2 |  -.1469558   .0807672    -1.82   0.069    -.3052565     .
-> 011345
-             pct_n2 |   3.611677   1.448193     2.49   0.013     .7732714    6.
-> 450082
-              ppm_p |   .0100606   .0065005     1.55   0.122    -.0026801    .0
-> 228014
-              ppm_k |   .0007805    .000267     2.92   0.003     .0002573    .0
-> 013037
-             ppm_ca |   .0000698   .0000666     1.05   0.295    -.0000608    .0
-> 002004
-             ppm_mg |   -.001553   .0003739    -4.15   0.000    -.0022859   -.0
-> 008201
-              ppm_s |   -.015301   .0095923    -1.60   0.111    -.0341015    .0
-> 034995
-             ppm_na |   .0013529   .0007481     1.81   0.071    -.0001134    .0
-> 028192
-             ppm_zn |   .0065029   .0251631     0.26   0.796    -.0428159    .0
-> 558217
-             ppm_mn |  -.0007618   .0019696    -0.39   0.699    -.0046222    .0
-> 030985
-             ppm_fe |  -.0030188   .0016394    -1.84   0.066    -.0062318    .0
-> 001943
-             ppm_cu |   .0775474   .0475347     1.63   0.103    -.0156189    .1
-> 707137
-              ppm_b |  -.3730225   .1872172    -1.99   0.046    -.7399614   -.0
-> 060835
-                 ph |  -.1529235   .2361464    -0.65   0.517     -.615762     .
-> 309915
-      percentsand_2 |  -.1613083   .7626701    -0.21   0.832    -1.656114    1.
-> 333498
-      percentsilt_2 |  -.1751761   .7657966    -0.23   0.819     -1.67611    1.
-> 325758
-      percentclay_2 |  -.1730706   .7575077    -0.23   0.819    -1.657758    1.
-> 311617
-              _cons |   1.432047   73.51336     0.02   0.984    -142.6515    14
-> 5.5156
--------------------------------------------------------------------------------
-------
-
-------------------------------------------------------------------------------
-                             |               Robust           
-  Random-effects parameters  |   Estimate   std. err.     [95% conf. interval]
------------------------------+------------------------------------------------
-site_code2: Identity         |
-                   sd(_cons) |   2.33e-11   2.51e-09      4.2e-103    1.31e+81
------------------------------+------------------------------------------------
-plst_id: Identity            |
-                   sd(_cons) |   5.24e-12          .             .           .
------------------------------+------------------------------------------------
-                sd(Residual) |   .7171338   .3177423      .3009235    1.709008
-------------------------------------------------------------------------------
-
 . 
 . // ADDITIONAL SUPPORT //
 . 
@@ -1418,7 +1284,7 @@ Log likelihood = -725.62796                          Prob > chi2      = 0.0000
 >  26.15
   desert grassland  |  -.3765982   5.595327    -0.07   0.946    -11.34324    10
 > .59004
-   mesic grassland  |   8.872761   5.061144     1.75   0.080    -1.046898    18
+   mesic grassland  |   8.872761   5.061144     1.75   0.080    -1.046899    18
 > .79242
  montane grassland  |   -2.59986   2.334559    -1.11   0.265    -7.175511    1.
 > 975792
@@ -1472,7 +1338,7 @@ shortgrass prairie  |   6.933653   6.050359     1.15   0.252    -4.924833    18
         min_temp_v2 |  -.8373512   .9243901    -0.91   0.365    -2.649122    .9
 > 744201
         max_temp_v2 |  -3.194121   1.313501    -2.43   0.015    -5.768536   -.6
-> 197056
+> 197055
       temp_wet_q_v2 |   .1988436   .1220948     1.63   0.103    -.0404578     .
 > 438145
       temp_dry_q_v2 |   .4296542     .27878     1.54   0.123    -.1167446    .9
@@ -1480,7 +1346,7 @@ shortgrass prairie  |   6.933653   6.050359     1.15   0.252    -4.924833    18
      temp_warm_q_v2 |   19.15384   8.360512     2.29   0.022     2.767539    35
 > .54014
      temp_cold_q_v2 |  -14.88491   7.944163    -1.87   0.061    -30.45519    .6
-> 853581
+> 853582
              pct_c2 |  -.1634285    .131911    -1.24   0.215    -.4219693    .0
 > 951124
              pct_n2 |   3.762984   1.942539     1.94   0.053    -.0443221     7
@@ -1673,7 +1539,7 @@ shortgrass prairie  |   6.981737   6.564723     1.06   0.288    -5.884883    19
 > 803501
       percentclay_2 |   .4191372   1.720704     0.24   0.808     -2.95338    3.
 > 791655
-              _cons |  -58.16906   169.5324    -0.34   0.732    -390.4464    27
+              _cons |  -58.16905   169.5324    -0.34   0.732    -390.4464    27
 > 4.1083
 --------------------+----------------------------------------------------------
 ------
@@ -2158,6 +2024,7 @@ Absorbed degrees of freedom:
 . esttab * using "$userdir/output/Table_S3.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
+(file C:\GitHub\NutNetCausalinf/output/Table_S3.tex not found)
 (output written to C:\GitHub\NutNetCausalinf/output/Table_S3.tex)
 
 . est clear
@@ -2342,10 +2209,11 @@ Absorbed degrees of freedom:
 (est2 stored)
 
 . 
-. esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) s
+. esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
-(output written to C:\GitHub\NutNetCausalinf/output/Table_S8.tex)
+(file C:\GitHub\NutNetCausalinf/output/Table_S7.tex not found)
+(output written to C:\GitHub\NutNetCausalinf/output/Table_S7.tex)
 
 . est clear
 
@@ -2400,8 +2268,22 @@ Absorbed degrees of freedom:
 -----------------------------------------------------+
 (est1 stored)
 
-. eststo: reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) 
-> cluster(plst_id)
+. 
+. esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) s
+> e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
+> eplace
+(file C:\GitHub\NutNetCausalinf/output/Table_S8.tex not found)
+(output written to C:\GitHub\NutNetCausalinf/output/Table_S8.tex)
+
+. est clear
+
+. 
+. // ADDITIONAL SUPPORT //
+. /* These are additional models to test dynamics; all return a negative 
+>         coefficient on l_rich */
+. 
+. reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(
+> plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 1 iterations)
@@ -2434,11 +2316,9 @@ Absorbed degrees of freedom:
 -------------+---------------------------------------|
      styr_id |       293           0         293     |
 -----------------------------------------------------+
-(est2 stored)
 
-. 
-. eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) 
-> cluster(plst_id)
+. reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(
+> plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 1 iterations)
@@ -2473,10 +2353,9 @@ Absorbed degrees of freedom:
 -------------+---------------------------------------|
      styr_id |       293           0         293     |
 -----------------------------------------------------+
-(est3 stored)
 
-. eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(
-> styr_id) cluster(plst_id)
+. reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id)
+>  cluster(plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 1 iterations)
@@ -2512,15 +2391,6 @@ Absorbed degrees of freedom:
 -------------+---------------------------------------|
      styr_id |       293           0         293     |
 -----------------------------------------------------+
-(est4 stored)
-
-. 
-. esttab * using "$userdir/output/Table_S9.tex", fragment cells(b(fmt(%9.3f)) s
-> e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
-> eplace
-(output written to C:\GitHub\NutNetCausalinf/output/Table_S9.tex)
-
-. est clear
 
 . 
 . 
@@ -3409,7 +3279,7 @@ end of do-file
 . 
 . log close
       name:  <unnamed>
-       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230209.smcl
+       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230210.smcl
   log type:  smcl
- closed on:   9 Feb 2023, 16:21:55
+ closed on:  10 Feb 2023, 15:42:30
 -------------------------------------------------------------------------------

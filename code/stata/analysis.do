@@ -21,9 +21,8 @@ use 	"$datadir/NutNet_Prepped.dta"
 ** Figure 2A shows the following:
 reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
-reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
-** Table S2 includes the following 
+** Table S2 (Columns 1-4) includes the following 
 
 est clear
 
@@ -31,6 +30,8 @@ eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(p
 eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(site_code2)
 eststo: reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 eststo: reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich L.l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich ihs_even L.l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
 est clear
@@ -60,7 +61,6 @@ local control_vars i.pais i.tierra i.year elevation managed burned grazed anthro
 
 xtmixed l_lmass l_rich `control_vars' || site_code2: || plst_id:, vce(robust)
 xtmixed l_lmass l_rich ihs_even `control_vars' || site_code2: || plst_id:, vce(robust)
-xtmixed l_lmass l_simpson `control_vars' || site_code2: || plst_id:, vce(robust)
 
 // ADDITIONAL SUPPORT //
 
@@ -178,7 +178,7 @@ eststo: ivreghdfe l_lmass (l_rich = l_nbrichblock), a(plst_id styr_id) cluster(p
 gen 	includeinfirst = e(sample)
 eststo: reghdfe l_rich l_nbrichblock if includeinfirst==1, a(plst_id styr_id) cluster(plst_id) 
 
-esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
 est clear
 drop includeinfirst
 
@@ -193,13 +193,17 @@ drop includeinfirst
 est clear
 
 eststo: reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
-eststo: reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
 
-eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
-eststo: reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-
-esttab * using "$userdir/output/Table_S9.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
+esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
 est clear
+
+// ADDITIONAL SUPPORT //
+/* These are additional models to test dynamics; all return a negative 
+	coefficient on l_rich */
+
+reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
+reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
+reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
 
 
 ////////////////////////////////////////////////////////////////////////////////

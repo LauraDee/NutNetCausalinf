@@ -1,4 +1,4 @@
-insheet using  "$datadir/NutNetControlPlotData_biomassfixAug22.csv", clear
+insheet using  "$datadir/NutNetControlPlotData_derived.csv", clear
 
 ** Check characteristics of data 
 destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neighbor_rich avgtrtneighrichwithinblock lagged_avg_neighbor_rich even initial_site_rich, i("NA") replace

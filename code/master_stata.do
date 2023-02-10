@@ -1,16 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Version Date: 02.23.2021
+// Version Date: 02.10.2023
 // Paper: Dee et al. "Increases in Species Richness Decrease Average Eco..."
 //
 // Code Custody:
 // C Severen original code named: FEandIV_20180826_control
 // P Ferraro greatly revised code: FEandIV_20180826_control_REVISEDforSens11
-// C Severen revisited for replication and cleaning: current
+// C Severen revisited for replication and cleaning and replication: current
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-// To replication results:
-//
+// To replicate results:
+//	+ if using provided data: (i) set <userdir>, (ii) run Setup Block, and then
+// 		(iii) run line 50, of Main Block, and then Clean Up
+//  + if using raw data: (iA) set <userdir>, (iB) make sure the location at the 
+//  	top of $codedir/stata/final_processing.do points to the raw cover data, 
+// 		then do (ii) and (iii) as above
 ////////////////////////////////////////////////////////////////////////////////
 
 /*-----------------------------------------------*/
