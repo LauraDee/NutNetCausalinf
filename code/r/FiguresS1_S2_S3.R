@@ -1,19 +1,12 @@
 ###############################################################
 ## Create SM Data figures for Dee et al ###################
 ###############################################################
-#Close graphics and clear local memory
-#graphics.off()
-rm(list=ls())
+##Uses the loaded processed Data, processed from version 'comb-by-plot-clim-soil-diversity-28-Apr-2017.csv'
 
 #load libraries
 require(ggplot2)
 library(plyr)
 library(data.table)
-
-setwd("~/Dropbox/IV in ecology/NutNet")
-##Load processed Data, processed from version 'comb-by-plot-clim-soil-diversity-28-Apr-2017.csv'
-comb <- fread("NutNetControlPlotDataToUseApril2018.csv",na.strings='NA')
-merged.data <- fread("merged_NutNet_Oct2019.csv", na.strings = 'NA')
 
 ####################################################################################################
 ## Filter  data to only control plots used  ###############################
@@ -30,7 +23,7 @@ comb = comb[is.control==T & has.5.yrs.data==T,]
 
 # # make year a character, to be a dummy variable: 
 comb$year <- as.character(comb$year)
-merged.data$year <- as.character(merged.data$year)
+
 # same with plot
 comb$plot <- as.character(comb$plot)
 
