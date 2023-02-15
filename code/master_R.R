@@ -55,7 +55,6 @@ source("./code/r/FiguresS1_S2_S3.R") #Produces Figures S1, S2 and S3
 ###########################################################################################################################
 ## Analysis using large cover dataset from Nutrient Network, processed from version 'full-cover-09-April-2018.csv'    ####
 ############################################################################################################################
-## *cover data is in separate location (not on Github) due its size!!!!!*
 
 rm(list=setdiff(ls(),c("cdir","ihs","tidy")))
 setwd("~/Documents/GitHub/NutNetCausalinf/")  
