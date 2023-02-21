@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230210.smcl
+       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230221.smcl
   log type:  smcl
- opened on:  10 Feb 2023, 15:41:52
+ opened on:  21 Feb 2023, 11:22:40
 
 . 
 . /////////////////////////////////////////////////////////////////////////////
@@ -17,8 +17,8 @@
 . 
 . ** Check characteristics of data 
 . destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neigh
-> bor_rich avgtrtneighrichwithinblock lagged_avg_neighbor_rich even initial_sit
-> e_rich, i("NA") replace
+> bor_rich avgtrtneighrichwithinblock laggedrich laggedlive_mass lagged_avg_nei
+> ghbor_rich even initial_site_rich, i("NA") replace
 total_mass: characters N A removed; replaced as double
 (62 missing values generated)
 live_mass: characters N A removed; replaced as double
@@ -59,6 +59,10 @@ avg_neighbor_rich: characters N A removed; replaced as double
 (2 missing values generated)
 avgtrtneighrichwithinblock: characters N A removed; replaced as double
 (11 missing values generated)
+laggedrich: characters N A removed; replaced as byte
+(174 missing values generated)
+laggedlive_mass: characters N A removed; replaced as double
+(233 missing values generated)
 lagged_avg_neighbor_rich: characters N A removed; replaced as double
 (174 missing values generated)
 even: characters N A removed; replaced as double
@@ -265,6 +269,12 @@ Panel variable: plst_id (unbalanced)
 
 . gen     rich2           = rich^2
 (2 missing values generated)
+
+. gen     l_laggedrich = ln(laggedrich)
+(153 missing values generated)
+
+. gen     l_laggedlive_mass = ln(laggedlive_mass)
+(200 missing values generated)
 
 . 
 . ** some soil attributes need to be destringed for use as covariates
@@ -554,8 +564,8 @@ Absorbed degrees of freedom:
 * = FE nested within cluster; treated as redundant for DoF computation
 (est4 stored)
 
-. eststo: reghdfe l_lmass l_rich L.l_rich, keepsingletons absorb(plst_id styr_i
-> d) cluster(plst_id)
+. eststo: reghdfe l_lmass l_rich l_laggedrich, keepsingletons absorb(plst_id st
+> yr_id) cluster(plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 6 iterations)
@@ -573,10 +583,8 @@ Number of clusters (plst_id) =        151         Root MSE        =     0.4600
              |               Robust
      l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-      l_rich |
-         --. |  -.2184604   .0938532    -2.33   0.021    -.4039054   -.0330153
-         L1. |  -.0145782   .0904606    -0.16   0.872    -.1933198    .1641635
-             |
+      l_rich |  -.2184604   .0938532    -2.33   0.021    -.4039054   -.0330153
+l_laggedrich |  -.0145782   .0904606    -0.16   0.872    -.1933198    .1641635
        _cons |   5.988877   .2586911    23.15   0.000     5.477728    6.500026
 ------------------------------------------------------------------------------
 
@@ -590,8 +598,8 @@ Absorbed degrees of freedom:
 * = FE nested within cluster; treated as redundant for DoF computation
 (est5 stored)
 
-. eststo: reghdfe l_lmass l_rich ihs_even L.l_rich, keepsingletons absorb(plst_
-> id styr_id) cluster(plst_id)
+. eststo: reghdfe l_lmass l_rich ihs_even l_laggedrich, keepsingletons absorb(p
+> lst_id styr_id) cluster(plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 6 iterations)
@@ -611,10 +619,7 @@ Number of clusters (plst_id) =        151         Root MSE        =     0.4601
 -------------+----------------------------------------------------------------
       l_rich |  -.2056816   .0947765    -2.17   0.032     -.392951   -.0184122
     ihs_even |  -.1450023   .2386885    -0.61   0.544    -.6166281    .3266235
-             |
-      l_rich |
-         L1. |  -.0095856   .0903274    -0.11   0.916    -.1880641    .1688929
-             |
+l_laggedrich |  -.0095856   .0903274    -0.11   0.916    -.1880641    .1688929
        _cons |   6.038576    .273278    22.10   0.000     5.498604    6.578547
 ------------------------------------------------------------------------------
 
@@ -632,7 +637,6 @@ Absorbed degrees of freedom:
 . esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
-(file C:\GitHub\NutNetCausalinf/output/Table_S2.tex not found)
 (output written to C:\GitHub\NutNetCausalinf/output/Table_S2.tex)
 
 . est clear
@@ -1270,7 +1274,7 @@ Log likelihood = -725.62796                          Prob > chi2      = 0.0000
 > 8.5163
                 CH  |   11.77419   4.474164     2.63   0.008     3.004988    20
 > .54339
-                DE  |   12.66265   7.742531     1.64   0.102    -2.512432    27
+                DE  |   12.66265   7.742531     1.64   0.102    -2.512431    27
 > .83773
                 TZ  |    1.47228   8.272442     0.18   0.859    -14.74141    17
 > .68597
@@ -1284,7 +1288,7 @@ Log likelihood = -725.62796                          Prob > chi2      = 0.0000
 >  26.15
   desert grassland  |  -.3765982   5.595327    -0.07   0.946    -11.34324    10
 > .59004
-   mesic grassland  |   8.872761   5.061144     1.75   0.080    -1.046899    18
+   mesic grassland  |   8.872761   5.061144     1.75   0.080    -1.046898    18
 > .79242
  montane grassland  |   -2.59986   2.334559    -1.11   0.265    -7.175511    1.
 > 975792
@@ -1338,15 +1342,15 @@ shortgrass prairie  |   6.933653   6.050359     1.15   0.252    -4.924833    18
         min_temp_v2 |  -.8373512   .9243901    -0.91   0.365    -2.649122    .9
 > 744201
         max_temp_v2 |  -3.194121   1.313501    -2.43   0.015    -5.768536   -.6
-> 197055
+> 197056
       temp_wet_q_v2 |   .1988436   .1220948     1.63   0.103    -.0404578     .
 > 438145
       temp_dry_q_v2 |   .4296542     .27878     1.54   0.123    -.1167446    .9
 > 760531
      temp_warm_q_v2 |   19.15384   8.360512     2.29   0.022     2.767539    35
 > .54014
-     temp_cold_q_v2 |  -14.88491   7.944163    -1.87   0.061    -30.45519    .6
-> 853582
+     temp_cold_q_v2 |  -14.88491   7.944163    -1.87   0.061    -30.45519     .
+> 685358
              pct_c2 |  -.1634285    .131911    -1.24   0.215    -.4219693    .0
 > 951124
              pct_n2 |   3.762984   1.942539     1.94   0.053    -.0443221     7
@@ -1539,7 +1543,7 @@ shortgrass prairie  |   6.981737   6.564723     1.06   0.288    -5.884883    19
 > 803501
       percentclay_2 |   .4191372   1.720704     0.24   0.808     -2.95338    3.
 > 791655
-              _cons |  -58.16905   169.5324    -0.34   0.732    -390.4464    27
+              _cons |  -58.16906   169.5324    -0.34   0.732    -390.4464    27
 > 4.1083
 --------------------+----------------------------------------------------------
 ------
@@ -1605,32 +1609,37 @@ Absorbed degrees of freedom:
 
 . 
 . ** Dynamic Panel Design Lagged Dependent Variable
-. reghdfe l_lmass l_rich L.l_lmass, keepsingletons absorb(styr_id) cluster(plst
-> _id)
+. reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons absorb(styr_id) clus
+> ter(plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 1 iterations)
 
 HDFE Linear regression                            Number of obs   =      1,063
-Absorbing 1 HDFE group                            F(   2,    150) =       8.58
-Statistics robust to heteroskedasticity           Prob > F        =     0.0003
-                                                  R-squared       =     0.8321
-                                                  Adj R-squared   =     0.7678
-                                                  Within R-sq.    =     0.0280
-Number of clusters (plst_id) =        151         Root MSE        =     0.4730
+Absorbing 1 HDFE group                            F(   2,    150) =       8.27
+Statistics robust to heteroskedasticity           Prob > F        =     0.0004
+                                                  R-squared       =     0.8320
+                                                  Adj R-squared   =     0.7677
+                                                  Within R-sq.    =     0.0274
+Number of clusters (plst_id) =        151         Root MSE        =     0.4732
 
-                              (Std. err. adjusted for 151 clusters in plst_id)
-------------------------------------------------------------------------------
-             |               Robust
-     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-      l_rich |  -.1328079   .0788221    -1.68   0.094    -.2885529    .0229372
-             |
-     l_lmass |
-         L1. |   .1395455   .0375075     3.72   0.000     .0654343    .2136567
-             |
-       _cons |   5.001273   .2719088    18.39   0.000     4.464007    5.538539
-------------------------------------------------------------------------------
+                                   (Std. err. adjusted for 151 clusters in plst
+> _id)
+-------------------------------------------------------------------------------
+----
+                  |               Robust
+          l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. inter
+> val]
+------------------+------------------------------------------------------------
+----
+           l_rich |  -.1329138    .078919    -1.68   0.094    -.2888503    .023
+> 0227
+l_laggedlive_mass |   .1373564   .0377145     3.64   0.000     .0628361    .211
+> 8767
+            _cons |   5.013628   .2727823    18.38   0.000     4.474636     5.5
+> 5262
+-------------------------------------------------------------------------------
+----
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
@@ -2024,7 +2033,6 @@ Absorbed degrees of freedom:
 . esttab * using "$userdir/output/Table_S3.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
-(file C:\GitHub\NutNetCausalinf/output/Table_S3.tex not found)
 (output written to C:\GitHub\NutNetCausalinf/output/Table_S3.tex)
 
 . est clear
@@ -2212,7 +2220,6 @@ Absorbed degrees of freedom:
 . esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
-(file C:\GitHub\NutNetCausalinf/output/Table_S7.tex not found)
 (output written to C:\GitHub\NutNetCausalinf/output/Table_S7.tex)
 
 . est clear
@@ -2233,32 +2240,37 @@ Absorbed degrees of freedom:
 . est clear
 
 . 
-. eststo: reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(p
-> lst_id)
+. eststo: reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons a(styr_id) c
+> luster(plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
 (MWFE estimator converged in 1 iterations)
 
 HDFE Linear regression                            Number of obs   =      1,063
-Absorbing 1 HDFE group                            F(   2,    150) =       8.58
-Statistics robust to heteroskedasticity           Prob > F        =     0.0003
-                                                  R-squared       =     0.8321
-                                                  Adj R-squared   =     0.7678
-                                                  Within R-sq.    =     0.0280
-Number of clusters (plst_id) =        151         Root MSE        =     0.4730
+Absorbing 1 HDFE group                            F(   2,    150) =       8.27
+Statistics robust to heteroskedasticity           Prob > F        =     0.0004
+                                                  R-squared       =     0.8320
+                                                  Adj R-squared   =     0.7677
+                                                  Within R-sq.    =     0.0274
+Number of clusters (plst_id) =        151         Root MSE        =     0.4732
 
-                              (Std. err. adjusted for 151 clusters in plst_id)
-------------------------------------------------------------------------------
-             |               Robust
-     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-      l_rich |  -.1328079   .0788221    -1.68   0.094    -.2885529    .0229372
-             |
-     l_lmass |
-         L1. |   .1395455   .0375075     3.72   0.000     .0654343    .2136567
-             |
-       _cons |   5.001273   .2719088    18.39   0.000     4.464007    5.538539
-------------------------------------------------------------------------------
+                                   (Std. err. adjusted for 151 clusters in plst
+> _id)
+-------------------------------------------------------------------------------
+----
+                  |               Robust
+          l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. inter
+> val]
+------------------+------------------------------------------------------------
+----
+           l_rich |  -.1329138    .078919    -1.68   0.094    -.2888503    .023
+> 0227
+l_laggedlive_mass |   .1373564   .0377145     3.64   0.000     .0628361    .211
+> 8767
+            _cons |   5.013628   .2727823    18.38   0.000     4.474636     5.5
+> 5262
+-------------------------------------------------------------------------------
+----
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
@@ -2272,7 +2284,6 @@ Absorbed degrees of freedom:
 . esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) s
 > e(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label r
 > eplace
-(file C:\GitHub\NutNetCausalinf/output/Table_S8.tex not found)
 (output written to C:\GitHub\NutNetCausalinf/output/Table_S8.tex)
 
 . est clear
@@ -2282,117 +2293,156 @@ Absorbed degrees of freedom:
 . /* These are additional models to test dynamics; all return a negative 
 >         coefficient on l_rich */
 . 
-. reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(
-> plst_id)
+. /* SM Equation S3 ADL AR(1) model in the SM */
+. reghdfe l_lmass l_rich l_laggedrich l_laggedlive_mass L.l_laggedlive_mass, ke
+> epsingletons  absorb(plst_id styr_id) cluster(plst_id)
 WARNING: Singleton observations not dropped; statistical significance is biased
 >  (link)
-(MWFE estimator converged in 1 iterations)
+(MWFE estimator converged in 5 iterations)
 
-HDFE Linear regression                            Number of obs   =      1,063
-Absorbing 1 HDFE group                            F(   3,    150) =       5.93
-Statistics robust to heteroskedasticity           Prob > F        =     0.0008
-                                                  R-squared       =     0.8321
-                                                  Adj R-squared   =     0.7675
-                                                  Within R-sq.    =     0.0280
-Number of clusters (plst_id) =        151         Root MSE        =     0.4733
+HDFE Linear regression                            Number of obs   =        904
+Absorbing 2 HDFE groups                           F(   4,    150) =       8.71
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.8797
+                                                  Adj R-squared   =     0.7831
+                                                  Within R-sq.    =     0.0607
+Number of clusters (plst_id) =        151         Root MSE        =     0.4588
 
-                              (Std. err. adjusted for 151 clusters in plst_id)
-------------------------------------------------------------------------------
-             |               Robust
-     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-      l_rich |   -.135585    .077257    -1.75   0.081    -.2882374    .0170675
-             |
-     l_lmass |
-         L1. |   .1398046   .0374293     3.74   0.000     .0658479    .2137614
-             |
-    ihs_even |   .0290043   .2263935     0.13   0.898    -.4183278    .4763365
-       _cons |   4.988137   .2990845    16.68   0.000     4.397175      5.5791
-------------------------------------------------------------------------------
+                                   (Std. err. adjusted for 151 clusters in plst
+> _id)
+-------------------------------------------------------------------------------
+----
+                  |               Robust
+          l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. inter
+> val]
+------------------+------------------------------------------------------------
+----
+           l_rich |  -.2361318    .100944    -2.34   0.021    -.4355875   -.036
+> 6761
+     l_laggedrich |  -.0408242   .0968153    -0.42   0.674    -.2321221    .150
+> 4737
+                  |
+l_laggedlive_mass |
+              --. |  -.2003181   .0437356    -4.58   0.000    -.2867356   -.113
+> 9007
+              L1. |  -.1566801   .0566892    -2.76   0.006    -.2686925   -.044
+> 6676
+                  |
+            _cons |   8.018837   .5449635    14.71   0.000      6.94204    9.09
+> 5633
+-------------------------------------------------------------------------------
+----
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-     styr_id |       293           0         293     |
+     plst_id |       151         151           0    *|
+     styr_id |       248           0         248     |
 -----------------------------------------------------+
-
-. reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(
-> plst_id)
-WARNING: Singleton observations not dropped; statistical significance is biased
->  (link)
-(MWFE estimator converged in 1 iterations)
-
-HDFE Linear regression                            Number of obs   =      1,061
-Absorbing 1 HDFE group                            F(   3,    150) =       5.84
-Statistics robust to heteroskedasticity           Prob > F        =     0.0008
-                                                  R-squared       =     0.8323
-                                                  Adj R-squared   =     0.7677
-                                                  Within R-sq.    =     0.0292
-Number of clusters (plst_id) =        151         Root MSE        =     0.4731
-
-                              (Std. err. adjusted for 151 clusters in plst_id)
-------------------------------------------------------------------------------
-             |               Robust
-     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-      l_rich |  -.1695785   .0935007    -1.81   0.072     -.354327    .0151701
-             |
-     l_lmass |
-         L1. |    .143984   .0377797     3.81   0.000     .0693349    .2186331
-             |
-      l_rich |
-         L1. |   .0630542   .0881816     0.72   0.476    -.1111843    .2372926
-             |
-       _cons |   4.917989   .2983039    16.49   0.000     4.328569    5.507409
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     styr_id |       293           0         293     |
------------------------------------------------------+
-
-. reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id)
->  cluster(plst_id)
-WARNING: Singleton observations not dropped; statistical significance is biased
->  (link)
-(MWFE estimator converged in 1 iterations)
-
-HDFE Linear regression                            Number of obs   =      1,061
-Absorbing 1 HDFE group                            F(   4,    150) =       4.56
-Statistics robust to heteroskedasticity           Prob > F        =     0.0017
-                                                  R-squared       =     0.8324
-                                                  Adj R-squared   =     0.7674
-                                                  Within R-sq.    =     0.0292
-Number of clusters (plst_id) =        151         Root MSE        =     0.4734
-
-                              (Std. err. adjusted for 151 clusters in plst_id)
-------------------------------------------------------------------------------
-             |               Robust
-     l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-      l_rich |  -.1722212   .0934782    -1.84   0.067    -.3569252    .0124828
-             |
-     l_lmass |
-         L1. |    .144262   .0376882     3.83   0.000     .0697936    .2187304
-             |
-      l_rich |
-         L1. |   .0625924   .0878246     0.71   0.477    -.1109407    .2361255
-             |
-    ihs_even |   .0308951   .2253167     0.14   0.891    -.4143093    .4760995
-       _cons |   4.904321   .3245689    15.11   0.000     4.263004    5.545639
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-     styr_id |       293           0         293     |
------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
 
 . 
+. /* SM Equation S3 with more lags in the SM */
+. reghdfe l_lmass l_rich l_laggedrich L.l_laggedrich l_laggedlive_mass L.l_lagg
+> edlive_mass L2.l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) clu
+> ster(plst_id)
+WARNING: Singleton observations not dropped; statistical significance is biased
+>  (link)
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =        749
+Absorbing 2 HDFE groups                           F(   6,    150) =       6.81
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.8760
+                                                  Adj R-squared   =     0.7610
+                                                  Within R-sq.    =     0.0916
+Number of clusters (plst_id) =        151         Root MSE        =     0.4611
+
+                                   (Std. err. adjusted for 151 clusters in plst
+> _id)
+-------------------------------------------------------------------------------
+----
+                  |               Robust
+          l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. inter
+> val]
+------------------+------------------------------------------------------------
+----
+           l_rich |  -.2017751   .1301668    -1.55   0.123    -.4589724    .055
+> 4221
+                  |
+     l_laggedrich |
+              --. |  -.0203468   .0987837    -0.21   0.837    -.2155341    .174
+> 8405
+              L1. |  -.0303841   .0997092    -0.30   0.761    -.2274001    .166
+> 6318
+                  |
+l_laggedlive_mass |
+              --. |  -.2200315   .0456887    -4.82   0.000    -.3103081   -.129
+> 7549
+              L1. |  -.2536741   .0623871    -4.07   0.000     -.376945   -.130
+> 4031
+              L2. |  -.1469138    .053091    -2.77   0.006    -.2518166   -.042
+> 0109
+                  |
+            _cons |      9.395   .8013391    11.72   0.000      7.81163    10.9
+> 7837
+-------------------------------------------------------------------------------
+----
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     plst_id |       151         151           0    *|
+     styr_id |       204           0         204     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. /* Hybrid Analysis in SM for Reviewer 5 that combines Lagged Dependent Variab
+> le Design with Main Design */
+. reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons  absorb(plst_id styr
+> _id) cluster(plst_id)
+WARNING: Singleton observations not dropped; statistical significance is biased
+>  (link)
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =      1,063
+Absorbing 2 HDFE groups                           F(   2,    150) =      17.82
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.8781
+                                                  Adj R-squared   =     0.7902
+                                                  Within R-sq.    =     0.0379
+Number of clusters (plst_id) =        151         Root MSE        =     0.4497
+
+                                   (Std. err. adjusted for 151 clusters in plst
+> _id)
+-------------------------------------------------------------------------------
+----
+                  |               Robust
+          l_lmass | Coefficient  std. err.      t    P>|t|     [95% conf. inter
+> val]
+------------------+------------------------------------------------------------
+----
+           l_rich |  -.2848411    .088746    -3.21   0.002    -.4601947   -.109
+> 4874
+l_laggedlive_mass |  -.1500633   .0358182    -4.19   0.000    -.2208366     -.0
+> 7929
+            _cons |   6.917743   .2464043    28.07   0.000     6.430872    7.40
+> 4615
+-------------------------------------------------------------------------------
+----
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     plst_id |       151         151           0    *|
+     styr_id |       293           0         293     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
 . 
 . /////////////////////////////////////////////////////////////////////////////
 > ///
@@ -3279,7 +3329,7 @@ end of do-file
 . 
 . log close
       name:  <unnamed>
-       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230210.smcl
+       log:  C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230221.smcl
   log type:  smcl
- closed on:  10 Feb 2023, 15:42:30
+ closed on:  21 Feb 2023, 11:23:19
 -------------------------------------------------------------------------------
