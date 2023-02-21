@@ -1,9 +1,9 @@
 {smcl}
-{txt}{sf}{ul off}{.-}
+{com}{sf}{ul off}{txt}{.-}
       name:  {res}<unnamed>
-       {txt}log:  {res}C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230210.smcl
+       {txt}log:  {res}C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230221.smcl
   {txt}log type:  {res}smcl
- {txt}opened on:  {res}10 Feb 2023, 15:41:52
+ {txt}opened on:  {res}21 Feb 2023, 11:22:40
 {txt}
 {com}. 
 . ////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 
 {com}. 
 . ** Check characteristics of data 
-. destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neighbor_rich avgtrtneighrichwithinblock lagged_avg_neighbor_rich even initial_site_rich, i("NA") replace
+. destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neighbor_rich avgtrtneighrichwithinblock laggedrich laggedlive_mass lagged_avg_neighbor_rich even initial_site_rich, i("NA") replace
 {txt}total_mass: characters{res} N A{txt} removed; {res}replaced {txt}as {res}double
 {txt}(62 missing values generated)
 {res}{txt}live_mass: characters{res} N A{txt} removed; {res}replaced {txt}as {res}double
@@ -57,6 +57,10 @@
 {txt}(2 missing values generated)
 {res}{txt}avgtrtneighrichwithinblock: characters{res} N A{txt} removed; {res}replaced {txt}as {res}double
 {txt}(11 missing values generated)
+{res}{txt}laggedrich: characters{res} N A{txt} removed; {res}replaced {txt}as {res}byte
+{txt}(174 missing values generated)
+{res}{txt}laggedlive_mass: characters{res} N A{txt} removed; {res}replaced {txt}as {res}double
+{txt}(233 missing values generated)
 {res}{txt}lagged_avg_neighbor_rich: characters{res} N A{txt} removed; {res}replaced {txt}as {res}double
 {txt}(174 missing values generated)
 {res}{txt}even: characters{res} N A{txt} removed; {res}replaced {txt}as {res}double
@@ -263,6 +267,12 @@
 
 {com}. gen     rich2           = rich^2
 {txt}(2 missing values generated)
+
+{com}. gen     l_laggedrich = ln(laggedrich)
+{txt}(153 missing values generated)
+
+{com}. gen     l_laggedlive_mass = ln(laggedlive_mass)
+{txt}(200 missing values generated)
 
 {com}. 
 . ** some soil attributes need to be destringed for use as covariates
@@ -536,7 +546,7 @@ saved
 * = FE nested within cluster; treated as redundant for DoF computation
 {res}{txt}({res}est4{txt} stored)
 
-{com}. eststo: reghdfe l_lmass l_rich L.l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+{com}. eststo: reghdfe l_lmass l_rich l_laggedrich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 {res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
 {res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 6 iterations)
 {res}
@@ -553,11 +563,9 @@ saved
 {col 14}{c |}{col 26}    Robust
 {col 1}     l_lmass{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
 {hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{space 6}l_rich {c |}
-{space 9}--. {c |}{col 14}{res}{space 2}-.2184604{col 26}{space 2} .0938532{col 37}{space 1}   -2.33{col 46}{space 3}0.021{col 54}{space 4}-.4039054{col 67}{space 3}-.0330153
-{txt}{space 9}L1. {c |}{col 14}{res}{space 2}-.0145782{col 26}{space 2} .0904606{col 37}{space 1}   -0.16{col 46}{space 3}0.872{col 54}{space 4}-.1933198{col 67}{space 3} .1641635
-{txt}{space 12} {c |}
-{space 7}_cons {c |}{col 14}{res}{space 2} 5.988877{col 26}{space 2} .2586911{col 37}{space 1}   23.15{col 46}{space 3}0.000{col 54}{space 4} 5.477728{col 67}{space 3} 6.500026
+{space 6}l_rich {c |}{col 14}{res}{space 2}-.2184604{col 26}{space 2} .0938532{col 37}{space 1}   -2.33{col 46}{space 3}0.021{col 54}{space 4}-.4039054{col 67}{space 3}-.0330153
+{txt}l_laggedrich {c |}{col 14}{res}{space 2}-.0145782{col 26}{space 2} .0904606{col 37}{space 1}   -0.16{col 46}{space 3}0.872{col 54}{space 4}-.1933198{col 67}{space 3} .1641635
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 5.988877{col 26}{space 2} .2586911{col 37}{space 1}   23.15{col 46}{space 3}0.000{col 54}{space 4} 5.477728{col 67}{space 3} 6.500026
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}
 {txt}Absorbed degrees of freedom:
@@ -570,7 +578,7 @@ saved
 * = FE nested within cluster; treated as redundant for DoF computation
 {res}{txt}({res}est5{txt} stored)
 
-{com}. eststo: reghdfe l_lmass l_rich ihs_even L.l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+{com}. eststo: reghdfe l_lmass l_rich ihs_even l_laggedrich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 {res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
 {res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 6 iterations)
 {res}
@@ -589,11 +597,8 @@ saved
 {hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {space 6}l_rich {c |}{col 14}{res}{space 2}-.2056816{col 26}{space 2} .0947765{col 37}{space 1}   -2.17{col 46}{space 3}0.032{col 54}{space 4} -.392951{col 67}{space 3}-.0184122
 {txt}{space 4}ihs_even {c |}{col 14}{res}{space 2}-.1450023{col 26}{space 2} .2386885{col 37}{space 1}   -0.61{col 46}{space 3}0.544{col 54}{space 4}-.6166281{col 67}{space 3} .3266235
-{txt}{space 12} {c |}
-{space 6}l_rich {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2}-.0095856{col 26}{space 2} .0903274{col 37}{space 1}   -0.11{col 46}{space 3}0.916{col 54}{space 4}-.1880641{col 67}{space 3} .1688929
-{txt}{space 12} {c |}
-{space 7}_cons {c |}{col 14}{res}{space 2} 6.038576{col 26}{space 2}  .273278{col 37}{space 1}   22.10{col 46}{space 3}0.000{col 54}{space 4} 5.498604{col 67}{space 3} 6.578547
+{txt}l_laggedrich {c |}{col 14}{res}{space 2}-.0095856{col 26}{space 2} .0903274{col 37}{space 1}   -0.11{col 46}{space 3}0.916{col 54}{space 4}-.1880641{col 67}{space 3} .1688929
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 6.038576{col 26}{space 2}  .273278{col 37}{space 1}   22.10{col 46}{space 3}0.000{col 54}{space 4} 5.498604{col 67}{space 3} 6.578547
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}
 {txt}Absorbed degrees of freedom:
@@ -608,12 +613,7 @@ saved
 
 {com}. 
 . esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
-{res}{txt}{p 0 4 2}
-(file {bf}
-C:\GitHub\NutNetCausalinf/output/Table_S2.tex{rm}
-not found)
-{p_end}
-(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S2.tex"'})
+{res}{txt}(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S2.tex"'})
 
 {com}. est clear
 {res}{txt}
@@ -1083,7 +1083,7 @@ Iteration 0:   log likelihood = {res}-726.85796
 {space 15}pais {c |}
 {space 16}CA  {c |}{col 21}{res}{space 2} 14.99055{col 33}{space 2} 6.901017{col 44}{space 1}    2.17{col 53}{space 3}0.030{col 61}{space 4}  1.46481{col 74}{space 3}  28.5163
 {txt}{space 16}CH  {c |}{col 21}{res}{space 2} 11.77419{col 33}{space 2} 4.474164{col 44}{space 1}    2.63{col 53}{space 3}0.008{col 61}{space 4} 3.004988{col 74}{space 3} 20.54339
-{txt}{space 16}DE  {c |}{col 21}{res}{space 2} 12.66265{col 33}{space 2} 7.742531{col 44}{space 1}    1.64{col 53}{space 3}0.102{col 61}{space 4}-2.512432{col 74}{space 3} 27.83773
+{txt}{space 16}DE  {c |}{col 21}{res}{space 2} 12.66265{col 33}{space 2} 7.742531{col 44}{space 1}    1.64{col 53}{space 3}0.102{col 61}{space 4}-2.512431{col 74}{space 3} 27.83773
 {txt}{space 16}TZ  {c |}{col 21}{res}{space 2}  1.47228{col 33}{space 2} 8.272442{col 44}{space 1}    0.18{col 53}{space 3}0.859{col 61}{space 4}-14.74141{col 74}{space 3} 17.68597
 {txt}{space 16}UK  {c |}{col 21}{res}{space 2} 10.13444{col 33}{space 2} 7.239241{col 44}{space 1}    1.40{col 53}{space 3}0.162{col 61}{space 4}-4.054212{col 74}{space 3} 24.32309
 {txt}{space 16}US  {c |}{col 21}{res}{space 2} 11.16888{col 33}{space 2} 8.723367{col 44}{space 1}    1.28{col 53}{space 3}0.200{col 61}{space 4}-5.928601{col 74}{space 3} 28.26637
@@ -1091,7 +1091,7 @@ Iteration 0:   log likelihood = {res}-726.85796
 {space 13}tierra {c |}
 {space 2}annual grassland  {c |}{col 21}{res}{space 2} 9.687687{col 33}{space 2} 8.399293{col 44}{space 1}    1.15{col 53}{space 3}0.249{col 61}{space 4}-6.774624{col 74}{space 3}    26.15
 {txt}{space 2}desert grassland  {c |}{col 21}{res}{space 2}-.3765982{col 33}{space 2} 5.595327{col 44}{space 1}   -0.07{col 53}{space 3}0.946{col 61}{space 4}-11.34324{col 74}{space 3} 10.59004
-{txt}{space 3}mesic grassland  {c |}{col 21}{res}{space 2} 8.872761{col 33}{space 2} 5.061144{col 44}{space 1}    1.75{col 53}{space 3}0.080{col 61}{space 4}-1.046899{col 74}{space 3} 18.79242
+{txt}{space 3}mesic grassland  {c |}{col 21}{res}{space 2} 8.872761{col 33}{space 2} 5.061144{col 44}{space 1}    1.75{col 53}{space 3}0.080{col 61}{space 4}-1.046898{col 74}{space 3} 18.79242
 {txt}{space 1}montane grassland  {c |}{col 21}{res}{space 2} -2.59986{col 33}{space 2} 2.334559{col 44}{space 1}   -1.11{col 53}{space 3}0.265{col 61}{space 4}-7.175511{col 74}{space 3} 1.975792
 {txt}{space 9}old field  {c |}{col 21}{res}{space 2} 7.057867{col 33}{space 2} 6.925563{col 44}{space 1}    1.02{col 53}{space 3}0.308{col 61}{space 4}-6.515987{col 74}{space 3} 20.63172
 {txt}{space 11}pasture  {c |}{col 21}{res}{space 2} .1618745{col 33}{space 2} 4.138769{col 44}{space 1}    0.04{col 53}{space 3}0.969{col 61}{space 4}-7.949964{col 74}{space 3} 8.273713
@@ -1120,11 +1120,11 @@ semiarid grassland  {c |}{col 21}{res}{space 2} 13.74411{col 33}{space 2} 14.348
 {txt}{space 6}anthropogenic {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
 {space 8}temp_var_v2 {c |}{col 21}{res}{space 2} -.383507{col 33}{space 2} .1680089{col 44}{space 1}   -2.28{col 53}{space 3}0.022{col 61}{space 4}-.7127983{col 74}{space 3}-.0542156
 {txt}{space 8}min_temp_v2 {c |}{col 21}{res}{space 2}-.8373512{col 33}{space 2} .9243901{col 44}{space 1}   -0.91{col 53}{space 3}0.365{col 61}{space 4}-2.649122{col 74}{space 3} .9744201
-{txt}{space 8}max_temp_v2 {c |}{col 21}{res}{space 2}-3.194121{col 33}{space 2} 1.313501{col 44}{space 1}   -2.43{col 53}{space 3}0.015{col 61}{space 4}-5.768536{col 74}{space 3}-.6197055
+{txt}{space 8}max_temp_v2 {c |}{col 21}{res}{space 2}-3.194121{col 33}{space 2} 1.313501{col 44}{space 1}   -2.43{col 53}{space 3}0.015{col 61}{space 4}-5.768536{col 74}{space 3}-.6197056
 {txt}{space 6}temp_wet_q_v2 {c |}{col 21}{res}{space 2} .1988436{col 33}{space 2} .1220948{col 44}{space 1}    1.63{col 53}{space 3}0.103{col 61}{space 4}-.0404578{col 74}{space 3}  .438145
 {txt}{space 6}temp_dry_q_v2 {c |}{col 21}{res}{space 2} .4296542{col 33}{space 2}   .27878{col 44}{space 1}    1.54{col 53}{space 3}0.123{col 61}{space 4}-.1167446{col 74}{space 3} .9760531
 {txt}{space 5}temp_warm_q_v2 {c |}{col 21}{res}{space 2} 19.15384{col 33}{space 2} 8.360512{col 44}{space 1}    2.29{col 53}{space 3}0.022{col 61}{space 4} 2.767539{col 74}{space 3} 35.54014
-{txt}{space 5}temp_cold_q_v2 {c |}{col 21}{res}{space 2}-14.88491{col 33}{space 2} 7.944163{col 44}{space 1}   -1.87{col 53}{space 3}0.061{col 61}{space 4}-30.45519{col 74}{space 3} .6853582
+{txt}{space 5}temp_cold_q_v2 {c |}{col 21}{res}{space 2}-14.88491{col 33}{space 2} 7.944163{col 44}{space 1}   -1.87{col 53}{space 3}0.061{col 61}{space 4}-30.45519{col 74}{space 3}  .685358
 {txt}{space 13}pct_c2 {c |}{col 21}{res}{space 2}-.1634285{col 33}{space 2}  .131911{col 44}{space 1}   -1.24{col 53}{space 3}0.215{col 61}{space 4}-.4219693{col 74}{space 3} .0951124
 {txt}{space 13}pct_n2 {c |}{col 21}{res}{space 2} 3.762984{col 33}{space 2} 1.942539{col 44}{space 1}    1.94{col 53}{space 3}0.053{col 61}{space 4}-.0443221{col 74}{space 3}  7.57029
 {txt}{space 14}ppm_p {c |}{col 21}{res}{space 2} .0110186{col 33}{space 2}  .006305{col 44}{space 1}    1.75{col 53}{space 3}0.081{col 61}{space 4} -.001339{col 74}{space 3} .0233762
@@ -1233,7 +1233,7 @@ semiarid grassland  {c |}{col 21}{res}{space 2}  13.8675{col 33}{space 2} 15.568
 {txt}{space 6}percentsand_2 {c |}{col 21}{res}{space 2} .4292064{col 33}{space 2} 1.721353{col 44}{space 1}    0.25{col 53}{space 3}0.803{col 61}{space 4}-2.944584{col 74}{space 3} 3.802997
 {txt}{space 6}percentsilt_2 {c |}{col 21}{res}{space 2} .4202927{col 33}{space 2} 1.726158{col 44}{space 1}    0.24{col 53}{space 3}0.808{col 61}{space 4}-2.962915{col 74}{space 3} 3.803501
 {txt}{space 6}percentclay_2 {c |}{col 21}{res}{space 2} .4191372{col 33}{space 2} 1.720704{col 44}{space 1}    0.24{col 53}{space 3}0.808{col 61}{space 4} -2.95338{col 74}{space 3} 3.791655
-{txt}{space 14}_cons {c |}{col 21}{res}{space 2}-58.16905{col 33}{space 2} 169.5324{col 44}{space 1}   -0.34{col 53}{space 3}0.732{col 61}{space 4}-390.4464{col 74}{space 3} 274.1083
+{txt}{space 14}_cons {c |}{col 21}{res}{space 2}-58.16906{col 33}{space 2} 169.5324{col 44}{space 1}   -0.34{col 53}{space 3}0.732{col 61}{space 4}-390.4464{col 74}{space 3} 274.1083
 {txt}{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
             sigma_u {c |} {res} .07380498
             {txt}sigma_e {c |} {res} .73989001
@@ -1288,30 +1288,27 @@ semiarid grassland  {c |}{col 21}{res}{space 2}  13.8675{col 33}{space 2} 15.568
 {res}{txt}
 {com}. 
 . ** Dynamic Panel Design Lagged Dependent Variable
-. reghdfe l_lmass l_rich L.l_lmass, keepsingletons absorb(styr_id) cluster(plst_id)
+. reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons absorb(styr_id) cluster(plst_id)
 {res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
 {res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
 {res}
 {txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     1,063
-{txt}Absorbing 1 HDFE group{col 51}F({res}   2{txt},{res}    150{txt}){col 67}= {res}      8.58
-{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0003
-{txt}{col 51}R-squared{col 67}= {res}    0.8321
-{txt}{col 51}Adj R-squared{col 67}= {res}    0.7678
-{txt}{col 51}Within R-sq.{col 67}= {res}    0.0280
-{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4730
+{txt}Absorbing 1 HDFE group{col 51}F({res}   2{txt},{res}    150{txt}){col 67}= {res}      8.27
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0004
+{txt}{col 51}R-squared{col 67}= {res}    0.8320
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.7677
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0274
+{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4732
 
-{txt}{ralign 78:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
-{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{col 14}{c |}{col 26}    Robust
-{col 1}     l_lmass{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
-{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{space 6}l_rich {c |}{col 14}{res}{space 2}-.1328079{col 26}{space 2} .0788221{col 37}{space 1}   -1.68{col 46}{space 3}0.094{col 54}{space 4}-.2885529{col 67}{space 3} .0229372
-{txt}{space 12} {c |}
-{space 5}l_lmass {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2} .1395455{col 26}{space 2} .0375075{col 37}{space 1}    3.72{col 46}{space 3}0.000{col 54}{space 4} .0654343{col 67}{space 3} .2136567
-{txt}{space 12} {c |}
-{space 7}_cons {c |}{col 14}{res}{space 2} 5.001273{col 26}{space 2} .2719088{col 37}{space 1}   18.39{col 46}{space 3}0.000{col 54}{space 4} 4.464007{col 67}{space 3} 5.538539
-{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}{ralign 83:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}          l_lmass{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}l_rich {c |}{col 19}{res}{space 2}-.1329138{col 31}{space 2}  .078919{col 42}{space 1}   -1.68{col 51}{space 3}0.094{col 59}{space 4}-.2888503{col 72}{space 3} .0230227
+{txt}l_laggedlive_mass {c |}{col 19}{res}{space 2} .1373564{col 31}{space 2} .0377145{col 42}{space 1}    3.64{col 51}{space 3}0.000{col 59}{space 4} .0628361{col 72}{space 3} .2118767
+{txt}{space 12}_cons {c |}{col 19}{res}{space 2} 5.013628{col 31}{space 2} .2727823{col 42}{space 1}   18.38{col 51}{space 3}0.000{col 59}{space 4} 4.474636{col 72}{space 3}  5.55262
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}
 {txt}Absorbed degrees of freedom:
 {res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
@@ -1688,12 +1685,7 @@ Excluded instruments:{col 23}l_nbrichblock
 
 {com}. 
 . esttab * using "$userdir/output/Table_S3.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
-{res}{txt}{p 0 4 2}
-(file {bf}
-C:\GitHub\NutNetCausalinf/output/Table_S3.tex{rm}
-not found)
-{p_end}
-(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S3.tex"'})
+{res}{txt}(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S3.tex"'})
 
 {com}. est clear
 {res}{txt}
@@ -1874,12 +1866,7 @@ l_nbrichblock {c |}{col 15}{res}{space 2} .4874442{col 27}{space 2}  .116729{col
 
 {com}. 
 . esttab * using "$userdir/output/Table_S7.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
-{res}{txt}{p 0 4 2}
-(file {bf}
-C:\GitHub\NutNetCausalinf/output/Table_S7.tex{rm}
-not found)
-{p_end}
-(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S7.tex"'})
+{res}{txt}(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S7.tex"'})
 
 {com}. est clear
 {res}{txt}
@@ -1897,30 +1884,27 @@ not found)
 . est clear
 {txt}
 {com}. 
-. eststo: reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
+. eststo: reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons a(styr_id) cluster(plst_id)
 {res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
 {res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
 {res}
 {txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     1,063
-{txt}Absorbing 1 HDFE group{col 51}F({res}   2{txt},{res}    150{txt}){col 67}= {res}      8.58
-{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0003
-{txt}{col 51}R-squared{col 67}= {res}    0.8321
-{txt}{col 51}Adj R-squared{col 67}= {res}    0.7678
-{txt}{col 51}Within R-sq.{col 67}= {res}    0.0280
-{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4730
+{txt}Absorbing 1 HDFE group{col 51}F({res}   2{txt},{res}    150{txt}){col 67}= {res}      8.27
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0004
+{txt}{col 51}R-squared{col 67}= {res}    0.8320
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.7677
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0274
+{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4732
 
-{txt}{ralign 78:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
-{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{col 14}{c |}{col 26}    Robust
-{col 1}     l_lmass{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
-{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{space 6}l_rich {c |}{col 14}{res}{space 2}-.1328079{col 26}{space 2} .0788221{col 37}{space 1}   -1.68{col 46}{space 3}0.094{col 54}{space 4}-.2885529{col 67}{space 3} .0229372
-{txt}{space 12} {c |}
-{space 5}l_lmass {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2} .1395455{col 26}{space 2} .0375075{col 37}{space 1}    3.72{col 46}{space 3}0.000{col 54}{space 4} .0654343{col 67}{space 3} .2136567
-{txt}{space 12} {c |}
-{space 7}_cons {c |}{col 14}{res}{space 2} 5.001273{col 26}{space 2} .2719088{col 37}{space 1}   18.39{col 46}{space 3}0.000{col 54}{space 4} 4.464007{col 67}{space 3} 5.538539
-{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}{ralign 83:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}          l_lmass{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}l_rich {c |}{col 19}{res}{space 2}-.1329138{col 31}{space 2}  .078919{col 42}{space 1}   -1.68{col 51}{space 3}0.094{col 59}{space 4}-.2888503{col 72}{space 3} .0230227
+{txt}l_laggedlive_mass {c |}{col 19}{res}{space 2} .1373564{col 31}{space 2} .0377145{col 42}{space 1}    3.64{col 51}{space 3}0.000{col 59}{space 4} .0628361{col 72}{space 3} .2118767
+{txt}{space 12}_cons {c |}{col 19}{res}{space 2} 5.013628{col 31}{space 2} .2727823{col 42}{space 1}   18.38{col 51}{space 3}0.000{col 59}{space 4} 4.474636{col 72}{space 3}  5.55262
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}
 {txt}Absorbed degrees of freedom:
 {res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
@@ -1932,12 +1916,7 @@ not found)
 
 {com}. 
 . esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
-{res}{txt}{p 0 4 2}
-(file {bf}
-C:\GitHub\NutNetCausalinf/output/Table_S8.tex{rm}
-not found)
-{p_end}
-(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S8.tex"'})
+{res}{txt}(output written to {browse  `"C:\GitHub\NutNetCausalinf/output/Table_S8.tex"'})
 
 {com}. est clear
 {res}{txt}
@@ -1946,112 +1925,119 @@ not found)
 . /* These are additional models to test dynamics; all return a negative 
 >         coefficient on l_rich */
 . 
-. reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
+. /* SM Equation S3 ADL AR(1) model in the SM */
+. reghdfe l_lmass l_rich l_laggedrich l_laggedlive_mass L.l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 {res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
-{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 5 iterations)
 {res}
-{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     1,063
-{txt}Absorbing 1 HDFE group{col 51}F({res}   3{txt},{res}    150{txt}){col 67}= {res}      5.93
-{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0008
-{txt}{col 51}R-squared{col 67}= {res}    0.8321
-{txt}{col 51}Adj R-squared{col 67}= {res}    0.7675
-{txt}{col 51}Within R-sq.{col 67}= {res}    0.0280
-{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4733
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       904
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   4{txt},{res}    150{txt}){col 67}= {res}      8.71
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.8797
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.7831
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0607
+{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4588
 
-{txt}{ralign 78:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
-{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{col 14}{c |}{col 26}    Robust
-{col 1}     l_lmass{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
-{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{space 6}l_rich {c |}{col 14}{res}{space 2} -.135585{col 26}{space 2}  .077257{col 37}{space 1}   -1.75{col 46}{space 3}0.081{col 54}{space 4}-.2882374{col 67}{space 3} .0170675
-{txt}{space 12} {c |}
-{space 5}l_lmass {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2} .1398046{col 26}{space 2} .0374293{col 37}{space 1}    3.74{col 46}{space 3}0.000{col 54}{space 4} .0658479{col 67}{space 3} .2137614
-{txt}{space 12} {c |}
-{space 4}ihs_even {c |}{col 14}{res}{space 2} .0290043{col 26}{space 2} .2263935{col 37}{space 1}    0.13{col 46}{space 3}0.898{col 54}{space 4}-.4183278{col 67}{space 3} .4763365
-{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 4.988137{col 26}{space 2} .2990845{col 37}{space 1}   16.68{col 46}{space 3}0.000{col 54}{space 4} 4.397175{col 67}{space 3}   5.5791
-{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}{ralign 83:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}          l_lmass{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}l_rich {c |}{col 19}{res}{space 2}-.2361318{col 31}{space 2}  .100944{col 42}{space 1}   -2.34{col 51}{space 3}0.021{col 59}{space 4}-.4355875{col 72}{space 3}-.0366761
+{txt}{space 5}l_laggedrich {c |}{col 19}{res}{space 2}-.0408242{col 31}{space 2} .0968153{col 42}{space 1}   -0.42{col 51}{space 3}0.674{col 59}{space 4}-.2321221{col 72}{space 3} .1504737
+{txt}{space 17} {c |}
+l_laggedlive_mass {c |}
+{space 14}--. {c |}{col 19}{res}{space 2}-.2003181{col 31}{space 2} .0437356{col 42}{space 1}   -4.58{col 51}{space 3}0.000{col 59}{space 4}-.2867356{col 72}{space 3}-.1139007
+{txt}{space 14}L1. {c |}{col 19}{res}{space 2}-.1566801{col 31}{space 2} .0566892{col 42}{space 1}   -2.76{col 51}{space 3}0.006{col 59}{space 4}-.2686925{col 72}{space 3}-.0446676
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2} 8.018837{col 31}{space 2} .5449635{col 42}{space 1}   14.71{col 51}{space 3}0.000{col 59}{space 4}  6.94204{col 72}{space 3} 9.095633
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}
 {txt}Absorbed degrees of freedom:
 {res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
 {col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
 {res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
-{col 1}{text}     styr_id{col 14}{c |}{space 1}      293{col 27}{space 1}        0{col 39}{result}{space 1}      293{col 53}{text} {col 54}{c |}
+{col 1}{text}     plst_id{col 14}{c |}{space 1}      151{col 27}{space 1}      151{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{res}{col 1}{text}     styr_id{col 14}{c |}{space 1}      248{col 27}{space 1}        0{col 39}{result}{space 1}      248{col 53}{text} {col 54}{c |}
 {res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
-{res}{txt}
-{com}. reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
-{res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
-{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
-{res}
-{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     1,061
-{txt}Absorbing 1 HDFE group{col 51}F({res}   3{txt},{res}    150{txt}){col 67}= {res}      5.84
-{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0008
-{txt}{col 51}R-squared{col 67}= {res}    0.8323
-{txt}{col 51}Adj R-squared{col 67}= {res}    0.7677
-{txt}{col 51}Within R-sq.{col 67}= {res}    0.0292
-{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4731
-
-{txt}{ralign 78:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
-{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{col 14}{c |}{col 26}    Robust
-{col 1}     l_lmass{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
-{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{space 6}l_rich {c |}{col 14}{res}{space 2}-.1695785{col 26}{space 2} .0935007{col 37}{space 1}   -1.81{col 46}{space 3}0.072{col 54}{space 4} -.354327{col 67}{space 3} .0151701
-{txt}{space 12} {c |}
-{space 5}l_lmass {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2}  .143984{col 26}{space 2} .0377797{col 37}{space 1}    3.81{col 46}{space 3}0.000{col 54}{space 4} .0693349{col 67}{space 3} .2186331
-{txt}{space 12} {c |}
-{space 6}l_rich {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2} .0630542{col 26}{space 2} .0881816{col 37}{space 1}    0.72{col 46}{space 3}0.476{col 54}{space 4}-.1111843{col 67}{space 3} .2372926
-{txt}{space 12} {c |}
-{space 7}_cons {c |}{col 14}{res}{space 2} 4.917989{col 26}{space 2} .2983039{col 37}{space 1}   16.49{col 46}{space 3}0.000{col 54}{space 4} 4.328569{col 67}{space 3} 5.507409
-{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}
-{txt}Absorbed degrees of freedom:
-{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
-{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
-{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
-{col 1}{text}     styr_id{col 14}{c |}{space 1}      293{col 27}{space 1}        0{col 39}{result}{space 1}      293{col 53}{text} {col 54}{c |}
-{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
-{res}{txt}
-{com}. reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-{res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
-{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
-{res}
-{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     1,061
-{txt}Absorbing 1 HDFE group{col 51}F({res}   4{txt},{res}    150{txt}){col 67}= {res}      4.56
-{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0017
-{txt}{col 51}R-squared{col 67}= {res}    0.8324
-{txt}{col 51}Adj R-squared{col 67}= {res}    0.7674
-{txt}{col 51}Within R-sq.{col 67}= {res}    0.0292
-{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4734
-
-{txt}{ralign 78:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
-{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{col 14}{c |}{col 26}    Robust
-{col 1}     l_lmass{col 14}{c |} Coefficient{col 26}  std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
-{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{space 6}l_rich {c |}{col 14}{res}{space 2}-.1722212{col 26}{space 2} .0934782{col 37}{space 1}   -1.84{col 46}{space 3}0.067{col 54}{space 4}-.3569252{col 67}{space 3} .0124828
-{txt}{space 12} {c |}
-{space 5}l_lmass {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2}  .144262{col 26}{space 2} .0376882{col 37}{space 1}    3.83{col 46}{space 3}0.000{col 54}{space 4} .0697936{col 67}{space 3} .2187304
-{txt}{space 12} {c |}
-{space 6}l_rich {c |}
-{space 9}L1. {c |}{col 14}{res}{space 2} .0625924{col 26}{space 2} .0878246{col 37}{space 1}    0.71{col 46}{space 3}0.477{col 54}{space 4}-.1109407{col 67}{space 3} .2361255
-{txt}{space 12} {c |}
-{space 4}ihs_even {c |}{col 14}{res}{space 2} .0308951{col 26}{space 2} .2253167{col 37}{space 1}    0.14{col 46}{space 3}0.891{col 54}{space 4}-.4143093{col 67}{space 3} .4760995
-{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 4.904321{col 26}{space 2} .3245689{col 37}{space 1}   15.11{col 46}{space 3}0.000{col 54}{space 4} 4.263004{col 67}{space 3} 5.545639
-{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}
-{txt}Absorbed degrees of freedom:
-{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
-{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
-{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
-{col 1}{text}     styr_id{col 14}{c |}{space 1}      293{col 27}{space 1}        0{col 39}{result}{space 1}      293{col 53}{text} {col 54}{c |}
-{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
 {res}{txt}
 {com}. 
-. 
+. /* SM Equation S3 with more lags in the SM */
+. reghdfe l_lmass l_rich l_laggedrich L.l_laggedrich l_laggedlive_mass L.l_laggedlive_mass L2.l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
+{res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 5 iterations)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}       749
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   6{txt},{res}    150{txt}){col 67}= {res}      6.81
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.8760
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.7610
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0916
+{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4611
+
+{txt}{ralign 83:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}          l_lmass{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}l_rich {c |}{col 19}{res}{space 2}-.2017751{col 31}{space 2} .1301668{col 42}{space 1}   -1.55{col 51}{space 3}0.123{col 59}{space 4}-.4589724{col 72}{space 3} .0554221
+{txt}{space 17} {c |}
+{space 5}l_laggedrich {c |}
+{space 14}--. {c |}{col 19}{res}{space 2}-.0203468{col 31}{space 2} .0987837{col 42}{space 1}   -0.21{col 51}{space 3}0.837{col 59}{space 4}-.2155341{col 72}{space 3} .1748405
+{txt}{space 14}L1. {c |}{col 19}{res}{space 2}-.0303841{col 31}{space 2} .0997092{col 42}{space 1}   -0.30{col 51}{space 3}0.761{col 59}{space 4}-.2274001{col 72}{space 3} .1666318
+{txt}{space 17} {c |}
+l_laggedlive_mass {c |}
+{space 14}--. {c |}{col 19}{res}{space 2}-.2200315{col 31}{space 2} .0456887{col 42}{space 1}   -4.82{col 51}{space 3}0.000{col 59}{space 4}-.3103081{col 72}{space 3}-.1297549
+{txt}{space 14}L1. {c |}{col 19}{res}{space 2}-.2536741{col 31}{space 2} .0623871{col 42}{space 1}   -4.07{col 51}{space 3}0.000{col 59}{space 4} -.376945{col 72}{space 3}-.1304031
+{txt}{space 14}L2. {c |}{col 19}{res}{space 2}-.1469138{col 31}{space 2}  .053091{col 42}{space 1}   -2.77{col 51}{space 3}0.006{col 59}{space 4}-.2518166{col 72}{space 3}-.0420109
+{txt}{space 17} {c |}
+{space 12}_cons {c |}{col 19}{res}{space 2}    9.395{col 31}{space 2} .8013391{col 42}{space 1}   11.72{col 51}{space 3}0.000{col 59}{space 4}  7.81163{col 72}{space 3} 10.97837
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}     plst_id{col 14}{c |}{space 1}      151{col 27}{space 1}      151{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{res}{col 1}{text}     styr_id{col 14}{c |}{space 1}      204{col 27}{space 1}        0{col 39}{result}{space 1}      204{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}
+{com}. 
+. /* Hybrid Analysis in SM for Reviewer 5 that combines Lagged Dependent Variable Design with Main Design */
+. reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
+{res}{err}WARNING: Singleton observations not dropped; statistical significance is biased {browse "http://scorreia.com/reghdfe/nested_within_cluster.pdf":(link)}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 5 iterations)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     1,063
+{txt}Absorbing 2 HDFE groups{col 51}F({res}   2{txt},{res}    150{txt}){col 67}= {res}     17.82
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.8781
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.7902
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0379
+{txt}{col 1}Number of clusters ({res}plst_id{txt}) {col 30}= {res}       151{txt}{col 51}Root MSE{col 67}= {res}    0.4497
+
+{txt}{ralign 83:(Std. err. adjusted for {res:151} clusters in {res:plst_id})}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}          l_lmass{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 11}l_rich {c |}{col 19}{res}{space 2}-.2848411{col 31}{space 2}  .088746{col 42}{space 1}   -3.21{col 51}{space 3}0.002{col 59}{space 4}-.4601947{col 72}{space 3}-.1094874
+{txt}l_laggedlive_mass {c |}{col 19}{res}{space 2}-.1500633{col 31}{space 2} .0358182{col 42}{space 1}   -4.19{col 51}{space 3}0.000{col 59}{space 4}-.2208366{col 72}{space 3}  -.07929
+{txt}{space 12}_cons {c |}{col 19}{res}{space 2} 6.917743{col 31}{space 2} .2464043{col 42}{space 1}   28.07{col 51}{space 3}0.000{col 59}{space 4} 6.430872{col 72}{space 3} 7.404615
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}     plst_id{col 14}{c |}{space 1}      151{col 27}{space 1}      151{col 39}{result}{space 1}        0{col 53}{text}*{col 54}{c |}
+{res}{col 1}{text}     styr_id{col 14}{c |}{space 1}      293{col 27}{space 1}        0{col 39}{result}{space 1}      293{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+* = FE nested within cluster; treated as redundant for DoF computation
+{res}{txt}
+{com}. 
 . ////////////////////////////////////////////////////////////////////////////////
 > //
 . ** Table S9 (Sensitivity Analysis a la Oster)
@@ -2931,9 +2917,9 @@ not found)
 . 
 . log close
       {txt}name:  {res}<unnamed>
-       {txt}log:  {res}C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230210.smcl
+       {txt}log:  {res}C:\GitHub\NutNetCausalinf/output/log/stata_results_d20230221.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}10 Feb 2023, 15:42:30
+ {txt}closed on:  {res}21 Feb 2023, 11:23:19
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}

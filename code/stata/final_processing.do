@@ -1,7 +1,7 @@
 insheet using  "$datadir/NutNetControlPlotData_derived.csv", clear
 
 ** Check characteristics of data 
-destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neighbor_rich avgtrtneighrichwithinblock lagged_avg_neighbor_rich even initial_site_rich, i("NA") replace
+destring total_mass live_mass simpson shan rich ground_par ppm_* ph avg_neighbor_rich avgtrtneighrichwithinblock laggedrich laggedlive_mass lagged_avg_neighbor_rich even initial_site_rich, i("NA") replace
 count 
 sum 	live_mass rich
 tab 	year
@@ -38,6 +38,8 @@ gen		l_even 		= ln(even)
 gen 	l_ground_par=ln(ground_par)
 gen		ihs_even 	= ln(even + sqrt(1+even^2))
 gen 	rich2		= rich^2
+gen 	l_laggedrich = ln(laggedrich)
+gen 	l_laggedlive_mass = ln(laggedlive_mass)
 
 ** some soil attributes need to be destringed for use as covariates
 destring pct_c pct_n percentsand percentsilt percentclay , gen(pct_c2 pct_n2 percentsand_2 percentsilt_2 percentclay_2 ) ignore("NA")

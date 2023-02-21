@@ -30,8 +30,8 @@ eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(p
 eststo: reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(site_code2)
 eststo: reghdfe l_lmass l_rich ihs_even, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 eststo: reghdfe l_lmass l_simpson, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
-eststo: reghdfe l_lmass l_rich L.l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
-eststo: reghdfe l_lmass l_rich ihs_even L.l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich l_laggedrich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich ihs_even l_laggedrich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 esttab * using "$userdir/output/Table_S2.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
 est clear
@@ -125,7 +125,7 @@ xtreg l_lmass l_rich i.pais i.tierra i.year elevation managed burned grazed anth
 reghdfe l_lmass l_rich, keepsingletons absorb(plst_id styr_id) cluster(plst_id)
 
 ** Dynamic Panel Design Lagged Dependent Variable
-reghdfe l_lmass l_rich L.l_lmass, keepsingletons absorb(styr_id) cluster(plst_id)
+reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons absorb(styr_id) cluster(plst_id)
 
 ** Sensitivity Test (note: no standard errors)
 psacalc beta l_rich, model(reg l_lmass l_rich i.plst_id i.styr_id, cluster(plst_id)) delta(-0.1) rmax(1)
@@ -192,7 +192,7 @@ drop includeinfirst
 
 est clear
 
-eststo: reghdfe l_lmass l_rich L.l_lmass, keepsingletons a(styr_id) cluster(plst_id)
+eststo: reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons a(styr_id) cluster(plst_id)
 
 esttab * using "$userdir/output/Table_S8.tex", fragment cells(b(fmt(%9.3f)) se(par) ci(par)) stats(r2 N, fmt(%9.3f %9.0g) label(R-squared)) legend label replace
 est clear
@@ -201,10 +201,14 @@ est clear
 /* These are additional models to test dynamics; all return a negative 
 	coefficient on l_rich */
 
-reghdfe l_lmass l_rich L.l_lmass ihs_even, keepsingletons a(styr_id) cluster(plst_id)
-reghdfe l_lmass l_rich L.l_lmass L.l_rich, keepsingletons a(styr_id) cluster(plst_id)
-reghdfe l_lmass l_rich L.l_lmass L.l_rich ihs_even, keepsingletons a(styr_id) cluster(plst_id)
+/* SM Equation S3 ADL AR(1) model in the SM */
+reghdfe l_lmass l_rich l_laggedrich l_laggedlive_mass L.l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 
+/* SM Equation S3 with more lags in the SM */
+reghdfe l_lmass l_rich l_laggedrich L.l_laggedrich l_laggedlive_mass L.l_laggedlive_mass L2.l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
+
+/* Hybrid Analysis in SM for Reviewer 5 that combines Lagged Dependent Variable Design with Main Design */
+reghdfe l_lmass l_rich l_laggedlive_mass, keepsingletons  absorb(plst_id styr_id) cluster(plst_id)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
