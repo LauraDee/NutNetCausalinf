@@ -54,6 +54,12 @@ length(unique(comb$newplotid)) #151
 #make a factor that is site by year
 comb[, site.by.yeardummy := paste(site_code, year, sep = "_")]
 
+#save csv for the RMarkdown Tutorial 
+# make year a character, to be a dummy variable: 
+comb$year <- as.character(comb$year)
+
+write.csv(comb, "cleaned_comb_data.csv")
+
 if (combonly == TRUE) {
   ##############################################################################
   ### Make dummy variables for the panel regression  analyses #################

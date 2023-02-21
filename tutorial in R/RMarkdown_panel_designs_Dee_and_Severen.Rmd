@@ -1,6 +1,6 @@
 ---
-title: 'Panel Data and Fixed Effects Methods for Ecology'
-author: "Online tutorial for the analyses run in: Dee et al. written by Laura Dee and Chris Severen"
+title: 'Panel Data and Fixed Effects Designs for Ecology'
+author: "Online tutorial for the main analyses run in Dee et al. Nature Communications. This tutorial is made by Laura Dee and Chris Severen with data from the Nutrient Network"
 date: 'Last updated: `r Sys.Date()`'
 output:
   bookdown::html_document2:
@@ -40,18 +40,18 @@ The data used in this tutorial comes from the [Nutrient Network](https://nutnet.
 
 We'll primarily use the *fixest* package for analysis; the other packages (*tidyverse*, *data.table*, *lme4*) aid data wrangling and comparing research designs.
 ```{r setup, message=FALSE, warning=FALSE}
-library(tidyverse)
-library(data.table)
-library(fixest)
+library(tidyverse) #v 1.3.2
+library(data.table) # v 1.14.6
+library(fixest) # v 0.11
 library(lme4)  # Need at least version 1.1-26
-library(knitr)
-library(ggplot2)
+library(knitr) #v1.41
+library(ggplot2) # v 3.4.0
 
 cdir <- getwd()
 comb <- fread(paste(cdir,"/cleaned_comb_data.csv",sep=""),na.strings='NA')
 comb$V1 = NULL
 comb$site <- comb$site_code
-## make dummy variables for panel regression ##
+## Make dummy variables for panel regression ##
 # make year a character, to be a dummy variable: 
  comb$year <- as.character(comb$year)
 #make a factor that is site by year
