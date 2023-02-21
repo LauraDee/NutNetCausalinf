@@ -74,7 +74,5 @@ source("./code/r/finalprocess_coverdata.R") # **need to run this line to prep th
 source("./code/r/analysis_fig5_smsection8.R") ## Produces Figure 5, and tables and supplemental results for section S8 of the supplemental materials
 
 #code to create other supplemental figures
-#code to create rank abundance curves for each site
-source("./code/r/rank_abundance_curves.R") # need to run the finalprocess_coverdata.R to produce. 
 source("./code/r/analysis_fig5_smsection8.R") #need to run the finalprocess_coverdata.R to produce.
 source("./code/r/FiguresS1_S2_S3.R") #uses the comb data 
