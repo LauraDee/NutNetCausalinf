@@ -1,17 +1,19 @@
 # NutNetCausalinf
-This repository contains a tutorial for the methods in and replication code for Increases in grassland biodiversity in 11 countries decrease average ecosystem productivity by Dee, Ferraro, Severen et al.
+This repository contains a tutorial for the methods in and replication code for "Clarifying the effect of biodiversity on productivity in natural ecosystems with longitudinal data and methods for causal inference" Nature Communicatins, by Dee, Ferraro, Severen et al.
 
 ### Tutorial Instructions
 
-To access the tutorial, see the folder "./tutorial in R/". The folder includes an html ("Ecology_FEs_for_Causality.html") and a Rmarkdown file that uses the data "cleaned_comb_data.csv" in the data.zip file for reviewers. The html can be accessed without using this data. 
+To access the tutorial, see the folder "./tutorial in R/". This folder includes an html ("RMarkdown_panel_designs_Dee_and_Severen.html") and a Rmarkdown file that uses the data "cleaned_comb_data.csv". The html can be accessed without using this data. 
 
 ### Replication Instructions
 
 The analysis for this project was done in R and Stata, with the majority in R. Below, under *Provenance of Results*, is a list of all results in the paper and supplemental materials and where the authoritative version can be found. 
 
-R Replication Instructions: Set cdir to your local repo location. For the review process, the data files are includes in the data.zip for reviewers as an attachments. Post acceptance: Note that only *comb* data is included; *cover* is larger and must be obtained separately, and requires settings its own path. The master.R runs through each step in the code and data processing for analysis; readers should start there.
+R Replication Instructions: Set cdir to your local repo location. For the review process, the data files are includes in the data.zip for reviewers as an attachments.The master.R runs through each step in the code and data processing for analysis; readers should start there.
 
 Stata Replication Instructions: Set the global macros to local repo location.
+
+Data availability statement: The processed data from the Nutrient Network generated in this study have been deposited in this repository.  The raw data for unmanipulated plots that were not included in the analyses, because they did not meet the inclusion criteria, are available under restricted access for which permission can be obtained by contacting the Nutrient Network at https://nutnet.org. The code for full data processing pipeline is available in this repository in the folder "./code/r/ProcessDataFromRaw/".
 
 #### Provenance of Results
 
@@ -32,6 +34,7 @@ Figure 3
 * Results 1, 2, and 4 in R 
 * Result 3 and 5 in Stata
 * Replicable in Stata 
+
 Figure 5
 
 * Results only in R
@@ -39,7 +42,7 @@ Figure 5
 
 Table S1
 
-* Dataset Description 
+* Dataset Description (.csv produced from the code run in master.R)
 
 Table S2
 
@@ -95,20 +98,13 @@ Table S14
 
 * Results and Table produced in R (analysis_fig5_smsection9.R)
 
-
-SM Section 9: Cedar Creek Analysis 
-* Results, Figures and Tables produced in R
-* Table S15 -- produced in R (S10analyses_e120-planted_rich-mass.R)
-* Table S16 -- produced in R (Biocon_rich_biomass_FINAL_NUTNETPAPER.R)
-
 Supplemental Figures
 
 * Figure S1 -- Produced in R (FiguresS1_S2_S3.R) 
 * Figure S2 -- Produced in R (FiguresS1_S2_S3.R) 
 * Figure S3 -- Produced in R (FiguresS1_S2_S3.R) 
-* Figure S10 -- Produced in R (rank_abundance_curves.R)
+* Figure S10 -- Produced in R (rank_abundance_curves.R), code available.
 * Figure S11 -- Produced in R  (finalprocess_coverdata.R)
-* Figure S12 -- Produced in R  (analysis_fig5_smsection9.R)
-* Figure S13 -- Produced in R  (analysis_fig5_smsection9.R)
-* Figure S14 -- Produced in R (Biocon_rich_biomass_FINAL_NUTNETPAPER.R and S10analyses_e120-planted_rich-mass.R) 
+* Figure S12 -- Produced in R  (analysis_fig5_smsection8.R)
+* Figure S13 -- Produced in R  (analysis_fig5_smsection8.R)
 
